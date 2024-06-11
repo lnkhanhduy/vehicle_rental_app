@@ -36,6 +36,11 @@ class _HomeScreenState extends State<HomeScreen> {
                           Get.to(() => const ProfileScreen());
                         },
                         icon: const Icon(Icons.verified_user_rounded)),
+                    // IconButton(
+                    //     onPressed: () {
+                    //       Get.to(() => const EmailVerificationScreen());
+                    //     },
+                    //     icon: const Icon(Icons.verified_user_rounded)),
                   ]),
             ),
           )

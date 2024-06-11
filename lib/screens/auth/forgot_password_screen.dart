@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/screens/auth/otp_screen.dart';
+import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 
-class ForgotPasswordPhoneScreen extends StatefulWidget {
-  const ForgotPasswordPhoneScreen({super.key});
+class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
-  State<ForgotPasswordPhoneScreen> createState() =>
-      _ForgotPasswordPhoneScreenState();
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
-class _ForgotPasswordPhoneScreenState extends State<ForgotPasswordPhoneScreen> {
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -34,6 +33,14 @@ class _ForgotPasswordPhoneScreenState extends State<ForgotPasswordPhoneScreen> {
                     const SizedBox(
                       height: 20,
                     ),
+                    const Text(
+                      "Vui lòng nhập email của bạn để đặt lại mật khẩu.",
+                      style: TextStyle(fontSize: 17),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(
+                      height: 20,
+                    ),
                     Form(
                         child: Column(
                       children: [
@@ -41,8 +48,8 @@ class _ForgotPasswordPhoneScreenState extends State<ForgotPasswordPhoneScreen> {
                           style: const TextStyle(
                               fontSize: 18, color: Colors.black),
                           decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.phone_android_rounded),
-                              labelText: 'Số điện thoại',
+                              prefixIcon: Icon(Icons.mail_outline_outlined),
+                              labelText: 'Email',
                               border: OutlineInputBorder(),
                               labelStyle: TextStyle(
                                   color: Color(0xff888888), fontSize: 16)),
@@ -55,7 +62,7 @@ class _ForgotPasswordPhoneScreenState extends State<ForgotPasswordPhoneScreen> {
                           height: 54,
                           child: ElevatedButton(
                             onPressed: () {
-                              Get.to(() => const OtpScreen());
+                              // Get.to(() => const OtpScreen());
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black87,
@@ -74,7 +81,23 @@ class _ForgotPasswordPhoneScreenState extends State<ForgotPasswordPhoneScreen> {
                           ),
                         ),
                       ],
-                    ))
+                    )),
+                    const SizedBox(
+                      height: 50,
+                    ),
+                    TextButton(
+                        onPressed: () {
+                          Get.to(() => const LoginScreen());
+                        },
+                        child: const Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.arrow_back),
+                              SizedBox(width: 5),
+                              Text("Đăng nhập",
+                                  style: TextStyle(
+                                      fontSize: 17, color: Colors.black))
+                            ]))
                   ]),
             ),
           )

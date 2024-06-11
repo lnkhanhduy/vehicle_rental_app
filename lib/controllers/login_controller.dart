@@ -1,18 +1,20 @@
-import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/repository/authentication_repository.dart';
+import 'package:vehicle_rental_app/repository/user_repository.dart';
 
 class LoginController extends GetxController {
   static LoginController get instance => Get.find();
 
-  final email = TextEditingController();
+  final username = TextEditingController();
   final password = TextEditingController();
 
-  Future<void> loginUser(String email, String password) async {
-    String? error = await AuthenticationRepository.instance
-        .loginUserWithEmailAndPassword(email, password);
-    if (error != null) {
-      Get.showSnackbar(GetSnackBar(message: error.toString()));
-    }
+  final userRepository = UserRepository.instance;
+
+  Future<void> loginUser(String username, String password) async {
+    await userRepository.loginUser(username, password);
+  }
+
+  Future<void> googleSignIn() async {
+    await userRepository.signInWithGoogle();
   }
 }

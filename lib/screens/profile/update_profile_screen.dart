@@ -11,14 +11,6 @@ class UpdateProfileScreen extends StatefulWidget {
 }
 
 class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
-  bool _obscureText = true;
-
-  void _togglePasswordStatus() {
-    setState(() {
-      _obscureText = !_obscureText;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProfileController());
@@ -50,6 +42,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       final name = TextEditingController(text: userData.name);
                       final email = TextEditingController(text: userData.email);
                       final phone = TextEditingController(text: userData.phone);
+                      final imageUrl = userData.imageAvatar;
                       final password =
                           TextEditingController(text: userData.password);
                       final address =
@@ -57,29 +50,31 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                       return Column(children: [
                         Stack(
                           children: [
-                            const SizedBox(
-                              width: 120,
-                              height: 120,
-                              child: ClipRRect(
+                            SizedBox(
+                                width: 120,
+                                height: 120,
+                                child: ClipRRect(
                                   borderRadius:
                                       BorderRadius.all(Radius.circular(100)),
-                                  child: Image(
-                                      image: NetworkImage(
-                                          'https://plus.unsplash.com/premium_photo-1666788167996-640dc3c4157e?q=80&w=1911&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D'))),
-                            ),
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: Container(
-                                width: 35,
-                                height: 35,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: Colors.amber,
-                                ),
-                                child: const Icon(Icons.camera_alt, size: 20),
-                              ),
-                            )
+                                  child: imageUrl == null
+                                      ? Image.asset(
+                                          "lib/assets/images/no_avatar.png",
+                                        )
+                                      : Image(image: NetworkImage(imageUrl)),
+                                )),
+                            // Positioned(
+                            //   bottom: 0,
+                            //   right: 0,
+                            //   child: Container(
+                            //     width: 35,
+                            //     height: 35,
+                            //     decoration: BoxDecoration(
+                            //       borderRadius: BorderRadius.circular(100),
+                            //       color: Colors.amber,
+                            //     ),
+                            //     child: const Icon(Icons.camera_alt, size: 20),
+                            //   ),
+                            // )
                           ],
                         ),
                         const SizedBox(
@@ -91,13 +86,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                               child: Column(
                                 children: <Widget>[
                                   TextFormField(
-                                    controller: name,
+                                    controller: email,
+                                    readOnly: true,
                                     style: const TextStyle(
                                         fontSize: 18, color: Colors.black),
                                     decoration: const InputDecoration(
-                                        prefixIcon:
-                                            Icon(Icons.person_outline_outlined),
-                                        labelText: 'Họ và tên',
+                                        prefixIcon: Icon(Icons.email_outlined),
+                                        labelText: 'Email',
                                         border: OutlineInputBorder(),
                                         labelStyle: TextStyle(
                                             color: Color(0xff888888),
@@ -105,12 +100,13 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                   ),
                                   const SizedBox(height: 20),
                                   TextFormField(
-                                    controller: email,
+                                    controller: name,
                                     style: const TextStyle(
                                         fontSize: 18, color: Colors.black),
                                     decoration: const InputDecoration(
-                                        prefixIcon: Icon(Icons.email_outlined),
-                                        labelText: 'Email',
+                                        prefixIcon:
+                                            Icon(Icons.person_outline_outlined),
+                                        labelText: 'Họ và tên',
                                         border: OutlineInputBorder(),
                                         labelStyle: TextStyle(
                                             color: Color(0xff888888),
@@ -128,29 +124,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                         labelStyle: TextStyle(
                                             color: Color(0xff888888),
                                             fontSize: 16)),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  TextFormField(
-                                    controller: password,
-                                    style: const TextStyle(
-                                        fontSize: 18, color: Colors.black),
-                                    decoration: InputDecoration(
-                                      labelText: 'Mật khẩu',
-                                      border: const OutlineInputBorder(),
-                                      labelStyle: const TextStyle(
-                                          color: Color(0xff888888),
-                                          fontSize: 16),
-                                      prefixIcon: const Icon(Icons.fingerprint),
-                                      suffixIcon: IconButton(
-                                        icon: Icon(
-                                          _obscureText
-                                              ? Icons.visibility
-                                              : Icons.visibility_off,
-                                        ),
-                                        onPressed: _togglePasswordStatus,
-                                      ),
-                                    ),
-                                    obscureText: _obscureText,
                                   ),
                                   const SizedBox(height: 20),
                                   TextFormField(
@@ -173,13 +146,27 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                     child: ElevatedButton(
                                       onPressed: () async {
                                         final user = UserModel(
-                                          id: userData.id,
                                           email: email.text.trim(),
                                           name: name.text.trim(),
                                           phone: phone.text.trim(),
                                           address: address.text.trim(),
                                           password: password.text.trim(),
-                                          isAdmin: false,
+                                          provider: userData.provider,
+                                          typeLicense: userData.typeLicense,
+                                          imageAvatar: userData.imageAvatar,
+                                          imageLicenseFront:
+                                              userData.imageLicenseFront,
+                                          imageLicenseBack:
+                                              userData.imageLicenseBack,
+                                          imageIdCardFront:
+                                              userData.imageIdCardFront,
+                                          imageIdCardBack:
+                                              userData.imageIdCardBack,
+                                          isIdCardVerified:
+                                              userData.isIdCardVerified,
+                                          isLicenseVerified:
+                                              userData.isLicenseVerified,
+                                          isAdmin: userData.isAdmin,
                                         );
                                         await controller.updateUser(user);
                                       },

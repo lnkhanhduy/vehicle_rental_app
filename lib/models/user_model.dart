@@ -8,11 +8,15 @@ class UserModel {
   final String password;
   final String? imageAvatar;
   final String? address;
-  final String? imageLicense;
-  final String? imageIdCard;
+  final String? typeLicense;
+  final String? imageLicenseFront;
+  final String? imageLicenseBack;
+  final String? imageIdCardFront;
+  final String? imageIdCardBack;
   final bool? isLicenseVerified;
   final bool? isIdCardVerified;
   final bool isAdmin;
+  final String? provider;
 
   const UserModel({
     this.id,
@@ -22,26 +26,33 @@ class UserModel {
     required this.password,
     this.imageAvatar,
     this.address,
-    this.imageLicense,
-    this.imageIdCard,
+    this.typeLicense,
+    this.imageLicenseFront,
+    this.imageLicenseBack,
+    this.imageIdCardFront,
+    this.imageIdCardBack,
     this.isLicenseVerified,
     this.isIdCardVerified,
     required this.isAdmin,
+    this.provider,
   });
 
-  toJson() {
+  Map<String, dynamic> toJson() {
     return {
       'name': name,
       'email': email,
       'phone': phone,
-      'password': password,
       'imageAvatar': imageAvatar,
       'address': address,
-      'imageLicense': imageLicense,
-      'imageIdCard': imageIdCard,
+      'typeLicense': typeLicense,
+      'imageLicenseFront': imageLicenseFront,
+      'imageLicenseBack': imageLicenseBack,
+      'imageIdCardFront': imageIdCardFront,
+      'imageIdCardBack': imageIdCardBack,
       'isLicenseVerified': isLicenseVerified,
       'isIdCardVerified': isIdCardVerified,
       'isAdmin': isAdmin,
+      'provider': provider,
     };
   }
 
@@ -53,14 +64,18 @@ class UserModel {
       name: data['name'],
       email: data['email'],
       phone: data['phone'],
-      password: data['password'],
+      password: '',
       imageAvatar: data['imageAvatar'],
       address: data['address'],
-      imageLicense: data['imageLicense'],
-      imageIdCard: data['imageIdCard'],
+      typeLicense: data['typeLicense'],
+      imageLicenseFront: data['imageLicenseFront'],
+      imageLicenseBack: data['imageLicenseBack'],
+      imageIdCardFront: data['imageIdCardFront'],
+      imageIdCardBack: data['imageIdCardBack'],
       isLicenseVerified: data['isLicenseVerified'],
       isIdCardVerified: data['isIdCardVerified'],
       isAdmin: data['isAdmin'],
+      provider: data['provider'],
     );
   }
 }

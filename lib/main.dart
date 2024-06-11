@@ -2,13 +2,15 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/firebase_options.dart';
-import 'package:vehicle_rental_app/repository/authentication_repository.dart';
+import 'package:vehicle_rental_app/repository/user_repository.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform)
-      .then((value) => Get.put(AuthenticationRepository()));
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  Get.put(UserRepository());
+
   runApp(const MyApp());
 }
 

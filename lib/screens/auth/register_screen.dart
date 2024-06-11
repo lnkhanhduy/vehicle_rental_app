@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/login_controller.dart';
 import 'package:vehicle_rental_app/controllers/register_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
-import 'package:vehicle_rental_app/screens/auth/otp_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -33,7 +33,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(30, 0, 30, 20),
+              padding: const EdgeInsets.fromLTRB(30, 40, 30, 20),
               color: Colors.white,
               child:
                   Column(mainAxisAlignment: MainAxisAlignment.end, children: [
@@ -117,23 +117,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             child: ElevatedButton(
                               onPressed: () {
                                 if (formKey.currentState!.validate()) {
-                                  // RegisterController.instance.registerUser(
-                                  //     controller.email.text.trim(),
-                                  //     controller.password.text.trim());
-                                  // RegisterController.instance
-                                  //     .phoneAuthentication(
-                                  //   controller.phone.text.trim(),
-                                  // );
-
                                   final user = UserModel(
-                                      name: controller.name.text.trim(),
-                                      email: controller.email.text.trim(),
-                                      phone: controller.phone.text.trim(),
-                                      password: controller.password.text.trim(),
-                                      isAdmin: false);
+                                    name: controller.name.text.trim(),
+                                    email: controller.email.text.trim(),
+                                    phone: controller.phone.text.trim(),
+                                    password: controller.password.text.trim(),
+                                    isAdmin: false,
+                                    provider: "password",
+                                  );
 
                                   RegisterController.instance.createUser(user);
-                                  Get.to(() => const OtpScreen());
                                 }
                               },
                               style: ElevatedButton.styleFrom(
@@ -180,7 +173,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         "lib/assets/images/logo_google.png",
                         width: 30,
                       ),
-                      onPressed: signInGooglePressed,
+                      onPressed: () {
+                        LoginController.instance.googleSignIn();
+                      },
                       label: const Text(
                         "Đăng nhập với Google",
                         style: TextStyle(fontSize: 17, color: Colors.black87),
@@ -217,9 +212,5 @@ class _RegisterScreenState extends State<RegisterScreen> {
         ],
       ),
     );
-  }
-
-  void signInGooglePressed() {
-    print("Clicked");
   }
 }
