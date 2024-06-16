@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/forgot_password_controller.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -12,6 +13,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(ForgotPasswordController());
+    Get.closeCurrentSnackbar();
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -45,6 +48,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: Column(
                       children: [
                         TextFormField(
+                          controller: controller.email,
                           style: const TextStyle(
                               fontSize: 18, color: Colors.black),
                           decoration: const InputDecoration(
@@ -62,7 +66,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           height: 54,
                           child: ElevatedButton(
                             onPressed: () {
-                              // Get.to(() => const OtpScreen());
+                              ForgotPasswordController.instance
+                                  .forgotPassword();
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.black87,

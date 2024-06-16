@@ -21,7 +21,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProfileController());
-
+    Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(

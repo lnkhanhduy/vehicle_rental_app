@@ -23,7 +23,7 @@ class _IdCardScreenState extends State<IdCardScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProfileController());
-
+    Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(

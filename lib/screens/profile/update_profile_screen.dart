@@ -14,7 +14,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(ProfileController());
-
+    Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -54,8 +54,8 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                 width: 120,
                                 height: 120,
                                 child: ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(100)),
+                                  borderRadius: const BorderRadius.all(
+                                      Radius.circular(100)),
                                   child: imageUrl == null
                                       ? Image.asset(
                                           "lib/assets/images/no_avatar.png",

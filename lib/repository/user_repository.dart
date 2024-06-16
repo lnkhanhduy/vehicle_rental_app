@@ -9,6 +9,7 @@ import 'package:vehicle_rental_app/controllers/login_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 import 'package:vehicle_rental_app/screens/home_screen.dart';
+import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 
 class UserRepository extends GetxController {
@@ -30,7 +31,7 @@ class UserRepository extends GetxController {
   void _setInitialScreen(User? user) {
     user == null
         ? Get.offAll(() => const LoginScreen())
-        : Get.offAll(() => const HomeScreen());
+        : Get.offAll(() => const LayoutScreen());
   }
 
   // done
@@ -107,6 +108,7 @@ class UserRepository extends GetxController {
         await firebaseAuth.signInWithEmailAndPassword(
             email: username, password: password);
       }
+      Get.offAll(() => const LayoutScreen());
     } on FirebaseAuthException catch (e) {
       Get.closeCurrentSnackbar();
       Get.showSnackbar(GetSnackBar(
@@ -175,8 +177,7 @@ class UserRepository extends GetxController {
         }
 
         await firebaseAuth.signInWithCredential(credential);
-
-        Get.offAll(() => const HomeScreen());
+        Get.offAll(() => const LayoutScreen());
       }
     } on FirebaseAuthException catch (e) {
       Get.snackbar("Error", e.message.toString());
@@ -732,6 +733,84 @@ class UserRepository extends GetxController {
         Get.showSnackbar(GetSnackBar(
           messageText: Text(
             e.toString(),
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 10),
+          icon: const Icon(Icons.error, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      }
+    }
+  }
+
+  Future<void> forgotPassword(String email) async {
+    String error = "";
+    if (email.isEmpty) {
+      error = "Vui lòng nhập email!";
+    } else if (!isValidEmail(email)) {
+      error = "Vui lòng nhập đúng định dạng email!";
+    }
+
+    if (error != "") {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: Text(
+          error,
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } else {
+      try {
+        UserModel? userModel = await getUserDetails(email);
+        if (userModel != null && userModel.provider != "password") {
+          Get.closeCurrentSnackbar();
+          Get.showSnackbar(GetSnackBar(
+            messageText: const Text(
+              "Email được đăng ký bằng tài khoản Google, vui lòng đăng nhập với Google!",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: Colors.red,
+            icon: const Icon(Icons.error, color: Colors.white),
+            onTap: (_) {
+              Get.closeCurrentSnackbar();
+            },
+          ));
+        } else {
+          await firebaseAuth.sendPasswordResetEmail(email: email);
+          Get.closeCurrentSnackbar();
+          Get.showSnackbar(GetSnackBar(
+            messageText: const Text(
+              "Vui lòng kiểm tra email của bạn để đặt lại mật khẩu!",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: Colors.green,
+            icon: const Icon(Icons.check, color: Colors.white),
+            onTap: (_) {
+              Get.closeCurrentSnackbar();
+            },
+          ));
+        }
+      } on FirebaseAuthException catch (e) {
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: Text(
+            e.message ?? "Có lỗi xảy ra. Vui quản thư được sau!",
             style: const TextStyle(
               color: Colors.white,
             ),

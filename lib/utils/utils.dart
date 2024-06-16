@@ -68,7 +68,21 @@ class Utils {
       await ref.getData();
       await ref.delete();
     } catch (e) {
-      print(e);
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: const Text(
+          "Không thể xóa hình ảnh",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
     }
   }
 }
