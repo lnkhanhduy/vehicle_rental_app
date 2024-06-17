@@ -2,10 +2,10 @@ import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/screens/car/more_cars_screen.dart';
-import 'package:vehicle_rental_app/screens/car/rental_screen.dart';
+import 'package:vehicle_rental_app/screens/car/register/info_rental_screen.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
-import 'package:vehicle_rental_app/screens/widgets/car_card.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/widgets/car_card.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -236,8 +236,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: Text(
                                             BoardDateFormat('HH:mm dd/MM/yyyy')
                                                 .format(toDate),
-                                            style:
-                                                TextStyle(color: Colors.black),
+                                            style: const TextStyle(
+                                                color: Colors.black),
                                           ),
                                         ),
                                       ],
@@ -286,8 +286,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           child: Text(
                                             BoardDateFormat('HH:mm dd/MM/yyyy')
                                                 .format(toDate),
-                                            style:
-                                                TextStyle(color: Colors.black),
+                                            style: const TextStyle(
+                                                color: Colors.black),
                                           ),
                                         ),
                                       ],
@@ -303,8 +303,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                 height: 50,
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Get.to(() =>
-                                        MoreCarsScreen(title_screen: "Tìm xe"));
+                                    Get.to(() => const MoreCarsScreen(
+                                        titleScreen: "Tìm xe"));
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Constants.primaryColor,
@@ -328,13 +328,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 40,
                   ),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text(
+                      const Text(
                         "Xe dành cho bạn",
                         style: TextStyle(
                             fontSize: 18, fontWeight: FontWeight.bold),
@@ -342,8 +342,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       TextButton(
                           onPressed: () {
-                            Get.to(() => const MoreCarsScreen(
-                                title_screen: "Tất cả xe"));
+                            Get.to(() =>
+                                const MoreCarsScreen(titleScreen: "Tất cả xe"));
                           },
                           child: Text(
                             "Xem thêm",
@@ -353,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           ))
                     ],
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 20,
                   ),
                   SingleChildScrollView(
@@ -426,7 +426,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               SizedBox(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Get.to(const RentalScreen());
+                                    Get.to(const RegisterRentalScreen());
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Constants.primaryColor,

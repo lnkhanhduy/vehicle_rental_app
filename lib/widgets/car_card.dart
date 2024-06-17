@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/screens/car/car_details_screen.dart';
+import 'package:vehicle_rental_app/screens/home_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
-
-import '../home_screen.dart';
 
 class CarCard extends StatelessWidget {
   final Car car;
@@ -113,28 +112,34 @@ class CarCard extends StatelessWidget {
                       children: [
                         Row(
                           children: [
-                            const Icon(
-                              Icons.star,
-                              color: Colors.amber,
-                              size: 17,
+                            SizedBox(
+                              width: 13,
+                              height: 13,
+                              child: Image.asset(
+                                "lib/assets/icons/star.png",
+                              ),
+                            ),
+                            SizedBox(
+                              width: 3,
                             ),
                             const Text("5.0"),
+                            SizedBox(
+                              width: 17,
+                              height: 17,
+                              child: Image.asset(
+                                "lib/assets/icons/dot_full.png",
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: Image.asset(
+                                "lib/assets/icons/road_trip.png",
+                                color: Constants.primaryColor,
+                              ),
+                            ),
                             const SizedBox(
-                              width: 4,
-                            ),
-                            const Text(
-                              "·",
-                              style: TextStyle(fontSize: 20),
-                            ),
-                            const SizedBox(
-                              width: 4,
-                            ),
-                            Icon(
-                              Icons.work,
-                              color: Constants.primaryColor,
-                            ),
-                            const SizedBox(
-                              width: 4,
+                              width: 6,
                             ),
                             const Text("2 chuyến"),
                           ],

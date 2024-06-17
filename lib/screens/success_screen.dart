@@ -1,26 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-class RentalScreen extends StatefulWidget {
-  const RentalScreen({super.key});
+class SuccessScreen extends StatefulWidget {
+  const SuccessScreen({super.key});
 
   @override
-  State<RentalScreen> createState() => _RentalScreenState();
+  State<SuccessScreen> createState() => _SuccessScreenState();
 }
 
-class _RentalScreenState extends State<RentalScreen> {
+class _SuccessScreenState extends State<SuccessScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
-        title: const Text(
-          "Đăng ký xe",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-        ),
-        centerTitle: true,
-      ),
       body: CustomScrollView(
         slivers: [
           SliverFillRemaining(
@@ -32,7 +22,7 @@ class _RentalScreenState extends State<RentalScreen> {
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text("Rental"),
+                  Text("Success"),
                 ],
               ),
             ),

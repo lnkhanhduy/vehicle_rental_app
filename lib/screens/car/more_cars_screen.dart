@@ -2,9 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class MoreCarsScreen extends StatefulWidget {
-  final String title_screen;
+  final String titleScreen;
 
-  const MoreCarsScreen({super.key, required this.title_screen});
+  const MoreCarsScreen({super.key, required this.titleScreen});
 
   @override
   State<MoreCarsScreen> createState() => _MoreCarsScreenState();
@@ -18,7 +18,7 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
         leading: IconButton(
             onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
         title: Text(
-          widget.title_screen,
+          widget.titleScreen,
           style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
