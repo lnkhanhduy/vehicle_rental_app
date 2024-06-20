@@ -5,7 +5,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:vehicle_rental_app/controllers/login_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 import 'package:vehicle_rental_app/screens/home_screen.dart';
@@ -190,9 +189,6 @@ class UserRepository extends GetxController {
   Future<void> logoutUser() async {
     await firebaseAuth.signOut();
     await GoogleSignIn().signOut();
-    final controller = Get.put(LoginController());
-    controller.username.clear();
-    controller.password.clear();
     Get.offAll(() => const LoginScreen());
   }
 
@@ -473,8 +469,12 @@ class UserRepository extends GetxController {
         error = "Vui lòng nh1ập số điện thoại!";
       } else if (!isPhoneNumber(user.phone)) {
         error = "Số điện thoại phải 10 ký tự!";
-      } else if (user.address!.isEmpty) {
-        error = "Vui lòng nhập địa chỉ!";
+      } else if (user.addressRoad!.isEmpty) {
+        error = "Vui lòng nhập tên đường!";
+      } else if (user.addressDistrict!.isEmpty) {
+        error = "Vui lòng nhập quận/huyện!";
+      } else if (user.addressCity!.isEmpty) {
+        error = "Vui lòng nhập tỉnh/thành phố!";
       }
 
       if (user.phone.isNotEmpty) {
@@ -555,6 +555,221 @@ class UserRepository extends GetxController {
           Get.closeCurrentSnackbar();
         },
       ));
+    }
+  }
+
+  Future<void> updateUserWithImage(
+      UserModel user, Uint8List imageAvatar) async {
+    try {
+      String? error = "";
+
+      if (user.name.isEmpty) {
+        error = "Vui lòng nhập tên!";
+      } else if (user.phone.isEmpty) {
+        error = "Vui lòng nh1ập số điện thoại!";
+      } else if (!isPhoneNumber(user.phone)) {
+        error = "Số điện thoại phải 10 ký tự!";
+      } else if (user.addressRoad!.isEmpty) {
+        error = "Vui lòng nhập tên đường!";
+      } else if (user.addressDistrict!.isEmpty) {
+        error = "Vui lòng nhập quận/huyện!";
+      } else if (user.addressCity!.isEmpty) {
+        error = "Vui lòng nhập tỉnh/thành phố!";
+      }
+
+      if (user.phone.isNotEmpty) {
+        final UserModel? userModel = await getUserDetails(user.email);
+        if (await isExistPhoneNumber(user.phone) &&
+            userModel?.phone != user.phone) {
+          error = "Số điện thoại đã được sử dụng!";
+        }
+      }
+
+      if (error != "") {
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: Text(
+            error,
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          icon: const Icon(Icons.error, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      } else {
+        await firebaseFirestore
+            .collection("Users")
+            .doc(user.email)
+            .update(user.toJson());
+
+        await Utils.deleteImageIfExists(user.imageAvatar!);
+        await Utils.uploadImage(
+            imageAvatar, 'users', user.email, 'imageAvatar', "Users");
+
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: const Text(
+            "Cập nhật thông tin thành công!",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 5),
+          icon: const Icon(Icons.check, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      }
+    } on FirebaseAuthException catch (e) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: Text(
+          e.message ?? "Có lỗi xảy ra. Vui này thử lại sau!",
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } catch (e) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: Text(
+          e.toString(),
+          style: const TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    }
+  }
+
+  Future<void> updatePaper(
+      Uint8List? imageIdCardFront,
+      Uint8List? imageIdCardBack,
+      Uint8List? imageLicenseFront,
+      Uint8List? imageLicenseBack) async {
+    final email = firebaseUser.value?.providerData[0].email;
+    if (email == null) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: const Text(
+          "Có lỗi xảy ra. Vui lòng thử lại sau!",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } else {
+      try {
+        UserModel? userModel = await getUserDetails(email);
+        if (userModel?.imageIdCardFront == null &&
+            userModel?.imageIdCardBack == null &&
+            userModel?.imageLicenseFront == null &&
+            userModel?.imageLicenseBack == null) {
+          await Utils.uploadImage(
+              imageIdCardFront, "users", email, "imageIdCardFront", "Users");
+          await Utils.uploadImage(
+              imageIdCardBack, "users", email, "imageIdCardBack", "Users");
+          await Utils.uploadImage(
+              imageLicenseFront, "users", email, "imageLicenseFront", "Users");
+          await Utils.uploadImage(
+              imageLicenseBack, "users", email, "imageLicenseBack", "Users");
+        } else {
+          if (imageIdCardFront != null) {
+            await Utils.uploadImage(
+                imageIdCardFront, "users", email, "imageIdCardFront", "Users");
+            await Utils.deleteImageIfExists(userModel?.imageIdCardFront ?? "");
+          }
+          if (imageIdCardBack != null) {
+            await Utils.uploadImage(
+                imageIdCardBack, "users", email, "imageIdCardBack", "Users");
+            await Utils.deleteImageIfExists(userModel?.imageIdCardBack ?? "");
+          }
+          if (imageLicenseFront != null) {
+            await Utils.uploadImage(imageLicenseFront, "users", email,
+                "imageLicenseFront", "Users");
+            await Utils.deleteImageIfExists(userModel?.imageLicenseFront ?? "");
+          }
+          if (imageLicenseBack != null) {
+            await Utils.uploadImage(
+                imageLicenseBack, "users", email, "imageLicenseBack", "Users");
+            await Utils.deleteImageIfExists(userModel?.imageLicenseBack ?? "");
+          }
+
+          Get.closeCurrentSnackbar();
+          Get.showSnackbar(GetSnackBar(
+            messageText: const Text(
+              "Cập nhật giấy tờ thành công!",
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+            icon: const Icon(Icons.check, color: Colors.white),
+            onTap: (_) {
+              Get.closeCurrentSnackbar();
+            },
+          ));
+        }
+      } on FirebaseAuthException catch (e) {
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: Text(
+            e.message ?? "Có lỗi xảy ra. Vui bạn thử lại sau!",
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 10),
+          icon: const Icon(Icons.error, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      } catch (e) {
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: Text(
+            e.toString(),
+            style: const TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 10),
+          icon: const Icon(Icons.error, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      }
     }
   }
 

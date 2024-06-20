@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class CarModel {
   final String? id;
   final String licensePlates;
@@ -113,43 +115,47 @@ class CarModel {
     };
   }
 
-  factory CarModel.fromJson(Map<String, dynamic> json, String id) {
-    return CarModel(
-      id: id,
-      licensePlates: json['licensePlates'],
-      carCompany: json['carCompany'],
-      carInfoModel: json['carInfoModel'],
-      yearManufacture: json['yearManufacture'],
-      carSeat: json['carSeat'],
-      transmission: json['transmission'],
-      fuel: json['fuel'],
-      addressRoad: json['addressRoad'],
-      addressDistrict: json['addressDistrict'],
-      addressCity: json['addressCity'],
-      description: json['description'],
-      map: json['map'],
-      cctv: json['cctv'],
-      sensor: json['sensor'],
-      usb: json['usb'],
-      tablet: json['tablet'],
-      airBag: json['airBag'],
-      bluetooth: json['bluetooth'],
-      cameraBack: json['cameraBack'],
-      tire: json['tire'],
-      etc: json['etc'],
-      imageCarMain: json['imageCarMain'],
-      imageCarFront: json['imageCarFront'],
-      imageCarBack: json['imageCarBack'],
-      imageCarLeft: json['imageCarLeft'],
-      imageCarRight: json['imageCarRight'],
-      imageCarInside: json['imageCarInside'],
-      imageRegistrationCertificate: json['imageRegistrationCertificate'],
-      imageCarInsurance: json['imageCarInsurance'],
-      price: json['price'],
-      email: json['email'],
-      isHidden: json['isHidden'],
-      isApproved: json['isApproved'],
-      message: json['message'],
-    );
+  factory CarModel.fromSnapshot(
+      DocumentSnapshot<Map<String, dynamic>> snapshot) {
+    final data = snapshot.data()!;
+    {
+      return CarModel(
+        id: snapshot.id,
+        licensePlates: data['licensePlates'],
+        carCompany: data['carCompany'],
+        carInfoModel: data['carInfoModel'],
+        yearManufacture: data['yearManufacture'],
+        carSeat: data['carSeat'],
+        transmission: data['transmission'],
+        fuel: data['fuel'],
+        addressRoad: data['addressRoad'],
+        addressDistrict: data['addressDistrict'],
+        addressCity: data['addressCity'],
+        description: data['description'],
+        map: data['map'],
+        cctv: data['cctv'],
+        sensor: data['sensor'],
+        usb: data['usb'],
+        tablet: data['tablet'],
+        airBag: data['airBag'],
+        bluetooth: data['bluetooth'],
+        cameraBack: data['cameraBack'],
+        tire: data['tire'],
+        etc: data['etc'],
+        imageCarMain: data['imageCarMain'],
+        imageCarFront: data['imageCarFront'],
+        imageCarBack: data['imageCarBack'],
+        imageCarLeft: data['imageCarLeft'],
+        imageCarRight: data['imageCarRight'],
+        imageCarInside: data['imageCarInside'],
+        imageRegistrationCertificate: data['imageRegistrationCertificate'],
+        imageCarInsurance: data['imageCarInsurance'],
+        price: data['price'],
+        email: data['email'],
+        isHidden: data['isHidden'],
+        isApproved: data['isApproved'],
+        message: data['message'],
+      );
+    }
   }
 }

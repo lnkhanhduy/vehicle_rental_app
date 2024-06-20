@@ -23,7 +23,9 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(LoginController());
-    final formKey = GlobalKey<FormState>();
+    final username = TextEditingController();
+    final password = TextEditingController();
+
     Get.closeCurrentSnackbar();
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -47,93 +49,105 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(
                     height: 20,
                   ),
-                  Form(
-                    key: formKey,
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Column(
-                          children: <Widget>[
-                            TextFormField(
-                              controller: controller.username,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.black),
-                              decoration: const InputDecoration(
-                                  prefixIcon:
-                                      Icon(Icons.person_outline_outlined),
-                                  labelText: 'Email/Số điện thoại',
-                                  border: OutlineInputBorder(),
-                                  labelStyle: TextStyle(
-                                      color: Color(0xff888888), fontSize: 16)),
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: controller.password,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.black),
-                              decoration: InputDecoration(
-                                labelText: 'Mật khẩu',
-                                border: const OutlineInputBorder(),
-                                labelStyle: const TextStyle(
-                                    color: Color(0xff888888), fontSize: 16),
-                                prefixIcon: const Icon(Icons.fingerprint),
-                                suffixIcon: IconButton(
-                                  icon: Icon(
-                                    _obscureText
-                                        ? Icons.visibility
-                                        : Icons.visibility_off,
-                                  ),
-                                  onPressed: _togglePasswordStatus,
+                  Container(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Column(
+                        children: <Widget>[
+                          TextFormField(
+                            controller: username,
+                            style: const TextStyle(
+                                fontSize: 18, color: Colors.black),
+                            decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.person_outline_outlined),
+                                labelText: 'Email/Số điện thoại',
+                                border: OutlineInputBorder(),
+                                labelStyle: TextStyle(
+                                    color: Color(0xff888888), fontSize: 16)),
+                          ),
+                          const SizedBox(height: 20),
+                          TextFormField(
+                            controller: password,
+                            style: const TextStyle(
+                                fontSize: 18, color: Colors.black),
+                            decoration: InputDecoration(
+                              labelText: 'Mật khẩu',
+                              border: const OutlineInputBorder(),
+                              labelStyle: const TextStyle(
+                                  color: Color(0xff888888), fontSize: 16),
+                              prefixIcon: const Icon(Icons.fingerprint),
+                              suffixIcon: IconButton(
+                                icon: Icon(
+                                  _obscureText
+                                      ? Icons.visibility
+                                      : Icons.visibility_off,
                                 ),
+                                onPressed: _togglePasswordStatus,
                               ),
-                              obscureText: _obscureText,
                             ),
-                            const SizedBox(height: 15),
-                            Align(
-                              alignment: Alignment.centerRight,
-                              child: TextButton(
-                                  onPressed: () {
-                                    Get.to(const ForgotPasswordScreen());
-                                  },
-                                  child: const Text(
-                                    "Quên mật khẩu?",
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold),
-                                  )),
-                            ),
-                            const SizedBox(height: 3),
-                            SizedBox(
-                              width: double.infinity,
-                              height: 56,
-                              child: ElevatedButton(
+                            obscureText: _obscureText,
+                          ),
+                          const SizedBox(height: 15),
+                          Align(
+                            alignment: Alignment.centerRight,
+                            child: TextButton(
                                 onPressed: () {
-                                  if (formKey.currentState!.validate()) {
-                                    LoginController.instance.loginUser(
-                                      controller.username.text.trim(),
-                                      controller.password.text.trim(),
-                                    );
-                                  }
+                                  Get.to(const ForgotPasswordScreen());
                                 },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.black87,
-                                  foregroundColor: Colors.white,
-                                  shape: const RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.all(Radius.circular(4)),
-                                  ),
-                                ),
                                 child: const Text(
-                                  "ĐĂNG NHẬP",
+                                  "Quên mật khẩu?",
                                   style: TextStyle(
-                                    fontSize: 17,
-                                  ),
+                                      color: Colors.blue,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold),
+                                )),
+                          ),
+                          const SizedBox(height: 3),
+                          SizedBox(
+                            width: double.infinity,
+                            height: 56,
+                            child: ElevatedButton(
+                              onPressed: () {
+                                if (username.text.trim().isNotEmpty &&
+                                    password.text.trim().isNotEmpty) {
+                                  controller.loginUser(username.text.trim(),
+                                      password.text.trim());
+                                } else {
+                                  Get.closeCurrentSnackbar();
+                                  Get.showSnackbar(GetSnackBar(
+                                    messageText: Text(
+                                      "Vui lòng điền đầy đủ thông tin!",
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    backgroundColor: Colors.red,
+                                    duration: const Duration(seconds: 10),
+                                    icon: const Icon(Icons.error,
+                                        color: Colors.white),
+                                    onTap: (_) {
+                                      Get.closeCurrentSnackbar();
+                                    },
+                                  ));
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black87,
+                                foregroundColor: Colors.white,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4)),
+                                ),
+                              ),
+                              child: const Text(
+                                "ĐĂNG NHẬP",
+                                style: TextStyle(
+                                  fontSize: 17,
                                 ),
                               ),
                             ),
-                          ],
-                        )),
-                  ),
+                          ),
+                        ],
+                      )),
                   const Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [

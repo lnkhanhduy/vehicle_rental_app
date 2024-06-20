@@ -7,14 +7,16 @@ class UserModel {
   final String phone;
   final String password;
   final String? imageAvatar;
-  final String? address;
+  final String? addressRoad;
+  final String? addressDistrict;
+  final String? addressCity;
   final String? typeLicense;
   final String? imageLicenseFront;
   final String? imageLicenseBack;
   final String? imageIdCardFront;
   final String? imageIdCardBack;
-  final bool? isLicenseVerified;
-  final bool? isIdCardVerified;
+  final bool? isVerified;
+  final String? message;
   final bool isAdmin;
   final String? provider;
 
@@ -25,14 +27,16 @@ class UserModel {
     required this.phone,
     required this.password,
     this.imageAvatar,
-    this.address,
+    this.addressRoad,
+    this.addressDistrict,
+    this.addressCity,
     this.typeLicense,
     this.imageLicenseFront,
     this.imageLicenseBack,
     this.imageIdCardFront,
     this.imageIdCardBack,
-    this.isLicenseVerified,
-    this.isIdCardVerified,
+    this.isVerified,
+    this.message,
     required this.isAdmin,
     this.provider,
   });
@@ -43,14 +47,16 @@ class UserModel {
       'email': email,
       'phone': phone,
       'imageAvatar': imageAvatar,
-      'address': address,
+      'addressRoad': addressRoad,
+      'addressDistrict': addressDistrict,
+      'addressCity': addressCity,
       'typeLicense': typeLicense,
       'imageLicenseFront': imageLicenseFront,
       'imageLicenseBack': imageLicenseBack,
       'imageIdCardFront': imageIdCardFront,
       'imageIdCardBack': imageIdCardBack,
-      'isLicenseVerified': isLicenseVerified,
-      'isIdCardVerified': isIdCardVerified,
+      'isVerified': isVerified,
+      'message': message,
       'isAdmin': isAdmin,
       'provider': provider,
     };
@@ -66,14 +72,16 @@ class UserModel {
       phone: data['phone'],
       password: '',
       imageAvatar: data['imageAvatar'],
-      address: data['address'],
+      addressRoad: data['addressRoad'],
+      addressDistrict: data['addressDistrict'],
+      addressCity: data['addressCity'],
       typeLicense: data['typeLicense'],
       imageLicenseFront: data['imageLicenseFront'],
       imageLicenseBack: data['imageLicenseBack'],
       imageIdCardFront: data['imageIdCardFront'],
       imageIdCardBack: data['imageIdCardBack'],
-      isLicenseVerified: data['isLicenseVerified'],
-      isIdCardVerified: data['isIdCardVerified'],
+      isVerified: data['isVerified'],
+      message: data['message'],
       isAdmin: data['isAdmin'],
       provider: data['provider'],
     );

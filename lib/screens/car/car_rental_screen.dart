@@ -5,14 +5,14 @@ import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
 import 'package:vehicle_rental_app/widgets/car_card_approve.dart';
 
-class ApproveScreen extends StatefulWidget {
-  const ApproveScreen({super.key});
+class CarRentalScreen extends StatefulWidget {
+  const CarRentalScreen({super.key});
 
   @override
-  State<ApproveScreen> createState() => _ApproveScreenState();
+  State<CarRentalScreen> createState() => _CarRentalScreenState();
 }
 
-class _ApproveScreenState extends State<ApproveScreen> {
+class _CarRentalScreenState extends State<CarRentalScreen> {
   final CarController controller = Get.put(CarController());
 
   @override
@@ -25,7 +25,7 @@ class _ApproveScreenState extends State<ApproveScreen> {
             onPressed: () => Get.to(() => ProfileScreen()),
             icon: const Icon(Icons.arrow_back)),
         title: const Text(
-          "Xét duyệt xe",
+          "Xe đã đăng ký cho thuê",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,

@@ -86,7 +86,8 @@ class CarRepository extends GetxController {
         .get();
 
     List<CarModel> carList = querySnapshot.docs.map((doc) {
-      return CarModel.fromJson(doc.data() as Map<String, dynamic>, doc.id);
+      return CarModel.fromSnapshot(
+          doc as DocumentSnapshot<Map<String, dynamic>>);
     }).toList();
     carList = List.generate(100, (index) {
       // Repeat each car 100 times

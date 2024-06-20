@@ -49,6 +49,20 @@ class ProfileController extends GetxController {
     await userRepository.updateUser(user);
   }
 
+  Future<void> updateUserWithImage(
+      UserModel user, Uint8List imageAvatar) async {
+    await userRepository.updateUserWithImage(user, imageAvatar);
+  }
+
+  Future<void> updatePaper(
+      Uint8List? imageIdCardFront,
+      Uint8List? imageIdCardBack,
+      Uint8List? imageLicenseFront,
+      Uint8List? imageLicenseBack) async {
+    await userRepository.updatePaper(
+        imageIdCardFront, imageIdCardBack, imageLicenseFront, imageLicenseBack);
+  }
+
   Future<void> updateLicense(
       String typeLicense, Uint8List? imageFront, Uint8List? imageBack) async {
     await userRepository.updateLicense(typeLicense, imageFront, imageBack);
