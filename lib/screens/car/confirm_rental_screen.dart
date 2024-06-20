@@ -40,7 +40,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(
+                          padding: const EdgeInsets.symmetric(
                               horizontal: 20, vertical: 15),
                           decoration: BoxDecoration(
                             color: Colors.grey.withOpacity(0.15),
@@ -53,18 +53,18 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                             fit: BoxFit.cover,
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 15,
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               "Suzuki",
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 3,
                             ),
                             Row(
@@ -122,7 +122,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                     const SizedBox(
                       height: 12,
                     ),
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -140,7 +140,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                 SizedBox(
                                   width: 3,
                                 ),
-                                const Text(
+                                Text(
                                   "Nhận xe",
                                   style: TextStyle(color: Colors.grey),
                                 ),
@@ -151,7 +151,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                             ),
                             Text(
                               'HH:mm dd/MM/yyyy',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -172,7 +172,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                 SizedBox(
                                   width: 3,
                                 ),
-                                const Text("Trả xe",
+                                Text("Trả xe",
                                     style: TextStyle(color: Colors.grey)),
                               ],
                             ),
@@ -181,7 +181,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                             ),
                             Text(
                               'HH:mm dd/MM/yyyy',
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -190,10 +190,10 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                         )
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
-                    Row(
+                    const Row(
                       children: [
                         Icon(
                           Icons.location_on_outlined,
@@ -203,19 +203,19 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                         SizedBox(
                           width: 3,
                         ),
-                        const Text("Nhận xe tại",
+                        Text("Nhận xe tại",
                             style: TextStyle(color: Colors.grey)),
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 6,
                     ),
                     const Text("Quận 6, TPHCM",
                         style: TextStyle(fontWeight: FontWeight.bold)),
-                    SizedBox(
+                    const SizedBox(
                       height: 10,
                     ),
-                    Row(
+                    const Row(
                       children: [
                         Icon(
                           Icons.credit_card_outlined,
@@ -225,11 +225,11 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                         SizedBox(
                           width: 3,
                         ),
-                        const Text("Phương thức thanh toán",
+                        Text("Phương thức thanh toán",
                             style: TextStyle(color: Colors.grey)),
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 6,
                     ),
                     const Text("Thanh toán khi nhận xe",
@@ -343,15 +343,15 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                       height: 10,
                     ),
                     Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 15, vertical: 10),
                       decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(8),
                           border: Border.all(
                             color: Colors.grey.withOpacity(0.5),
                           )),
-                      child: TextField(
+                      child: const TextField(
                         maxLines: 4,
                         decoration: InputDecoration.collapsed(
                           hintText: "Nhập lời nhắn cho chủ xe",
@@ -372,15 +372,15 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                       height: 20,
                     ),
                     Container(
-                        padding:
-                            EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
                         decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(8),
                             border: Border.all(
                               color: Colors.grey.withOpacity(0.5),
                             )),
-                        child: Column(children: [
+                        child: const Column(children: [
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [

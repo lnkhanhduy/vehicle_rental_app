@@ -119,7 +119,7 @@ class CarCard extends StatelessWidget {
                                 "lib/assets/icons/star.png",
                               ),
                             ),
-                            SizedBox(
+                            const SizedBox(
                               width: 3,
                             ),
                             const Text("5.0"),

@@ -584,19 +584,19 @@ class UserRepository extends GetxController {
             userModel?.imageLicenseFront != null &&
             imageFront == null) {
           await Utils.uploadImage(
-              imageBack, email, "imageLicenseBack", "Users");
+              imageBack, "users", email, "imageLicenseBack", "Users");
           await Utils.deleteImageIfExists(userModel?.imageLicenseBack ?? "");
         } else if (imageFront != null &&
             userModel?.imageLicenseBack != null &&
             imageBack == null) {
           await Utils.uploadImage(
-              imageFront, email, "imageLicenseFront", "Users");
+              imageFront, "users", email, "imageLicenseFront", "Users");
           await Utils.deleteImageIfExists(userModel?.imageLicenseFront ?? "");
         } else if (imageFront != null && imageBack != null) {
           await Utils.uploadImage(
-              imageFront, email, "imageLicenseFront", "Users");
+              imageFront, "users", email, "imageLicenseFront", "Users");
           await Utils.uploadImage(
-              imageBack, email, "imageLicenseBack", "Users");
+              imageBack, "users", email, "imageLicenseBack", "Users");
           await Utils.deleteImageIfExists(userModel?.imageLicenseFront ?? "");
           await Utils.deleteImageIfExists(userModel?.imageLicenseBack ?? "");
         }
@@ -681,18 +681,20 @@ class UserRepository extends GetxController {
         if (imageBack != null &&
             userModel?.imageIdCardFront != null &&
             imageFront == null) {
-          await Utils.uploadImage(imageBack, email, "imageIdCardBack", "Users");
+          await Utils.uploadImage(
+              imageBack, "users", email, "imageIdCardBack", "Users");
           await Utils.deleteImageIfExists(userModel?.imageIdCardBack ?? "");
         } else if (imageFront != null &&
             userModel?.imageIdCardBack != null &&
             imageBack == null) {
           await Utils.uploadImage(
-              imageFront, email, "imageIdCardFront", "Users");
+              imageFront, "users", email, "imageIdCardFront", "Users");
           await Utils.deleteImageIfExists(userModel?.imageIdCardFront ?? "");
         } else if (imageFront != null && imageBack != null) {
           await Utils.uploadImage(
-              imageFront, email, "imageIdCardFront", "Users");
-          await Utils.uploadImage(imageBack, email, "imageIdCardBack", "Users");
+              imageFront, "users", email, "imageIdCardFront", "Users");
+          await Utils.uploadImage(
+              imageBack, "users", email, "imageIdCardBack", "Users");
           await Utils.deleteImageIfExists(userModel?.imageIdCardFront ?? "");
           await Utils.deleteImageIfExists(userModel?.imageIdCardBack ?? "");
         }

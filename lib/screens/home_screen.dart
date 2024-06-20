@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/screens/car/more_cars_screen.dart';
 import 'package:vehicle_rental_app/screens/car/register/info_rental_screen.dart';
+import 'package:vehicle_rental_app/screens/chat_screen.dart';
+import 'package:vehicle_rental_app/screens/notification_screen.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/car_card.dart';
@@ -85,7 +87,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       Row(
                         children: [
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Get.to(() => const NotificationScreen());
+                            },
                             icon: const Icon(Icons.notifications_none),
                           ),
                           const VerticalDivider(
@@ -93,7 +97,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: Colors.grey,
                           ),
                           IconButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              Get.to(() => const ChatScreen());
+                            },
                             icon: const Icon(Icons.message_outlined),
                           ),
                         ],
@@ -426,7 +432,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               SizedBox(
                                 child: ElevatedButton(
                                   onPressed: () {
-                                    Get.to(const RegisterRentalScreen());
+                                    Get.to(const InfoRentalScreen());
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Constants.primaryColor,

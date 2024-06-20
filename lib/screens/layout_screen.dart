@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/screens/car/favorite_screen.dart';
+import 'package:vehicle_rental_app/screens/car/history_screen.dart';
 import 'package:vehicle_rental_app/screens/home_screen.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 
 class LayoutScreen extends StatefulWidget {
-  const LayoutScreen({super.key});
+  final int initialIndex;
+
+  const LayoutScreen({super.key, this.initialIndex = 0});
 
   @override
   State<LayoutScreen> createState() => _LayoutScreenState();
@@ -13,7 +17,14 @@ class LayoutScreen extends StatefulWidget {
 
 class _LayoutScreenState extends State<LayoutScreen> {
   int _currentIndex = 0;
-  final PageController _pageController = PageController();
+  late PageController _pageController = PageController();
+
+  @override
+  void initState() {
+    super.initState();
+    _currentIndex = widget.initialIndex;
+    _pageController = PageController(initialPage: _currentIndex);
+  }
 
   void onTabTapped(int index) {
     setState(() {
@@ -35,6 +46,8 @@ class _LayoutScreenState extends State<LayoutScreen> {
           },
           children: const [
             HomeScreen(),
+            FavoriteScreen(),
+            HistoryScreen(),
             ProfileScreen(),
           ],
         ),
@@ -57,8 +70,11 @@ class _LayoutScreenState extends State<LayoutScreen> {
                 label: "Trang chủ",
               ),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: "Profile"),
-              BottomNavigationBarItem(icon: Icon(Icons.map), label: "Map"),
+                  icon: Icon(Icons.favorite), label: "Yêu thích"),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.history), label: "Lịch sử"),
+              BottomNavigationBarItem(
+                  icon: Icon(Icons.person), label: "Thông tin"),
             ],
             selectedItemColor: Constants.primaryColor,
             unselectedItemColor: Colors.grey,

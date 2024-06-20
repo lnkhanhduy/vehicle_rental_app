@@ -19,7 +19,8 @@ class Utils {
     return null;
   }
 
-  static Future<void> uploadImage(image, folder, type, collection) async {
+  static Future<void> uploadImage(
+      image, folder_name, folder_id, type, collection) async {
     if (image != null) {
       try {
         // Tạo tên tệp duy nhất cho hình ảnh
@@ -27,18 +28,18 @@ class Utils {
 
         // Tải hình ảnh lên Firebase Storage
         await firebase_storage.FirebaseStorage.instance
-            .ref('images/$folder/$fileName.png')
+            .ref('$folder_name/$folder_id/$fileName.png')
             .putData(image!);
 
         // Lấy URL của hình ảnh sau khi tải lên
         String imageUrl = await firebase_storage.FirebaseStorage.instance
-            .ref('images/$folder/$fileName.png')
+            .ref('$folder_name/$folder_id/$fileName.png')
             .getDownloadURL();
 
         // Lưu URL của hình ảnh vào Firestore
         await FirebaseFirestore.instance
             .collection(collection)
-            .doc(folder)
+            .doc(folder_id)
             .update({type: imageUrl});
       } catch (e) {
         Get.closeCurrentSnackbar();

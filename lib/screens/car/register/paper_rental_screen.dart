@@ -1,19 +1,60 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/car/register/price_rental_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/utils/utils.dart';
 
 class PaperRentalScreen extends StatefulWidget {
-  const PaperRentalScreen({super.key});
+  final CarModel car;
+  final bool isEdit;
+  final bool view;
+  final Uint8List? imageCarMain;
+  final Uint8List? imageCarInside;
+  final Uint8List? imageCarFront;
+  final Uint8List? imageCarBack;
+  final Uint8List? imageCarLeft;
+  final Uint8List? imageCarRight;
+
+  const PaperRentalScreen(
+      {super.key,
+      required this.car,
+      this.isEdit = false,
+      this.view = false,
+      this.imageCarMain,
+      this.imageCarInside,
+      this.imageCarFront,
+      this.imageCarBack,
+      this.imageCarLeft,
+      this.imageCarRight});
 
   @override
   State<PaperRentalScreen> createState() => _PaperRentalScreenState();
 }
 
 class _PaperRentalScreenState extends State<PaperRentalScreen> {
+  Uint8List? imageRegistrationCertificate;
+  Uint8List? imageCarInsurance;
+  String? imageRegistrationCertificateUrl;
+  String? imageCarInsuranceUrl;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (widget.isEdit || widget.view) {
+      imageRegistrationCertificateUrl = widget.car.imageRegistrationCertificate;
+      imageCarInsuranceUrl = widget.car.imageCarInsurance;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -25,7 +66,9 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
           centerTitle: true,
           actions: [
             IconButton(
-                onPressed: () => Get.to(() => const LayoutScreen()),
+                onPressed: () => Get.to(() => const LayoutScreen(
+                      initialIndex: 0,
+                    )),
                 icon: const Icon(
                   Icons.close,
                 ))
@@ -36,14 +79,15 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
             SliverFillRemaining(
               hasScrollBody: false,
               child: Container(
-                padding: const EdgeInsets.fromLTRB(10, 40, 10, 20),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 constraints: const BoxConstraints.expand(),
                 color: Colors.white,
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 10),
+                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -205,7 +249,131 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
                           ]),
                         ],
                       ),
-                    )
+                    ),
+                    const Text(
+                      "Giấy đăng ký xe",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    ),
+                    const SizedBox(height: 15),
+                    GestureDetector(
+                      onTap: () async {
+                        Uint8List? imgRegister =
+                            await Utils.pickImage(ImageSource.gallery);
+                        if (imgRegister != null) {
+                          setState(() {
+                            imageRegistrationCertificate = imgRegister;
+                            imageRegistrationCertificateUrl = null;
+                          });
+                        }
+                      },
+                      child: imageCarInsurance != null ||
+                              imageRegistrationCertificateUrl != null
+                          ? Container(
+                              height: 250,
+                              decoration: BoxDecoration(
+                                image:
+                                    (imageRegistrationCertificateUrl != null ||
+                                            imageRegistrationCertificateUrl!
+                                                .isNotEmpty)
+                                        ? DecorationImage(
+                                            image: NetworkImage(
+                                                imageRegistrationCertificateUrl!),
+                                            fit: BoxFit.cover,
+                                          )
+                                        : DecorationImage(
+                                            image: MemoryImage(
+                                                imageRegistrationCertificate!),
+                                            fit: BoxFit.cover,
+                                          ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Container(
+                              height: 250,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey[400]!),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.add_a_photo,
+                                  color: Colors.grey[400],
+                                  size: 50,
+                                ),
+                              ),
+                            ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    const Text(
+                      "Bảo hiểm xe",
+                      style:
+                          TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                    ),
+                    const SizedBox(height: 15),
+                    GestureDetector(
+                      onTap: () async {
+                        Uint8List? imgInsurance =
+                            await Utils.pickImage(ImageSource.gallery);
+                        if (imgInsurance != null) {
+                          setState(() {
+                            imageCarInsurance = imgInsurance;
+                            imageCarInsuranceUrl = null;
+                          });
+                        }
+                      },
+                      child: imageCarInsurance != null ||
+                              imageCarInsuranceUrl != null
+                          ? Container(
+                              height: 250,
+                              decoration: BoxDecoration(
+                                image: (imageCarInsuranceUrl != null ||
+                                        imageCarInsuranceUrl!.isNotEmpty)
+                                    ? DecorationImage(
+                                        image:
+                                            NetworkImage(imageCarInsuranceUrl!),
+                                        fit: BoxFit.cover,
+                                      )
+                                    : DecorationImage(
+                                        image: MemoryImage(imageCarInsurance!),
+                                        fit: BoxFit.cover,
+                                      ),
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: const [
+                                  BoxShadow(
+                                    color: Colors.black26,
+                                    blurRadius: 8,
+                                    offset: Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                            )
+                          : Container(
+                              height: 250,
+                              decoration: BoxDecoration(
+                                color: Colors.grey[200],
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(color: Colors.grey[400]!),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.add_a_photo,
+                                  color: Colors.grey[400],
+                                  size: 50,
+                                ),
+                              ),
+                            ),
+                    ),
                   ],
                 ),
               ),
@@ -218,7 +386,56 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
           child: SizedBox(
             child: ElevatedButton(
               onPressed: () {
-                Get.to(() => const PriceRentalScreen());
+                if (widget.isEdit) {
+                  Get.to(() => PriceRentalScreen(
+                        carModel: widget.car,
+                        isEdit: true,
+                        imageCarMain: widget.imageCarMain!,
+                        imageCarInside: widget.imageCarInside!,
+                        imageCarFront: widget.imageCarFront!,
+                        imageCarBack: widget.imageCarBack!,
+                        imageCarLeft: widget.imageCarLeft!,
+                        imageCarRight: widget.imageCarRight!,
+                        imageRegistrationCertificate:
+                            imageRegistrationCertificate!,
+                        imageCarInsurance: imageCarInsurance!,
+                      ));
+                } else if (widget.view) {
+                  Get.to(() => PriceRentalScreen(
+                        carModel: widget.car,
+                        view: true,
+                      ));
+                } else if (imageCarInsurance != null &&
+                    imageRegistrationCertificate != null) {
+                  Get.to(() => PriceRentalScreen(
+                        carModel: widget.car,
+                        imageCarMain: widget.imageCarMain!,
+                        imageCarInside: widget.imageCarInside!,
+                        imageCarFront: widget.imageCarFront!,
+                        imageCarBack: widget.imageCarBack!,
+                        imageCarLeft: widget.imageCarLeft!,
+                        imageCarRight: widget.imageCarRight!,
+                        imageRegistrationCertificate:
+                            imageRegistrationCertificate!,
+                        imageCarInsurance: imageCarInsurance!,
+                      ));
+                } else {
+                  Get.closeCurrentSnackbar();
+                  Get.showSnackbar(GetSnackBar(
+                    messageText: const Text(
+                      "Vui lòng chọn đầy đủ hình ảnh!",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 10),
+                    icon: const Icon(Icons.error, color: Colors.white),
+                    onTap: (_) {
+                      Get.closeCurrentSnackbar();
+                    },
+                  ));
+                }
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Constants.primaryColor,

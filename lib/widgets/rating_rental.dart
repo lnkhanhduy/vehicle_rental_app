@@ -19,7 +19,7 @@ class RatingRental extends StatelessWidget {
         ),
         child: InkWell(
             onTap: () {
-              Get.to(() => ProfileScreen());
+              Get.to(() => const ProfileScreen());
             },
             child: Stack(
               children: [
@@ -35,10 +35,10 @@ class RatingRental extends StatelessWidget {
                             "lib/assets/images/no_avatar.png",
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 5,
                         ),
-                        Column(
+                        const Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
@@ -54,7 +54,7 @@ class RatingRental extends StatelessWidget {
                         ),
                       ],
                     ),
-                    Padding(
+                    const Padding(
                         padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                         child: Text(
                           "good",
@@ -74,7 +74,7 @@ class RatingRental extends StatelessWidget {
                             "lib/assets/icons/star.png",
                           ),
                         ),
-                        SizedBox(
+                        const SizedBox(
                           width: 3,
                         ),
                         const Text(

@@ -587,7 +587,6 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                     height: 20,
                                     child: Transform.rotate(
                                       angle: 270 * 3.14 / 180,
-                                      // Rotate 90 degrees (π/2 radians)
                                       child: Image.asset(
                                         "lib/assets/icons/sensor.png",
                                         color: Constants.primaryColor,
