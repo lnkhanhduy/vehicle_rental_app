@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:vehicle_rental_app/controllers/profile_controller.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
@@ -20,7 +20,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ProfileController());
     Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
@@ -42,7 +41,7 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                 constraints: const BoxConstraints.expand(),
                 color: Colors.white,
                 child: FutureBuilder(
-                  future: controller.getUserData(),
+                  future: UserController.instance.getUserData(),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.done &&
                         snapshot.hasData) {
@@ -230,7 +229,6 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                               addressDistrict.text.trim(),
                                           addressCity: addressCity.text.trim(),
                                           provider: userData.provider,
-                                          typeLicense: userData.typeLicense,
                                           imageAvatar: userData.imageAvatar,
                                           imageLicenseFront:
                                               userData.imageLicenseFront,
@@ -245,10 +243,12 @@ class _UpdateProfileScreenState extends State<UpdateProfileScreen> {
                                           isAdmin: userData.isAdmin,
                                         );
                                         if (imageAvatarEdit != null) {
-                                          await controller.updateUserWithImage(
-                                              user, imageAvatarEdit!);
+                                          await UserController.instance
+                                              .updateUserWithImage(
+                                                  user, imageAvatarEdit!);
                                         } else {
-                                          await controller.updateUser(user);
+                                          await UserController.instance
+                                              .updateUser(user);
                                         }
                                       }
                                     },

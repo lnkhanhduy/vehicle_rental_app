@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/controllers/profile_controller.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -10,17 +10,19 @@ class ChangePasswordScreen extends StatefulWidget {
 }
 
 class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
-  bool _obscureText = true;
+  bool obscureText = true;
 
-  void _togglePasswordStatus() {
+  void togglePasswordStatus() {
     setState(() {
-      _obscureText = !_obscureText;
+      obscureText = !obscureText;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ProfileController());
+    final password = TextEditingController();
+    final confirmPassword = TextEditingController();
+
     Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
@@ -36,7 +38,8 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
           SliverFillRemaining(
               hasScrollBody: false,
               child: Container(
-                  padding: const EdgeInsets.fromLTRB(30, 40, 30, 0),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
                   constraints: const BoxConstraints.expand(),
                   color: Colors.white,
                   child: Column(children: [
@@ -45,64 +48,82 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             child: Column(children: <Widget>[
                               TextFormField(
-                                controller: controller.password,
-                                style: const TextStyle(
-                                    fontSize: 18, color: Colors.black),
+                                controller: password,
+                                style: const TextStyle(color: Colors.black),
                                 decoration: InputDecoration(
                                   labelText: 'Mật khẩu mới',
                                   border: const OutlineInputBorder(),
-                                  labelStyle: const TextStyle(
-                                      color: Color(0xff888888), fontSize: 16),
+                                  labelStyle:
+                                      const TextStyle(color: Color(0xff888888)),
                                   prefixIcon: const Icon(Icons.fingerprint),
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      _obscureText
+                                      obscureText
                                           ? Icons.visibility
                                           : Icons.visibility_off,
                                     ),
-                                    onPressed: _togglePasswordStatus,
+                                    onPressed: togglePasswordStatus,
                                   ),
                                 ),
-                                obscureText: _obscureText,
+                                obscureText: obscureText,
                               ),
                               const SizedBox(
                                 height: 20,
                               ),
                               TextFormField(
-                                controller: controller.confirmPassword,
-                                style: const TextStyle(
-                                    fontSize: 18, color: Colors.black),
+                                controller: confirmPassword,
+                                style: const TextStyle(color: Colors.black),
                                 decoration: InputDecoration(
                                   labelText: 'Nhập lại mật khẩu mới',
                                   border: const OutlineInputBorder(),
-                                  labelStyle: const TextStyle(
-                                      color: Color(0xff888888), fontSize: 16),
+                                  labelStyle:
+                                      const TextStyle(color: Color(0xff888888)),
                                   prefixIcon: const Icon(Icons.fingerprint),
                                   suffixIcon: IconButton(
                                     icon: Icon(
-                                      _obscureText
+                                      obscureText
                                           ? Icons.visibility
                                           : Icons.visibility_off,
                                     ),
-                                    onPressed: _togglePasswordStatus,
+                                    onPressed: togglePasswordStatus,
                                   ),
                                 ),
-                                obscureText: _obscureText,
+                                obscureText: obscureText,
                               ),
                               const SizedBox(
                                 height: 30,
                               ),
                               SizedBox(
                                 width: double.infinity,
-                                height: 56,
+                                height: 50,
                                 child: ElevatedButton(
                                   onPressed: () async {
-                                    final password =
-                                        controller.password.text.trim();
-                                    final confirmPassword =
-                                        controller.password.text.trim();
-                                    await controller.changePassword(
-                                        password, confirmPassword);
+                                    if (password.text.trim().isNotEmpty &&
+                                        confirmPassword.text
+                                            .trim()
+                                            .isNotEmpty &&
+                                        password.text.trim() ==
+                                            confirmPassword.text.trim()) {
+                                      await UserController.instance
+                                          .changePassword(password.text.trim(),
+                                              confirmPassword.text.trim());
+                                    } else {
+                                      Get.showSnackbar(GetSnackBar(
+                                        messageText: const Text(
+                                          "Vui lòng điền đầy đủ thông tin!",
+                                          style: TextStyle(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        backgroundColor: Colors.red,
+                                        duration: const Duration(seconds: 3),
+                                        icon: const Icon(Icons.error,
+                                            color: Colors.white),
+                                        onTap: (_) {
+                                          Get.closeCurrentSnackbar();
+                                        },
+                                      ));
+                                    }
                                   },
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.black87,

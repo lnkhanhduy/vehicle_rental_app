@@ -1,8 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/car_controller.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/firebase_options.dart';
 import 'package:vehicle_rental_app/repository/car_repository.dart';
+import 'package:vehicle_rental_app/repository/rental_repository.dart';
 import 'package:vehicle_rental_app/repository/user_repository.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 
@@ -11,8 +14,13 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   Get.put(UserRepository());
+  Get.put(UserController());
+
   Get.put(CarRepository());
-  
+  Get.put(CarController());
+
+  Get.put(RentalRepository());
+
   runApp(const MyApp());
 }
 

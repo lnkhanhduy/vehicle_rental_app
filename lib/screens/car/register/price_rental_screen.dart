@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/screens/car/approve_screen.dart';
+import 'package:vehicle_rental_app/screens/car/approve_car_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/widgets/header_register_car.dart';
 
 class PriceRentalScreen extends StatefulWidget {
   final CarModel carModel;
@@ -40,7 +41,6 @@ class PriceRentalScreen extends StatefulWidget {
 }
 
 class _PriceRentalScreenState extends State<PriceRentalScreen> {
-  final controller = Get.put(CarController());
   TextEditingController price = TextEditingController();
   TextEditingController message = TextEditingController();
 
@@ -88,168 +88,10 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: Constants.primaryColor,
-                                ),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/info.png",
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Thông tin",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
-                            ],
-                          ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: Constants.primaryColor,
-                                ),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/image.png",
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Hình ảnh",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
-                            ],
-                          ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: Constants.primaryColor),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/paper.png",
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Giấy tờ",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
-                            ],
-                          ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: Constants.primaryColor,
-                                ),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/dollar.png",
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Giá  thuê",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                        ],
-                      ),
-                    ),
+                    const HeaderRegisterCar(
+                        imageScreen: true,
+                        paperScreen: true,
+                        priceScreen: true),
                     const Text.rich(
                       TextSpan(
                         children: [
@@ -267,6 +109,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                       height: 5,
                     ),
                     TextField(
+                      readOnly: widget.view,
                       controller: price,
                       decoration: InputDecoration(
                         hintText: 'Nhập giá cho thuê /ngày',
@@ -287,14 +130,18 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                       ),
                       style: const TextStyle(fontSize: 15),
                     ),
-                    (widget.view && widget.carModel.isApproved == false)
+                    (widget.view &&
+                            widget.carModel.isApproved != true &&
+                            (widget.carModel.message == null ||
+                                widget.carModel.message!.isEmpty))
                         ? Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(
                                 height: 20,
                               ),
-                              Text("Nhập lý do không duyệt (Nếu chọn từ chối)"),
+                              const Text(
+                                  "Nhập lý do không duyệt (Nếu chọn từ chối)"),
                               const SizedBox(
                                 height: 5,
                               ),
@@ -320,7 +167,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                 ),
                                 style: const TextStyle(fontSize: 15),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 10,
                               ),
                               Row(
@@ -348,9 +195,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                             },
                                           ));
                                         } else {
-                                          await controller.cancelCar(
-                                              widget.carModel.id!,
-                                              message.text.trim());
+                                          await CarController.instance
+                                              .cancelCar(widget.carModel.id!,
+                                                  message.text.trim());
                                         }
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -361,16 +208,16 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                               Radius.circular(8)),
                                         ),
                                       ),
-                                      child: Text("Từ chối"),
+                                      child: const Text("Từ chối"),
                                     ),
                                   ),
-                                  SizedBox(
+                                  const SizedBox(
                                     width: 10,
                                   ),
                                   SizedBox(
                                     child: ElevatedButton(
                                       onPressed: () async {
-                                        await controller
+                                        await CarController.instance
                                             .approveCar(widget.carModel.id!);
                                       },
                                       style: ElevatedButton.styleFrom(
@@ -381,7 +228,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                               Radius.circular(8)),
                                         ),
                                       ),
-                                      child: Text("Duyệt"),
+                                      child: const Text("Duyệt"),
                                     ),
                                   ),
                                 ],
@@ -397,7 +244,11 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
         ),
         bottomNavigationBar: ((widget.view == false && widget.isEdit == true) ||
                 (widget.view == false && widget.isEdit == false) ||
-                (widget.view == true && widget.carModel.isApproved == true))
+                (widget.view == true && widget.carModel.isApproved == true) ||
+                (widget.view &&
+                    widget.carModel.isApproved != true &&
+                    widget.carModel.message != null &&
+                    widget.carModel.message!.isNotEmpty))
             ? Container(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
@@ -408,21 +259,25 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                       if (widget.isEdit == true &&
                           widget.carModel.isApproved == true) {
                         _showConfirmationDialog();
-                      } else if (widget.isEdit == true) {
-                        await controller.registerCar(
-                            true,
+                      } else if (widget.isEdit == true &&
+                          widget.carModel.isApproved != true) {
+                        await CarController.instance.updateCar(
                             widget.carModel,
-                            widget.imageCarMain!,
-                            widget.imageCarInside!,
-                            widget.imageCarFront!,
-                            widget.imageCarBack!,
-                            widget.imageCarLeft!,
-                            widget.imageCarRight!,
-                            widget.imageRegistrationCertificate!,
-                            widget.imageCarInsurance!,
+                            widget.imageCarMain,
+                            widget.imageCarInside,
+                            widget.imageCarFront,
+                            widget.imageCarBack,
+                            widget.imageCarLeft,
+                            widget.imageCarRight,
+                            widget.imageRegistrationCertificate,
+                            widget.imageCarInsurance,
                             price.text.trim());
-                      } else if (widget.view && widget.carModel.isApproved!) {
-                        Get.to(() => ApproveScreen());
+                      } else if ((widget.view && widget.carModel.isApproved!) ||
+                          (widget.view &&
+                              widget.carModel.isApproved != true &&
+                              widget.carModel.message != null &&
+                              widget.carModel.message!.isNotEmpty)) {
+                        Get.to(() => const ApproveCarScreen());
                       } else if (price.text.trim().isEmpty) {
                         Get.closeCurrentSnackbar();
                         Get.showSnackbar(GetSnackBar(
@@ -440,8 +295,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                           },
                         ));
                       } else {
-                        await controller.registerCar(
-                            false,
+                        await CarController.instance.registerCar(
                             widget.carModel,
                             widget.imageCarMain!,
                             widget.imageCarInside!,
@@ -464,7 +318,11 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                     child: Text(
                       widget.isEdit
                           ? "Cập nhật"
-                          : (widget.view && widget.carModel.isApproved!)
+                          : (widget.view && widget.carModel.isApproved! ||
+                                  (widget.view &&
+                                      widget.carModel.isApproved != true &&
+                                      widget.carModel.message != null &&
+                                      widget.carModel.message!.isNotEmpty))
                               ? "Đóng"
                               : "Đăng ký",
                     ),
@@ -493,17 +351,16 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
               child: const Text('Cập nhật'),
               onPressed: () async {
                 Navigator.of(context).pop(true);
-                await controller.registerCar(
-                    widget.isEdit,
+                await CarController.instance.updateCar(
                     widget.carModel,
-                    widget.imageCarMain!,
-                    widget.imageCarInside!,
-                    widget.imageCarFront!,
-                    widget.imageCarBack!,
-                    widget.imageCarLeft!,
-                    widget.imageCarRight!,
-                    widget.imageRegistrationCertificate!,
-                    widget.imageCarInsurance!,
+                    widget.imageCarMain,
+                    widget.imageCarInside,
+                    widget.imageCarFront,
+                    widget.imageCarBack,
+                    widget.imageCarLeft,
+                    widget.imageCarRight,
+                    widget.imageRegistrationCertificate,
+                    widget.imageCarInsurance,
                     price.text.trim());
               },
             ),

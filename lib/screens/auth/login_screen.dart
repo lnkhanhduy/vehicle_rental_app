@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/controllers/login_controller.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/screens/auth/forgot_password_screen.dart';
 import 'package:vehicle_rental_app/screens/auth/register_screen.dart';
 
@@ -12,17 +12,16 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _obscureText = true;
+  bool obscureText = true;
 
-  void _togglePasswordStatus() {
+  void togglePasswordStatus() {
     setState(() {
-      _obscureText = !_obscureText;
+      obscureText = !obscureText;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(LoginController());
     final username = TextEditingController();
     final password = TextEditingController();
 
@@ -34,7 +33,7 @@ class _LoginScreenState extends State<LoginScreen> {
         SliverFillRemaining(
           hasScrollBody: false,
           child: Container(
-            padding: const EdgeInsets.fromLTRB(30, 40, 30, 20),
+            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
             color: Colors.white,
             child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +41,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const Text(
                     "ĐĂNG NHẬP",
                     style: TextStyle(
-                      fontSize: 30,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -55,38 +54,36 @@ class _LoginScreenState extends State<LoginScreen> {
                         children: <Widget>[
                           TextFormField(
                             controller: username,
-                            style: const TextStyle(
-                                fontSize: 18, color: Colors.black),
+                            style: const TextStyle(color: Colors.black),
                             decoration: const InputDecoration(
-                                prefixIcon: Icon(Icons.person_outline_outlined),
-                                labelText: 'Email/Số điện thoại',
-                                border: OutlineInputBorder(),
-                                labelStyle: TextStyle(
-                                    color: Color(0xff888888), fontSize: 16)),
+                              prefixIcon: Icon(Icons.person_outline_outlined),
+                              labelText: 'Email/Số điện thoại',
+                              border: OutlineInputBorder(),
+                              labelStyle: TextStyle(color: Color(0xff888888)),
+                            ),
                           ),
                           const SizedBox(height: 20),
                           TextFormField(
                             controller: password,
-                            style: const TextStyle(
-                                fontSize: 18, color: Colors.black),
+                            style: const TextStyle(color: Colors.black),
                             decoration: InputDecoration(
                               labelText: 'Mật khẩu',
                               border: const OutlineInputBorder(),
-                              labelStyle: const TextStyle(
-                                  color: Color(0xff888888), fontSize: 16),
+                              labelStyle:
+                                  const TextStyle(color: Color(0xff888888)),
                               prefixIcon: const Icon(Icons.fingerprint),
                               suffixIcon: IconButton(
                                 icon: Icon(
-                                  _obscureText
+                                  obscureText
                                       ? Icons.visibility
                                       : Icons.visibility_off,
                                 ),
-                                onPressed: _togglePasswordStatus,
+                                onPressed: togglePasswordStatus,
                               ),
                             ),
-                            obscureText: _obscureText,
+                            obscureText: obscureText,
                           ),
-                          const SizedBox(height: 15),
+                          const SizedBox(height: 12),
                           Align(
                             alignment: Alignment.centerRight,
                             child: TextButton(
@@ -97,31 +94,32 @@ class _LoginScreenState extends State<LoginScreen> {
                                   "Quên mật khẩu?",
                                   style: TextStyle(
                                       color: Colors.blue,
-                                      fontSize: 16,
+                                      fontSize: 15,
                                       fontWeight: FontWeight.bold),
                                 )),
                           ),
                           const SizedBox(height: 3),
                           SizedBox(
                             width: double.infinity,
-                            height: 56,
+                            height: 50,
                             child: ElevatedButton(
                               onPressed: () {
                                 if (username.text.trim().isNotEmpty &&
                                     password.text.trim().isNotEmpty) {
-                                  controller.loginUser(username.text.trim(),
+                                  UserController.instance.loginUser(
+                                      username.text.trim(),
                                       password.text.trim());
                                 } else {
                                   Get.closeCurrentSnackbar();
                                   Get.showSnackbar(GetSnackBar(
-                                    messageText: Text(
+                                    messageText: const Text(
                                       "Vui lòng điền đầy đủ thông tin!",
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         color: Colors.white,
                                       ),
                                     ),
                                     backgroundColor: Colors.red,
-                                    duration: const Duration(seconds: 10),
+                                    duration: const Duration(seconds: 3),
                                     icon: const Icon(Icons.error,
                                         color: Colors.white),
                                     onTap: (_) {
@@ -153,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     children: [
                       Text("Hoặc",
                           style: TextStyle(
-                            fontSize: 17,
+                            fontSize: 16,
                           ))
                     ],
                   ),
@@ -162,7 +160,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(
                     width: double.infinity,
-                    height: 56,
+                    height: 50,
                     child: OutlinedButton.icon(
                         style: OutlinedButton.styleFrom(
                           shape: RoundedRectangleBorder(
@@ -174,7 +172,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 30,
                         ),
                         onPressed: () {
-                          LoginController.instance.googleSignIn();
+                          UserController.instance.googleSignIn();
                         },
                         label: const Text(
                           "Đăng nhập với Google",
@@ -183,7 +181,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     //
                   ),
                   const SizedBox(
-                    height: 20,
+                    height: 15,
                   ),
                   TextButton(
                     onPressed: () {
@@ -193,14 +191,14 @@ class _LoginScreenState extends State<LoginScreen> {
                         text: "Bạn chưa có tài khoản? ",
                         style: TextStyle(
                             color: Color(0xff888888),
-                            fontSize: 16,
+                            fontSize: 15,
                             fontWeight: FontWeight.bold),
                         children: [
                           TextSpan(
                             text: "Đăng ký",
                             style: TextStyle(
                                 color: Colors.blue,
-                                fontSize: 16,
+                                fontSize: 15,
                                 fontWeight: FontWeight.bold),
                           )
                         ])),

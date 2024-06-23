@@ -34,25 +34,26 @@ class _SuccessScreenState extends State<SuccessScreen> {
                     color: Constants.primaryColor,
                     size: 70,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 5,
                   ),
                   Text(
                     widget.title,
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 32),
+                    style: const TextStyle(
+                        fontWeight: FontWeight.bold, fontSize: 32),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
                   Text(
                     widget.content,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
                       color: Colors.black,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  SizedBox(
+                  const SizedBox(
                     height: 50,
                   ),
                   TextButton(

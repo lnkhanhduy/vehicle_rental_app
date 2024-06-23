@@ -22,7 +22,7 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.to(() => ProfileScreen()),
+            onPressed: () => Get.to(() => const ProfileScreen()),
             icon: const Icon(Icons.arrow_back)),
         title: const Text(
           "Xe đã đăng ký cho thuê",
@@ -47,8 +47,8 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
                 CarModel car = carList[index];
                 return Column(
                   children: [
-                    CarCardApprove(car: car),
-                    Divider(
+                    CarCardApprove(car: car, isEdit: true),
+                    const Divider(
                       height: 1,
                     )
                   ],

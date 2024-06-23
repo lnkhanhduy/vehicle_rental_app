@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/models/car_model.dart';
+import 'package:vehicle_rental_app/repository/user_repository.dart';
 import 'package:vehicle_rental_app/screens/car/car_details_screen.dart';
-import 'package:vehicle_rental_app/screens/home_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/utils/utils.dart';
 
 class CarCard extends StatelessWidget {
-  final Car car;
+  final CarModel car;
 
   const CarCard({super.key, required this.car});
 
@@ -31,32 +33,33 @@ class CarCard extends StatelessWidget {
                     height: 240,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
-                      image: DecorationImage(
-                        image: Image.asset(
-                          "lib/assets/images/no_car_image.png",
-                        ).image,
-                        fit: BoxFit.cover,
-                      ),
+                      image: car.imageCarMain != null
+                          ? DecorationImage(
+                              image: Image.network(
+                              car.imageCarMain!,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  "lib/assets/images/no_image.png",
+                                  fit: BoxFit.cover,
+                                );
+                              },
+                            ).image)
+                          : DecorationImage(
+                              image: Image.asset(
+                                "lib/assets/images/no_car_image.png",
+                              ).image,
+                              fit: BoxFit.cover,
+                            ),
                     ),
-                    // child: PageView.builder(
-                    //   itemCount: 10,
-                    //   itemBuilder: (context, index) {
-                    //     return ClipRRect(
-                    //       borderRadius: BorderRadius.circular(10),
-                    //       child: Image.asset(
-                    //         "lib/assets/images/no_car_image.png",
-                    //         fit: BoxFit.cover,
-                    //         width: double.infinity,
-                    //       ),
-                    //     );
-                    //   },
-                    // ),
                   ),
                   Positioned(
                     top: 5,
                     right: 5,
                     child: IconButton(
-                      onPressed: () {},
+                      onPressed: () {
+                        UserRepository.instance.addFavorite(car.id!);
+                      },
                       icon: const Icon(
                         Icons.favorite_border,
                         color: Colors.white,
@@ -77,7 +80,7 @@ class CarCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      car.name,
+                      car.carInfoModel,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -95,7 +98,7 @@ class CarCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 3),
                         Text(
-                          "Quận 6 HCM",
+                          '${car.addressDistrict}, ${car.addressCity}',
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.grey[500],
@@ -122,7 +125,9 @@ class CarCard extends StatelessWidget {
                             const SizedBox(
                               width: 3,
                             ),
-                            const Text("5.0"),
+                            Text(car.star != null && car.star!.isNotEmpty
+                                ? car.star!
+                                : "0"),
                             SizedBox(
                               width: 17,
                               height: 17,
@@ -141,11 +146,12 @@ class CarCard extends StatelessWidget {
                             const SizedBox(
                               width: 6,
                             ),
-                            const Text("2 chuyến"),
+                            Text(
+                                '${car.totalRental != null ? car.totalRental! : "0"} chuyến'),
                           ],
                         ),
                         Row(children: [
-                          Text("633K",
+                          Text(Utils.formatNumber(int.parse(car.price!)),
                               style: TextStyle(
                                   color: Constants.primaryColor,
                                   fontWeight: FontWeight.bold,

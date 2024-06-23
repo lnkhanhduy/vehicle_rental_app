@@ -5,17 +5,26 @@ import 'package:get/get.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/repository/user_repository.dart';
 
-class ProfileController extends GetxController {
-  static ProfileController get instance => Get.find();
-
-  final name = TextEditingController();
-  final email = TextEditingController();
-  final phone = TextEditingController();
-  final password = TextEditingController();
-  final confirmPassword = TextEditingController();
-  final address = TextEditingController();
+class UserController extends GetxController {
+  static UserController get instance => Get.find();
 
   final userRepository = Get.put(UserRepository());
+
+  Future<void> loginUser(String username, String password) async {
+    await userRepository.loginUser(username, password);
+  }
+
+  Future<void> googleSignIn() async {
+    await userRepository.signInWithGoogle();
+  }
+
+  Future<void> createUser(UserModel user) async {
+    await userRepository.createUser(user);
+  }
+
+  Future<void> forgotPassword(String email) async {
+    await userRepository.forgotPassword(email);
+  }
 
   Future<UserModel?> getUserData() async {
     final email = userRepository.firebaseUser.value?.providerData[0].email;
@@ -63,12 +72,15 @@ class ProfileController extends GetxController {
         imageIdCardFront, imageIdCardBack, imageLicenseFront, imageLicenseBack);
   }
 
-  Future<void> updateLicense(
-      String typeLicense, Uint8List? imageFront, Uint8List? imageBack) async {
-    await userRepository.updateLicense(typeLicense, imageFront, imageBack);
+  Future<List<UserModel>?> getUserApprove() async {
+    return await userRepository.getUserApprove();
   }
 
-  Future<void> updateIdCard(Uint8List? imageFront, Uint8List? imageBack) async {
-    await userRepository.updateIdCard(imageFront, imageBack);
+  Future<void> approveUser(String id) async {
+    await userRepository.approveUser(id);
+  }
+
+  Future<void> cancelUser(String id, String message) async {
+    await userRepository.cancelUser(id, message);
   }
 }

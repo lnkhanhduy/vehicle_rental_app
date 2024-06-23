@@ -15,9 +15,9 @@ class _HistoryScreenState extends State<HistoryScreen> {
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
-        title: Text(
+        title: const Text(
           "Lịch sử thuê xe",
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

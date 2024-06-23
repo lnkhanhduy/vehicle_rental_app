@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
+import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/widgets/user_card_approve.dart';
 
 class ApproveUserPaperScreen extends StatefulWidget {
-  final UserModel user;
-
-  const ApproveUserPaperScreen({super.key, required this.user});
+  const ApproveUserPaperScreen({super.key});
 
   @override
   State<ApproveUserPaperScreen> createState() => _ApproveUserPaperScreenState();
@@ -15,26 +16,49 @@ class _ApproveUserPaperScreenState extends State<ApproveUserPaperScreen> {
   @override
   Widget build(BuildContext context) {
     Get.closeCurrentSnackbar();
+
     return Scaffold(
-        appBar: AppBar(
-          leading:
-              IconButton(onPressed: () {}, icon: const Icon(Icons.arrow_back)),
-          title: const Text(
-            "Duyệt thông tin người dùng",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-          ),
-          centerTitle: true,
+      appBar: AppBar(
+        leading: IconButton(
+            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 3)),
+            icon: const Icon(Icons.arrow_back)),
+        title: const Text(
+          "Xét duyệt giấy tờ",
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
-        body: CustomScrollView(slivers: [
-          SliverFillRemaining(
-              hasScrollBody: false,
-              child: Container(
-                  padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-                  constraints: const BoxConstraints.expand(),
-                  color: Colors.white,
-                  child: Column(
-                    children: [Text("data")],
-                  )))
-        ]));
+        centerTitle: true,
+      ),
+      body: FutureBuilder<List<UserModel>?>(
+        future: UserController.instance.getUserApprove(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('No data found'));
+          } else {
+            List<UserModel> userList = snapshot.data!;
+            return ListView.builder(
+              itemCount: userList.length,
+              itemBuilder: (context, index) {
+                UserModel user = userList[index];
+                return Column(
+                  children: [
+                    UserCardApprove(
+                      user: user,
+                      view: true,
+                    ),
+                    const Divider(
+                      height: 1,
+                    )
+                  ],
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
   }
 }

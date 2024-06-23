@@ -11,7 +11,6 @@ class CarController extends GetxController {
   final carRepository = CarRepository.instance;
 
   Future<void> registerCar(
-      bool update,
       CarModel carModel,
       Uint8List imageCarMain,
       Uint8List imageCarInside,
@@ -23,7 +22,30 @@ class CarController extends GetxController {
       Uint8List imageCarInsurance,
       String price) async {
     await carRepository.registerCar(
-        update,
+        carModel,
+        imageCarMain,
+        imageCarInside,
+        imageCarFront,
+        imageCarBack,
+        imageCarLeft,
+        imageCarRight,
+        imageRegistrationCertificate,
+        imageCarInsurance,
+        price);
+  }
+
+  Future<void> updateCar(
+      CarModel carModel,
+      Uint8List? imageCarMain,
+      Uint8List? imageCarInside,
+      Uint8List? imageCarFront,
+      Uint8List? imageCarBack,
+      Uint8List? imageCarLeft,
+      Uint8List? imageCarRight,
+      Uint8List? imageRegistrationCertificate,
+      Uint8List? imageCarInsurance,
+      String price) async {
+    await carRepository.updateCar(
         carModel,
         imageCarMain,
         imageCarInside,

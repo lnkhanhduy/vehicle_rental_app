@@ -1,16 +1,34 @@
+import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/models/car_model.dart';
+import 'package:vehicle_rental_app/models/rental_model.dart';
+import 'package:vehicle_rental_app/models/user_model.dart';
+import 'package:vehicle_rental_app/repository/rental_repository.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/utils/utils.dart';
 
 class ConfirmRentalScreen extends StatefulWidget {
-  const ConfirmRentalScreen({super.key});
+  final CarModel car;
+  final UserModel userModel;
+  final DateTime fromDate;
+  final DateTime toDate;
+
+  const ConfirmRentalScreen(
+      {super.key,
+      required this.car,
+      required this.userModel,
+      required this.fromDate,
+      required this.toDate});
 
   @override
   State<ConfirmRentalScreen> createState() => _ConfirmRentalScreenState();
 }
 
 class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
+  final message = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,11 +64,19 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                             color: Colors.grey.withOpacity(0.15),
                             borderRadius: BorderRadius.circular(8),
                           ),
-                          child: Image.asset(
-                            "lib/assets/images/no_car_image.png",
+                          child: Image.network(
+                            widget.car.imageCarMain!,
+                            fit: BoxFit.cover,
                             width: 60,
                             height: 40,
-                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return Image.asset(
+                                "lib/assets/images/no_car_image.png",
+                                fit: BoxFit.cover,
+                                width: 60,
+                                height: 40,
+                              );
+                            },
                           ),
                         ),
                         const SizedBox(
@@ -59,8 +85,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              "Suzuki",
+                            Text(
+                              widget.car.carInfoModel,
                               style: TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
@@ -122,7 +148,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                     const SizedBox(
                       height: 12,
                     ),
-                    const Row(
+                    Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -150,7 +176,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                               height: 8,
                             ),
                             Text(
-                              'HH:mm dd/MM/yyyy',
+                              BoardDateFormat('HH:mm dd/MM/yyyy')
+                                  .format(widget.fromDate),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -180,7 +207,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                               height: 8,
                             ),
                             Text(
-                              'HH:mm dd/MM/yyyy',
+                              BoardDateFormat('HH:mm dd/MM/yyyy')
+                                  .format(widget.toDate),
                               style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -210,7 +238,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                     const SizedBox(
                       height: 6,
                     ),
-                    const Text("Quận 6, TPHCM",
+                    Text(
+                        '${widget.car.addressRoad}, ${widget.car.addressDistrict}, ${widget.car.addressCity}',
                         style: TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(
                       height: 10,
@@ -270,9 +299,21 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                               SizedBox(
                                 width: 70,
                                 height: 70,
-                                child: Image.asset(
-                                  "lib/assets/images/no_avatar.png",
-                                ),
+                                child: widget.userModel.imageAvatar != null &&
+                                        widget.userModel.imageAvatar!.isNotEmpty
+                                    ? Image.network(
+                                        widget.userModel.imageAvatar!,
+                                        fit: BoxFit.cover,
+                                        errorBuilder:
+                                            (context, error, stackTrace) {
+                                          return Image.asset(
+                                            "lib/assets/images/no_image.png",
+                                            fit: BoxFit.cover,
+                                          );
+                                        },
+                                      )
+                                    : Image.asset(
+                                        "lib/assets/images/no_avatar.png"),
                               ),
                               const SizedBox(
                                 width: 5,
@@ -280,8 +321,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  const Text(
-                                    "Lê Nguyễn Khánh Duy",
+                                  Text(
+                                    widget.userModel.name,
                                     style: TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16),
@@ -351,7 +392,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                           border: Border.all(
                             color: Colors.grey.withOpacity(0.5),
                           )),
-                      child: const TextField(
+                      child: TextField(
+                        controller: message,
                         maxLines: 4,
                         decoration: InputDecoration.collapsed(
                           hintText: "Nhập lời nhắn cho chủ xe",
@@ -380,7 +422,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                             border: Border.all(
                               color: Colors.grey.withOpacity(0.5),
                             )),
-                        child: const Column(children: [
+                        child: Column(children: [
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
@@ -391,7 +433,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                       fontSize: 15),
                                 ),
                                 Text(
-                                  "2.000.000đ",
+                                  Utils.formatNumber(
+                                      int.parse(widget.car.price!)),
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15),
@@ -409,8 +452,16 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
           color: Constants.primaryColor.withOpacity(0.05),
           child: SizedBox(
             child: ElevatedButton(
-              onPressed: () {
-                Get.to(() => const ConfirmRentalScreen());
+              onPressed: () async {
+                RentalModel rentalModel = RentalModel(
+                  idCar: widget.car.id!,
+                  fromDate: widget.fromDate.toString(),
+                  toDate: widget.toDate.toString(),
+                  message: message.text.trim(),
+                  idOwner: widget.userModel.email!,
+                );
+
+                await RentalRepository.instance.sendRequestRental(rentalModel);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Constants.primaryColor,

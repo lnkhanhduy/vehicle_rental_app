@@ -10,7 +10,6 @@ class UserModel {
   final String? addressRoad;
   final String? addressDistrict;
   final String? addressCity;
-  final String? typeLicense;
   final String? imageLicenseFront;
   final String? imageLicenseBack;
   final String? imageIdCardFront;
@@ -30,7 +29,6 @@ class UserModel {
     this.addressRoad,
     this.addressDistrict,
     this.addressCity,
-    this.typeLicense,
     this.imageLicenseFront,
     this.imageLicenseBack,
     this.imageIdCardFront,
@@ -50,7 +48,6 @@ class UserModel {
       'addressRoad': addressRoad,
       'addressDistrict': addressDistrict,
       'addressCity': addressCity,
-      'typeLicense': typeLicense,
       'imageLicenseFront': imageLicenseFront,
       'imageLicenseBack': imageLicenseBack,
       'imageIdCardFront': imageIdCardFront,
@@ -75,7 +72,6 @@ class UserModel {
       addressRoad: data['addressRoad'],
       addressDistrict: data['addressDistrict'],
       addressCity: data['addressCity'],
-      typeLicense: data['typeLicense'],
       imageLicenseFront: data['imageLicenseFront'],
       imageLicenseBack: data['imageLicenseBack'],
       imageIdCardFront: data['imageIdCardFront'],

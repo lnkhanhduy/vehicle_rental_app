@@ -19,9 +19,9 @@ class _ChatScreenState extends State<ChatScreen> {
                   initialIndex: 0,
                 )),
             icon: const Icon(Icons.arrow_back)),
-        title: Text(
+        title: const Text(
           "Yêu thích",
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

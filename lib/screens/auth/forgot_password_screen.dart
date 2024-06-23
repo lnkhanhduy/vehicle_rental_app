@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/controllers/forgot_password_controller.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 
 class ForgotPasswordScreen extends StatefulWidget {
@@ -13,7 +13,8 @@ class ForgotPasswordScreen extends StatefulWidget {
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(ForgotPasswordController());
+    final email = TextEditingController();
+
     Get.closeCurrentSnackbar();
     return Scaffold(
       body: CustomScrollView(
@@ -21,7 +22,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(30, 0, 30, 0),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
               color: Colors.white,
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -29,66 +30,72 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     const Text(
                       "QUÊN MẬT KHẨU",
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    const SizedBox(height: 20),
                     const Text(
                       "Vui lòng nhập email của bạn để đặt lại mật khẩu.",
-                      style: TextStyle(fontSize: 17),
+                      style: TextStyle(fontSize: 15),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(
-                      height: 20,
+                    const SizedBox(height: 25),
+                    TextField(
+                      controller: email,
+                      style: const TextStyle(color: Colors.black),
+                      decoration: const InputDecoration(
+                          prefixIcon: Icon(Icons.mail_outline_outlined),
+                          labelText: 'Email',
+                          border: OutlineInputBorder(),
+                          labelStyle: TextStyle(color: Color(0xff888888))),
                     ),
-                    Form(
-                        child: Column(
-                      children: [
-                        TextFormField(
-                          controller: controller.email,
-                          style: const TextStyle(
-                              fontSize: 18, color: Colors.black),
-                          decoration: const InputDecoration(
-                              prefixIcon: Icon(Icons.mail_outline_outlined),
-                              labelText: 'Email',
-                              border: OutlineInputBorder(),
-                              labelStyle: TextStyle(
-                                  color: Color(0xff888888), fontSize: 16)),
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 54,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              ForgotPasswordController.instance
-                                  .forgotPassword();
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.black87,
-                              foregroundColor: Colors.white,
-                              shape: const RoundedRectangleBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(4)),
+                    const SizedBox(
+                      height: 25,
+                    ),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          if (email.text.trim().isEmpty) {
+                            Get.showSnackbar(GetSnackBar(
+                              messageText: const Text(
+                                "Vui lòng điền email!",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
                               ),
-                            ),
-                            child: const Text(
-                              "TIẾP TỤC",
-                              style: TextStyle(
-                                fontSize: 17,
-                              ),
-                            ),
+                              backgroundColor: Colors.red,
+                              duration: const Duration(seconds: 3),
+                              icon:
+                                  const Icon(Icons.error, color: Colors.white),
+                              onTap: (_) {
+                                Get.closeCurrentSnackbar();
+                              },
+                            ));
+                          } else {
+                            UserController.instance
+                                .forgotPassword(email.text.trim());
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black87,
+                          foregroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(4)),
                           ),
                         ),
-                      ],
-                    )),
+                        child: const Text(
+                          "TIẾP TỤC",
+                          style: TextStyle(
+                            fontSize: 17,
+                          ),
+                        ),
+                      ),
+                    ),
                     const SizedBox(
-                      height: 50,
+                      height: 40,
                     ),
                     TextButton(
                         onPressed: () {
@@ -97,11 +104,14 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                         child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(Icons.arrow_back),
-                              SizedBox(width: 5),
+                              Icon(
+                                Icons.arrow_back,
+                                color: Colors.black87,
+                              ),
+                              SizedBox(width: 10),
                               Text("Đăng nhập",
                                   style: TextStyle(
-                                      fontSize: 17, color: Colors.black))
+                                      fontSize: 16, color: Colors.black87))
                             ]))
                   ]),
             ),

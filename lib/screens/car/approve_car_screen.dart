@@ -2,19 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
+import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/widgets/car_card_approve.dart';
 
-class ApproveScreen extends StatefulWidget {
-  const ApproveScreen({super.key});
+class ApproveCarScreen extends StatefulWidget {
+  const ApproveCarScreen({super.key});
 
   @override
-  State<ApproveScreen> createState() => _ApproveScreenState();
+  State<ApproveCarScreen> createState() => _ApproveCarScreenState();
 }
 
-class _ApproveScreenState extends State<ApproveScreen> {
-  final CarController controller = Get.put(CarController());
-
+class _ApproveCarScreenState extends State<ApproveCarScreen> {
   @override
   Widget build(BuildContext context) {
     Get.closeCurrentSnackbar();
@@ -22,7 +20,7 @@ class _ApproveScreenState extends State<ApproveScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.to(() => ProfileScreen()),
+            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 3)),
             icon: const Icon(Icons.arrow_back)),
         title: const Text(
           "Xét duyệt xe",
@@ -31,7 +29,7 @@ class _ApproveScreenState extends State<ApproveScreen> {
         centerTitle: true,
       ),
       body: FutureBuilder<List<CarModel>?>(
-        future: controller.getCarApprove(),
+        future: CarController.instance.getCarApprove(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
@@ -47,8 +45,11 @@ class _ApproveScreenState extends State<ApproveScreen> {
                 CarModel car = carList[index];
                 return Column(
                   children: [
-                    CarCardApprove(car: car),
-                    Divider(
+                    CarCardApprove(
+                      car: car,
+                      view: true,
+                    ),
+                    const Divider(
                       height: 1,
                     )
                   ],

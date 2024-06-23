@@ -5,9 +5,11 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
+import 'package:vehicle_rental_app/repository/car_repository.dart';
+import 'package:vehicle_rental_app/screens/approve_user_paper_screen.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
-import 'package:vehicle_rental_app/screens/home_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 
@@ -283,7 +285,7 @@ class UserRepository extends GetxController {
               icon: const Icon(Icons.check, color: Colors.green),
               duration: const Duration(seconds: 3),
             );
-            Get.offAll(() => const HomeScreen());
+            Get.offAll(() => const LayoutScreen());
           }
         }
       } on FirebaseAuthException catch (e) {
@@ -721,6 +723,11 @@ class UserRepository extends GetxController {
             await Utils.deleteImageIfExists(userModel?.imageLicenseBack ?? "");
           }
 
+          await firebaseFirestore
+              .collection("Users")
+              .doc(email)
+              .update({"message": "", "isVerified": false});
+
           Get.closeCurrentSnackbar();
           Get.showSnackbar(GetSnackBar(
             messageText: const Text(
@@ -742,198 +749,6 @@ class UserRepository extends GetxController {
         Get.showSnackbar(GetSnackBar(
           messageText: Text(
             e.message ?? "Có lỗi xảy ra. Vui bạn thử lại sau!",
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 10),
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      } catch (e) {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            e.toString(),
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 10),
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      }
-    }
-  }
-
-  Future<void> updateLicense(
-      String typeLicense, Uint8List? imageFront, Uint8List? imageBack) async {
-    final email = firebaseUser.value?.providerData[0].email;
-    if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
-    } else {
-      try {
-        UserModel? userModel = await getUserDetails(email);
-        if (imageBack != null &&
-            userModel?.imageLicenseFront != null &&
-            imageFront == null) {
-          await Utils.uploadImage(
-              imageBack, "users", email, "imageLicenseBack", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageLicenseBack ?? "");
-        } else if (imageFront != null &&
-            userModel?.imageLicenseBack != null &&
-            imageBack == null) {
-          await Utils.uploadImage(
-              imageFront, "users", email, "imageLicenseFront", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageLicenseFront ?? "");
-        } else if (imageFront != null && imageBack != null) {
-          await Utils.uploadImage(
-              imageFront, "users", email, "imageLicenseFront", "Users");
-          await Utils.uploadImage(
-              imageBack, "users", email, "imageLicenseBack", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageLicenseFront ?? "");
-          await Utils.deleteImageIfExists(userModel?.imageLicenseBack ?? "");
-        }
-
-        await firebaseFirestore
-            .collection("Users")
-            .doc(email)
-            .update({"typeLicense": typeLicense});
-
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Cập nhật bằng lái xe thành công!",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      } on FirebaseAuthException catch (e) {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            e.message ?? "Có lỗi xảy ra. Vui bạn thử được sau!",
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 10),
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      } catch (e) {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            e.toString(),
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 10),
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      }
-    }
-  }
-
-  Future<void> updateIdCard(Uint8List? imageFront, Uint8List? imageBack) async {
-    final email = firebaseUser.value?.providerData[0].email;
-    if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
-    } else {
-      try {
-        UserModel? userModel = await getUserDetails(email);
-        if (imageBack != null &&
-            userModel?.imageIdCardFront != null &&
-            imageFront == null) {
-          await Utils.uploadImage(
-              imageBack, "users", email, "imageIdCardBack", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageIdCardBack ?? "");
-        } else if (imageFront != null &&
-            userModel?.imageIdCardBack != null &&
-            imageBack == null) {
-          await Utils.uploadImage(
-              imageFront, "users", email, "imageIdCardFront", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageIdCardFront ?? "");
-        } else if (imageFront != null && imageBack != null) {
-          await Utils.uploadImage(
-              imageFront, "users", email, "imageIdCardFront", "Users");
-          await Utils.uploadImage(
-              imageBack, "users", email, "imageIdCardBack", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageIdCardFront ?? "");
-          await Utils.deleteImageIfExists(userModel?.imageIdCardBack ?? "");
-        }
-
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Cập nhật CCCD thành công!",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      } on FirebaseAuthException catch (e) {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            e.message ?? "Có lỗi xảy ra. Vui bạn thử được sau!",
             style: const TextStyle(
               color: Colors.white,
             ),
@@ -1026,9 +841,9 @@ class UserRepository extends GetxController {
       } on FirebaseAuthException catch (e) {
         Get.closeCurrentSnackbar();
         Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            e.message ?? "Có lỗi xảy ra. Vui quản thư được sau!",
-            style: const TextStyle(
+          messageText: const Text(
+            "Có lỗi xảy ra. Vui lòng thử lại sau!",
+            style: TextStyle(
               color: Colors.white,
             ),
           ),
@@ -1040,6 +855,149 @@ class UserRepository extends GetxController {
           },
         ));
       }
+    }
+  }
+
+  Future<List<CarModel>?> getDataHomeScreen() async {
+    final email = firebaseUser.value?.providerData[0].email;
+
+    if (email == null) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: const Text(
+          "Có lỗi xảy ra. Vui lòng thử lại sau!",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } else {
+      UserModel? userModel = await getUserDetails(email);
+
+      if (userModel == null) {
+        return null;
+      }
+      List<CarModel>? listCar = await CarRepository.instance
+          .getCarHomeScreen(userModel.addressDistrict, userModel.addressCity);
+
+      return listCar;
+    }
+    return null;
+  }
+
+  Future<void> addFavorite(String id) async {
+    final email = firebaseUser.value?.providerData[0].email;
+    if (email == null) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: const Text(
+          "Có lỗi xảy ra. Vui lòng thử lại sau!",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } else {
+      final listFavorite =
+          await firebaseFirestore.collection("Favorites").doc(email).get();
+
+      if (listFavorite.data() == null) {
+        await firebaseFirestore.collection("Favorites").doc(email).set({
+          "listFavorite": [id]
+        });
+      } else {
+        if (listFavorite.data()!["listFavorite"].contains(id)) {
+          await firebaseFirestore.collection("Favorites").doc(email).update({
+            "listFavorite": FieldValue.arrayRemove([id])
+          });
+        } else {
+          await firebaseFirestore.collection("Favorites").doc(email).update({
+            "listFavorite": FieldValue.arrayUnion([id])
+          });
+        }
+      }
+    }
+  }
+
+  Future<List<CarModel>?> getFavorite() async {
+    final email = firebaseUser.value?.providerData[0].email;
+    if (email == null) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: const Text(
+          "Có lỗi xảy ra. Vui lòng thử lại sau!",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } else {
+      final listFavorite =
+          await firebaseFirestore.collection("Favorites").doc(email).get();
+      return null;
+    }
+  }
+
+  Future<List<UserModel>?> getUserApprove() async {
+    QuerySnapshot querySnapshot = await FirebaseFirestore.instance
+        .collection("Users")
+        .where("isAdmin", isEqualTo: false)
+        .orderBy("isVerified", descending: false)
+        .get();
+
+    List<UserModel> userList = querySnapshot.docs.where((doc) {
+      final data = doc.data() as Map<String, dynamic>;
+      return data['imageIdCardFront'] != null &&
+          data['imageIdCardBack'] != null &&
+          data['imageLicenseFront'] != null &&
+          data['imageLicenseBack'] != null;
+    }).map((doc) {
+      return UserModel.fromSnapshot(
+          doc as DocumentSnapshot<Map<String, dynamic>>);
+    }).toList();
+
+    return userList;
+  }
+
+  Future<void> approveUser(String id) async {
+    try {
+      await firebaseFirestore
+          .collection("Users")
+          .doc(id)
+          .update({"isVerified": true, "message": ""});
+      Get.to(() => const ApproveUserPaperScreen());
+    } catch (e) {
+      return;
+    }
+  }
+
+  Future<void> cancelUser(String id, String message) async {
+    try {
+      await firebaseFirestore
+          .collection("Users")
+          .doc(id)
+          .update({"isVerified": false, "message": message});
+      Get.to(() => const ApproveUserPaperScreen());
+    } catch (e) {
+      return;
     }
   }
 }

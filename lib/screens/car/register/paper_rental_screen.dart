@@ -8,6 +8,8 @@ import 'package:vehicle_rental_app/screens/car/register/price_rental_screen.dart
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
+import 'package:vehicle_rental_app/widgets/header_register_car.dart';
+import 'package:vehicle_rental_app/widgets/image_container.dart';
 
 class PaperRentalScreen extends StatefulWidget {
   final CarModel car;
@@ -86,294 +88,147 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: Constants.primaryColor,
-                                ),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/info.png",
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Thông tin",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
+                    const HeaderRegisterCar(
+                        imageScreen: true,
+                        paperScreen: true,
+                        priceScreen: false),
+                    ImageContainer(
+                        title: "Giấy đăng ký xe",
+                        image: imageRegistrationCertificate != null ||
+                            imageRegistrationCertificateUrl != null,
+                        height: 250.0,
+                        width: MediaQuery.of(context).size.width,
+                        imageUnit8List: imageRegistrationCertificate,
+                        imageUrl: imageRegistrationCertificateUrl,
+                        imageAsset: 'lib/assets/icons/camera_upload.png'),
+                    widget.view == true
+                        ? Container()
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
+                              IconButton(
+                                  onPressed: () async {
+                                    Uint8List? imgCamera =
+                                        await Utils.pickImage(
+                                            ImageSource.camera);
+                                    if (imgCamera != null) {
+                                      setState(() {
+                                        imageRegistrationCertificate =
+                                            imgCamera;
+                                        imageRegistrationCertificateUrl = null;
+                                      });
+                                    }
+                                  },
+                                  icon: SizedBox(
                                     width: 24,
                                     height: 24,
+                                    child: Image.asset(
+                                      "lib/assets/icons/camera_upload.png",
+                                    ),
+                                  )),
+                              SizedBox(
+                                  width: 20,
+                                  height: 24,
+                                  child: Transform.rotate(
+                                    angle: 90 * 3.14 / 180,
                                     child: Image.asset(
                                       "lib/assets/icons/dash.png",
                                       color: Colors.grey,
                                     ),
                                   )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
-                            ],
-                          ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: Constants.primaryColor,
-                                ),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/image.png",
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Hình ảnh",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
+                              IconButton(
+                                  onPressed: () async {
+                                    Uint8List? imgGallery =
+                                        await Utils.pickImage(
+                                            ImageSource.gallery);
+
+                                    if (imgGallery != null) {
+                                      setState(() {
+                                        imageRegistrationCertificate =
+                                            imgGallery;
+                                        imageRegistrationCertificateUrl = null;
+                                      });
+                                    }
+                                  },
+                                  icon: SizedBox(
                                     width: 24,
                                     height: 24,
                                     child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
+                                      "lib/assets/icons/image_gallery.png",
                                     ),
                                   )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
                             ],
                           ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(100),
-                                  color: Constants.primaryColor,
-                                ),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/paper.png",
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Giấy tờ",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
-                            ],
-                          ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.3))),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/dollar.png",
-                                    color: Constants.primaryColor,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Giá  thuê",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                        ],
-                      ),
-                    ),
-                    const Text(
-                      "Giấy đăng ký xe",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                    ),
-                    const SizedBox(height: 15),
-                    GestureDetector(
-                      onTap: () async {
-                        Uint8List? imgRegister =
-                            await Utils.pickImage(ImageSource.gallery);
-                        if (imgRegister != null) {
-                          setState(() {
-                            imageRegistrationCertificate = imgRegister;
-                            imageRegistrationCertificateUrl = null;
-                          });
-                        }
-                      },
-                      child: imageCarInsurance != null ||
-                              imageRegistrationCertificateUrl != null
-                          ? Container(
-                              height: 250,
-                              decoration: BoxDecoration(
-                                image:
-                                    (imageRegistrationCertificateUrl != null ||
-                                            imageRegistrationCertificateUrl!
-                                                .isNotEmpty)
-                                        ? DecorationImage(
-                                            image: NetworkImage(
-                                                imageRegistrationCertificateUrl!),
-                                            fit: BoxFit.cover,
-                                          )
-                                        : DecorationImage(
-                                            image: MemoryImage(
-                                                imageRegistrationCertificate!),
-                                            fit: BoxFit.cover,
-                                          ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Container(
-                              height: 250,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.grey[400]!),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.add_a_photo,
-                                  color: Colors.grey[400],
-                                  size: 50,
-                                ),
-                              ),
-                            ),
-                    ),
-                    SizedBox(
+                    const SizedBox(
                       height: 25,
                     ),
-                    const Text(
-                      "Bảo hiểm xe",
-                      style:
-                          TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
-                    ),
-                    const SizedBox(height: 15),
-                    GestureDetector(
-                      onTap: () async {
-                        Uint8List? imgInsurance =
-                            await Utils.pickImage(ImageSource.gallery);
-                        if (imgInsurance != null) {
-                          setState(() {
-                            imageCarInsurance = imgInsurance;
-                            imageCarInsuranceUrl = null;
-                          });
-                        }
-                      },
-                      child: imageCarInsurance != null ||
-                              imageCarInsuranceUrl != null
-                          ? Container(
-                              height: 250,
-                              decoration: BoxDecoration(
-                                image: (imageCarInsuranceUrl != null ||
-                                        imageCarInsuranceUrl!.isNotEmpty)
-                                    ? DecorationImage(
-                                        image:
-                                            NetworkImage(imageCarInsuranceUrl!),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : DecorationImage(
-                                        image: MemoryImage(imageCarInsurance!),
-                                        fit: BoxFit.cover,
-                                      ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: const [
-                                  BoxShadow(
-                                    color: Colors.black26,
-                                    blurRadius: 8,
-                                    offset: Offset(0, 2),
-                                  ),
-                                ],
-                              ),
-                            )
-                          : Container(
-                              height: 250,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[200],
-                                borderRadius: BorderRadius.circular(16),
-                                border: Border.all(color: Colors.grey[400]!),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.add_a_photo,
-                                  color: Colors.grey[400],
-                                  size: 50,
-                                ),
-                              ),
-                            ),
-                    ),
+                    ImageContainer(
+                        title: "Bảo hiểm xe",
+                        image: imageCarInsurance != null ||
+                            imageCarInsuranceUrl != null,
+                        height: 250.0,
+                        width: MediaQuery.of(context).size.width,
+                        imageUnit8List: imageCarInsurance,
+                        imageUrl: imageCarInsuranceUrl,
+                        imageAsset: 'lib/assets/icons/camera_upload.png'),
+                    widget.view == true
+                        ? Container()
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              IconButton(
+                                  onPressed: () async {
+                                    Uint8List? imgCamera =
+                                        await Utils.pickImage(
+                                            ImageSource.camera);
+                                    if (imgCamera != null) {
+                                      setState(() {
+                                        imageCarInsurance = imgCamera;
+                                        imageCarInsuranceUrl = null;
+                                      });
+                                    }
+                                  },
+                                  icon: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: Image.asset(
+                                      "lib/assets/icons/camera_upload.png",
+                                    ),
+                                  )),
+                              SizedBox(
+                                  width: 20,
+                                  height: 24,
+                                  child: Transform.rotate(
+                                    angle: 90 * 3.14 / 180,
+                                    child: Image.asset(
+                                      "lib/assets/icons/dash.png",
+                                      color: Colors.grey,
+                                    ),
+                                  )),
+                              IconButton(
+                                  onPressed: () async {
+                                    Uint8List? imgGallery =
+                                        await Utils.pickImage(
+                                            ImageSource.gallery);
+
+                                    if (imgGallery != null) {
+                                      setState(() {
+                                        imageCarInsurance = imgGallery;
+                                        imageCarInsuranceUrl = null;
+                                      });
+                                    }
+                                  },
+                                  icon: SizedBox(
+                                    width: 24,
+                                    height: 24,
+                                    child: Image.asset(
+                                      "lib/assets/icons/image_gallery.png",
+                                    ),
+                                  )),
+                            ],
+                          ),
                   ],
                 ),
               ),
@@ -390,15 +245,15 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
                   Get.to(() => PriceRentalScreen(
                         carModel: widget.car,
                         isEdit: true,
-                        imageCarMain: widget.imageCarMain!,
-                        imageCarInside: widget.imageCarInside!,
-                        imageCarFront: widget.imageCarFront!,
-                        imageCarBack: widget.imageCarBack!,
-                        imageCarLeft: widget.imageCarLeft!,
-                        imageCarRight: widget.imageCarRight!,
+                        imageCarMain: widget.imageCarMain,
+                        imageCarInside: widget.imageCarInside,
+                        imageCarFront: widget.imageCarFront,
+                        imageCarBack: widget.imageCarBack,
+                        imageCarLeft: widget.imageCarLeft,
+                        imageCarRight: widget.imageCarRight,
                         imageRegistrationCertificate:
-                            imageRegistrationCertificate!,
-                        imageCarInsurance: imageCarInsurance!,
+                            imageRegistrationCertificate,
+                        imageCarInsurance: imageCarInsurance,
                       ));
                 } else if (widget.view) {
                   Get.to(() => PriceRentalScreen(

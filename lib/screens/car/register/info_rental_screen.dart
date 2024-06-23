@@ -4,6 +4,7 @@ import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/car/register/image_rental_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/widgets/header_register_car.dart';
 
 class InfoRentalScreen extends StatefulWidget {
   final CarModel? car;
@@ -41,35 +42,6 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
   late bool selectedTire = false;
   late bool selectedEtc = false;
 
-  @override
-  void initState() {
-    super.initState();
-
-    if (widget.isEdit || widget.view) {
-      licensePlates.text = widget.car?.licensePlates ?? '';
-      carCompany.text = widget.car?.carCompany ?? '';
-      carInfoModel.text = widget.car?.carInfoModel ?? '';
-      addressRoad.text = widget.car?.addressRoad ?? '';
-      addressDistrict.text = widget.car?.addressDistrict ?? '';
-      addressCity.text = widget.car?.addressCity ?? '';
-      description.text = widget.car?.description ?? '';
-      selectedYear = widget.car?.yearManufacture ?? '2024';
-      selectedSeat = widget.car?.carSeat ?? '4';
-      selectedTransmission = widget.car?.transmission ?? 'automatic';
-      selectedFuel = widget.car?.fuel ?? 'gasoline';
-      selectedMap = widget.car?.map ?? false;
-      selectedCctv = widget.car?.cctv ?? false;
-      selectedSensor = widget.car?.sensor ?? false;
-      selectedUsb = widget.car?.usb ?? false;
-      selectedTablet = widget.car?.tablet ?? false;
-      selectedAirBag = widget.car?.airBag ?? false;
-      selectedBluetooth = widget.car?.bluetooth ?? false;
-      selectedCameraBack = widget.car?.cameraBack ?? false;
-      selectedTire = widget.car?.tire ?? false;
-      selectedEtc = widget.car?.etc ?? false;
-    }
-  }
-
   List<String> years = [
     '2024',
     '2023',
@@ -102,6 +74,35 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
   ];
 
   @override
+  void initState() {
+    super.initState();
+
+    if (widget.isEdit || widget.view) {
+      licensePlates.text = widget.car?.licensePlates ?? '';
+      carCompany.text = widget.car?.carCompany ?? '';
+      carInfoModel.text = widget.car?.carInfoModel ?? '';
+      addressRoad.text = widget.car?.addressRoad ?? '';
+      addressDistrict.text = widget.car?.addressDistrict ?? '';
+      addressCity.text = widget.car?.addressCity ?? '';
+      description.text = widget.car?.description ?? '';
+      selectedYear = widget.car?.yearManufacture ?? '2024';
+      selectedSeat = widget.car?.carSeat ?? '4';
+      selectedTransmission = widget.car?.transmission ?? 'automatic';
+      selectedFuel = widget.car?.fuel ?? 'gasoline';
+      selectedMap = widget.car?.map ?? false;
+      selectedCctv = widget.car?.cctv ?? false;
+      selectedSensor = widget.car?.sensor ?? false;
+      selectedUsb = widget.car?.usb ?? false;
+      selectedTablet = widget.car?.tablet ?? false;
+      selectedAirBag = widget.car?.airBag ?? false;
+      selectedBluetooth = widget.car?.bluetooth ?? false;
+      selectedCameraBack = widget.car?.cameraBack ?? false;
+      selectedTire = widget.car?.tire ?? false;
+      selectedEtc = widget.car?.etc ?? false;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     Get.closeCurrentSnackbar();
     return Scaffold(
@@ -110,7 +111,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
               onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
           title: const Text(
             "Thông tin",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           actions: [
@@ -136,178 +137,17 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(0, 5, 0, 20),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: Constants.primaryColor),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/info.png",
-                                    color: Colors.white,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Thông tin",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
-                            ],
-                          ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.3))),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/image.png",
-                                    color: Constants.primaryColor,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Hình ảnh",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
-                            ],
-                          ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.3))),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/paper.png",
-                                    color: Constants.primaryColor,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Giấy tờ",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                          Column(
-                            children: [
-                              Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 8,
-                              ),
-                              const Text(
-                                "",
-                                style: TextStyle(fontSize: 13),
-                              )
-                            ],
-                          ),
-                          Column(children: [
-                            Container(
-                                padding: const EdgeInsets.all(11),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(100),
-                                    color: Colors.white,
-                                    border: Border.all(
-                                        color: Colors.grey.withOpacity(0.3))),
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: Image.asset(
-                                    "lib/assets/icons/dollar.png",
-                                    color: Constants.primaryColor,
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 8,
-                            ),
-                            const Text(
-                              "Giá  thuê",
-                              style: TextStyle(fontSize: 13),
-                            )
-                          ]),
-                        ],
-                      ),
-                    ),
-                    Text(
+                    const HeaderRegisterCar(
+                        imageScreen: false,
+                        paperScreen: false,
+                        priceScreen: false),
+                    const Text(
                       "Thông tin cơ bản",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -324,7 +164,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 5,
                           ),
                           TextField(
@@ -344,16 +184,16 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   color: Constants.primaryColor,
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   vertical: 0, horizontal: 12),
                             ),
-                            style: TextStyle(fontSize: 15),
+                            style: const TextStyle(fontSize: 15),
                           )
                         ],
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -370,7 +210,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 5,
                           ),
                           TextField(
@@ -390,16 +230,16 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   color: Constants.primaryColor,
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   vertical: 0, horizontal: 12),
                             ),
-                            style: TextStyle(fontSize: 15),
+                            style: const TextStyle(fontSize: 15),
                           )
                         ],
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -416,7 +256,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                               ],
                             ),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 5,
                           ),
                           TextField(
@@ -436,16 +276,16 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   color: Constants.primaryColor,
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   vertical: 0, horizontal: 12),
                             ),
-                            style: TextStyle(fontSize: 15),
+                            style: const TextStyle(fontSize: 15),
                           )
                         ],
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -465,7 +305,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 5,
                               ),
                               SizedBox(
@@ -488,8 +328,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                             color: Constants.primaryColor,
                                           ),
                                         ),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 12),
                                       ),
                                       isEmpty: selectedYear == '',
                                       child: DropdownButtonHideUnderline(
@@ -532,7 +373,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 5,
                               ),
                               SizedBox(
@@ -555,8 +396,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                             color: Constants.primaryColor,
                                           ),
                                         ),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 12),
                                       ),
                                       isEmpty: selectedSeat == '',
                                       child: DropdownButtonHideUnderline(
@@ -587,7 +429,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -607,7 +449,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 5,
                               ),
                               SizedBox(
@@ -630,8 +472,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                             color: Constants.primaryColor,
                                           ),
                                         ),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 12),
                                       ),
                                       isEmpty: selectedTransmission == '',
                                       child: DropdownButtonHideUnderline(
@@ -678,7 +521,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 5,
                               ),
                               SizedBox(
@@ -701,8 +544,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                             color: Constants.primaryColor,
                                           ),
                                         ),
-                                        contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 12),
                                       ),
                                       isEmpty: selectedFuel == '',
                                       child: DropdownButtonHideUnderline(
@@ -749,13 +593,13 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                     const SizedBox(
                       height: 15,
                     ),
-                    Text(
+                    const Text(
                       "Thông tin bổ sung",
                       style:
                           TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Column(
                         children: [
                           Column(
@@ -774,14 +618,14 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   ],
                                 ),
                               ),
-                              SizedBox(
+                              const SizedBox(
                                 height: 13,
                               ),
                               TextField(
                                 readOnly: widget.view,
                                 controller: addressRoad,
                                 decoration: InputDecoration(
-                                  labelStyle: TextStyle(
+                                  labelStyle: const TextStyle(
                                       color: Colors.black, fontSize: 14),
                                   labelText: 'Số nhà, tên đường',
                                   border: OutlineInputBorder(
@@ -796,22 +640,22 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                       color: Constants.primaryColor,
                                     ),
                                   ),
-                                  contentPadding: EdgeInsets.symmetric(
+                                  contentPadding: const EdgeInsets.symmetric(
                                       vertical: 0, horizontal: 12),
                                 ),
-                                style: TextStyle(fontSize: 15),
+                                style: const TextStyle(fontSize: 15),
                               )
                             ],
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           TextField(
                             readOnly: widget.view,
                             controller: addressDistrict,
                             decoration: InputDecoration(
-                              labelStyle:
-                                  TextStyle(color: Colors.black, fontSize: 14),
+                              labelStyle: const TextStyle(
+                                  color: Colors.black, fontSize: 14),
                               labelText: 'Quận/Huyện',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -825,20 +669,20 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   color: Constants.primaryColor,
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   vertical: 0, horizontal: 12),
                             ),
-                            style: TextStyle(fontSize: 15),
+                            style: const TextStyle(fontSize: 15),
                           ),
-                          SizedBox(
+                          const SizedBox(
                             height: 15,
                           ),
                           TextField(
                             readOnly: widget.view,
                             controller: addressCity,
                             decoration: InputDecoration(
-                              labelStyle:
-                                  TextStyle(color: Colors.black, fontSize: 14),
+                              labelStyle: const TextStyle(
+                                  color: Colors.black, fontSize: 14),
                               labelText: 'Tỉnh/Thành phố',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -852,29 +696,29 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   color: Constants.primaryColor,
                                 ),
                               ),
-                              contentPadding: EdgeInsets.symmetric(
+                              contentPadding: const EdgeInsets.symmetric(
                                   vertical: 0, horizontal: 12),
                             ),
-                            style: TextStyle(fontSize: 15),
+                            style: const TextStyle(fontSize: 15),
                           ),
                         ],
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(vertical: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 12),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text("Mô tả"),
-                          SizedBox(
+                          const Text("Mô tả"),
+                          const SizedBox(
                             height: 15,
                           ),
                           TextField(
                             controller: description,
                             maxLines: 10,
                             decoration: InputDecoration(
-                              labelStyle:
-                                  TextStyle(color: Colors.black, fontSize: 14),
+                              labelStyle: const TextStyle(
+                                  color: Colors.black, fontSize: 14),
                               hintText: 'Mô tả về ngắn gọn xe',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
@@ -888,22 +732,23 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                   color: Constants.primaryColor,
                                 ),
                               ),
-                              contentPadding: EdgeInsets.all(15),
+                              contentPadding: const EdgeInsets.all(15),
                             ),
-                            style: TextStyle(fontSize: 15),
+                            style: const TextStyle(fontSize: 15),
                           ),
                         ],
                       ),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 12,
                     ),
-                    Text("Các tính năng trên xe"),
+                    const Text("Các tính năng trên xe"),
                     TextButton(
                         onPressed: () {
                           showModalSelectFeature(context);
                         },
-                        style: TextButton.styleFrom(padding: EdgeInsets.all(0)),
+                        style: TextButton.styleFrom(
+                            padding: const EdgeInsets.all(0)),
                         child: Text(
                           'Chọn tính năng >',
                           style: TextStyle(color: Constants.primaryColor),
@@ -1013,18 +858,18 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
       builder: (BuildContext context) {
         return Container(
             width: double.infinity,
-            padding: EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(16.0),
             child: Stack(
               children: [
                 Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
+                    const Text(
                       "Chọn tính năng",
                       style:
                           TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 20,
                     ),
                     Row(
@@ -1249,9 +1094,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                     top: -15,
                     right: -15,
                     child: IconButton(
-                      icon: Icon(Icons.close),
+                      icon: const Icon(Icons.close),
                       padding: EdgeInsets.zero,
-                      constraints: BoxConstraints(),
+                      constraints: const BoxConstraints(),
                       onPressed: () {
                         Navigator.of(context).pop();
                       },

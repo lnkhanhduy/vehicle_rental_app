@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/controllers/login_controller.dart';
-import 'package:vehicle_rental_app/controllers/register_controller.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 
@@ -13,17 +12,16 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  bool _obscureText = true;
+  bool obscureText = true;
 
-  void _togglePasswordStatus() {
+  void togglePasswordStatus() {
     setState(() {
-      _obscureText = !_obscureText;
+      obscureText = !obscureText;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(RegisterController());
     final name = TextEditingController();
     final email = TextEditingController();
     final phone = TextEditingController();
@@ -37,7 +35,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(30, 40, 30, 20),
+              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
               color: Colors.white,
               child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -45,7 +43,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const Text(
                       "ĐĂNG KÝ",
                       style: TextStyle(
-                        fontSize: 30,
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -58,66 +56,62 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           children: <Widget>[
                             TextFormField(
                               controller: name,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.black),
+                              style: const TextStyle(color: Colors.black),
                               decoration: const InputDecoration(
                                   prefixIcon:
                                       Icon(Icons.person_outline_outlined),
                                   labelText: 'Họ và tên',
                                   border: OutlineInputBorder(),
-                                  labelStyle: TextStyle(
-                                      color: Color(0xff888888), fontSize: 16)),
+                                  labelStyle:
+                                      TextStyle(color: Color(0xff888888))),
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: email,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.black),
+                              style: const TextStyle(color: Colors.black),
                               decoration: const InputDecoration(
                                   prefixIcon: Icon(Icons.email_outlined),
                                   labelText: 'Email',
                                   border: OutlineInputBorder(),
-                                  labelStyle: TextStyle(
-                                      color: Color(0xff888888), fontSize: 16)),
+                                  labelStyle:
+                                      TextStyle(color: Color(0xff888888))),
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: phone,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.black),
+                              style: const TextStyle(color: Colors.black),
                               decoration: const InputDecoration(
                                   prefixIcon: Icon(Icons.phone_outlined),
                                   labelText: 'Số điện thoại',
                                   border: OutlineInputBorder(),
-                                  labelStyle: TextStyle(
-                                      color: Color(0xff888888), fontSize: 16)),
+                                  labelStyle:
+                                      TextStyle(color: Color(0xff888888))),
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
                               controller: password,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.black),
+                              style: const TextStyle(color: Colors.black),
                               decoration: InputDecoration(
                                 labelText: 'Mật khẩu',
                                 border: const OutlineInputBorder(),
-                                labelStyle: const TextStyle(
-                                    color: Color(0xff888888), fontSize: 16),
+                                labelStyle:
+                                    const TextStyle(color: Color(0xff888888)),
                                 prefixIcon: const Icon(Icons.fingerprint),
                                 suffixIcon: IconButton(
                                   icon: Icon(
-                                    _obscureText
+                                    obscureText
                                         ? Icons.visibility
                                         : Icons.visibility_off,
                                   ),
-                                  onPressed: _togglePasswordStatus,
+                                  onPressed: togglePasswordStatus,
                                 ),
                               ),
-                              obscureText: _obscureText,
+                              obscureText: obscureText,
                             ),
                             const SizedBox(height: 30),
                             SizedBox(
                               width: double.infinity,
-                              height: 56,
+                              height: 50,
                               child: ElevatedButton(
                                 onPressed: () {
                                   if (name.text.trim().isNotEmpty &&
@@ -132,21 +126,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       isAdmin: false,
                                       provider: "password",
                                     );
-
-                                    controller.createUser(user);
+                                    UserController.instance.createUser(user);
                                   } else {
                                     Get.showSnackbar(GetSnackBar(
                                       messageText: const Text(
-                                        "Vui lòng điền đầy đủ thông tin",
+                                        "Vui lòng điền đầy đủ thông tin!",
                                         style: TextStyle(
                                           color: Colors.white,
                                         ),
                                       ),
                                       backgroundColor: Colors.red,
-                                      duration: const Duration(seconds: 10),
+                                      duration: const Duration(seconds: 3),
                                       icon: const Icon(Icons.error,
                                           color: Colors.white),
-                                      onTap: (_) {},
+                                      onTap: (_) {
+                                        Get.closeCurrentSnackbar();
+                                      },
                                     ));
                                   }
                                 },
@@ -173,7 +168,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         Text("Hoặc",
                             style: TextStyle(
-                              fontSize: 17,
+                              fontSize: 16,
                             ))
                       ],
                     ),
@@ -182,7 +177,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     ),
                     SizedBox(
                       width: double.infinity,
-                      height: 56,
+                      height: 50,
                       child: OutlinedButton.icon(
                           style: OutlinedButton.styleFrom(
                             shape: RoundedRectangleBorder(
@@ -194,7 +189,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: 30,
                           ),
                           onPressed: () {
-                            LoginController.instance.googleSignIn();
+                            UserController.instance.googleSignIn();
                           },
                           label: const Text(
                             "Đăng nhập với Google",
@@ -214,14 +209,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           text: "Bạn đã có tài khoản? ",
                           style: TextStyle(
                               color: Color(0xff888888),
-                              fontSize: 16,
+                              fontSize: 15,
                               fontWeight: FontWeight.bold),
                           children: [
                             TextSpan(
                               text: "Đăng nhập",
                               style: TextStyle(
                                   color: Colors.blue,
-                                  fontSize: 16,
+                                  fontSize: 15,
                                   fontWeight: FontWeight.bold),
                             )
                           ])),

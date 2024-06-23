@@ -36,6 +36,8 @@ class CarModel {
   final bool? isHidden;
   final bool? isApproved;
   final String? message;
+  final int? totalRental;
+  final String? star;
 
   const CarModel({
     this.id,
@@ -73,6 +75,8 @@ class CarModel {
     this.isHidden = false,
     this.isApproved = false,
     this.message,
+    this.totalRental,
+    this.star,
   });
 
   Map<String, dynamic> toJson() {
@@ -112,6 +116,8 @@ class CarModel {
       'isHidden': isHidden,
       'isApproved': isApproved,
       'message': message,
+      'totalRental': totalRental,
+      'star': star
     };
   }
 
@@ -155,6 +161,8 @@ class CarModel {
         isHidden: data['isHidden'],
         isApproved: data['isApproved'],
         message: data['message'],
+        totalRental: data['totalRental'],
+        star: data['star'],
       );
     }
   }
