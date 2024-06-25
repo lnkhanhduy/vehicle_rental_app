@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/screens/car/register/image_rental_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/screens/user_rental/image_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';
 
@@ -41,6 +42,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
   late bool selectedCameraBack = false;
   late bool selectedTire = false;
   late bool selectedEtc = false;
+  bool isHidden = false;
 
   List<String> years = [
     '2024',
@@ -78,6 +80,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
     super.initState();
 
     if (widget.isEdit || widget.view) {
+      isHidden = widget.car?.isHidden ?? false;
       licensePlates.text = widget.car?.licensePlates ?? '';
       carCompany.text = widget.car?.carCompany ?? '';
       carInfoModel.text = widget.car?.carInfoModel ?? '';
@@ -100,6 +103,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
       selectedTire = widget.car?.tire ?? false;
       selectedEtc = widget.car?.etc ?? false;
     }
+    print(isHidden);
   }
 
   @override
@@ -115,13 +119,32 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
           ),
           centerTitle: true,
           actions: [
+            if (widget.view)
+              Text(
+                isHidden ? "ẨN" : "HIỆN",
+                style: const TextStyle(color: Colors.black54, fontSize: 17),
+              ),
+            if (widget.isEdit)
+              TextButton(
+                  onPressed: () {
+                    CarController.instance
+                        .changeStatusCar(widget.car!.id!, isHidden);
+                    setState(() {
+                      isHidden = !isHidden;
+                    });
+                  },
+                  child: Text(
+                    isHidden ? "ẨN" : "HIỆN",
+                    style: const TextStyle(color: Colors.black54, fontSize: 17),
+                  )),
             IconButton(
-                onPressed: () => Get.to(() => const LayoutScreen(
-                      initialIndex: 0,
-                    )),
-                icon: const Icon(
-                  Icons.close,
-                ))
+              onPressed: () => Get.to(() => const LayoutScreen(
+                    initialIndex: 0,
+                  )),
+              icon: const Icon(
+                Icons.close,
+              ),
+            ),
           ],
         ),
         body: CustomScrollView(
@@ -744,15 +767,16 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                     ),
                     const Text("Các tính năng trên xe"),
                     TextButton(
-                        onPressed: () {
-                          showModalSelectFeature(context);
-                        },
-                        style: TextButton.styleFrom(
-                            padding: const EdgeInsets.all(0)),
-                        child: Text(
-                          'Chọn tính năng >',
-                          style: TextStyle(color: Constants.primaryColor),
-                        ))
+                      onPressed: () {
+                        showModalSelectFeature(context);
+                      },
+                      style: TextButton.styleFrom(
+                          padding: const EdgeInsets.all(0)),
+                      child: Text(
+                        'Chọn tính năng >',
+                        style: TextStyle(color: Constants.primaryColor),
+                      ),
+                    ),
                   ],
                 ),
               ),

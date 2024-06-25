@@ -36,8 +36,10 @@ class CarModel {
   final bool? isHidden;
   final bool? isApproved;
   final String? message;
-  final int? totalRental;
-  final String? star;
+  final int totalRental;
+  final int star;
+  final bool? isFavorite;
+  final bool isRented;
 
   const CarModel({
     this.id,
@@ -75,8 +77,10 @@ class CarModel {
     this.isHidden = false,
     this.isApproved = false,
     this.message,
-    this.totalRental,
-    this.star,
+    this.totalRental = 0,
+    this.star = 0,
+    this.isFavorite,
+    this.isRented = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -117,12 +121,14 @@ class CarModel {
       'isApproved': isApproved,
       'message': message,
       'totalRental': totalRental,
-      'star': star
+      'star': star,
+      'isFavorite': isFavorite,
+      'isRented': isRented,
     };
   }
 
-  factory CarModel.fromSnapshot(
-      DocumentSnapshot<Map<String, dynamic>> snapshot) {
+  factory CarModel.fromSnapshot(DocumentSnapshot<Map<String, dynamic>> snapshot,
+      {bool? isFavorite}) {
     final data = snapshot.data()!;
     {
       return CarModel(
@@ -163,6 +169,8 @@ class CarModel {
         message: data['message'],
         totalRental: data['totalRental'],
         star: data['star'],
+        isFavorite: isFavorite ?? false,
+        isRented: data['isRented'],
       );
     }
   }

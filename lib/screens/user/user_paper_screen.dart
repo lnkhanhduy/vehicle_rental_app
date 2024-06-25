@@ -3,9 +3,10 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:vehicle_rental_app/controllers/admin_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/screens/approve_user_paper_screen.dart';
+import 'package:vehicle_rental_app/screens/admin/approve_user_paper_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 import 'package:vehicle_rental_app/widgets/image_container.dart';
@@ -68,7 +69,7 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
             color: Colors.white,
             child: Column(children: [
               if (widget.view != true && widget.user.isVerified == true)
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.check_circle, color: Colors.green),
@@ -79,7 +80,7 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
               else if (widget.view != true &&
                   widget.user.isVerified == false &&
                   (widget.user.message == null || widget.user.message!.isEmpty))
-                Row(
+                const Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Icon(Icons.warning_amber_outlined, color: Colors.amber),
@@ -93,7 +94,7 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
                   widget.user.message!.isNotEmpty)
                 Column(
                   children: [
-                    Row(
+                    const Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.error_outline, color: Colors.red),
@@ -101,12 +102,12 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
                         Text("Từ chối", style: TextStyle(color: Colors.red))
                       ],
                     ),
-                    SizedBox(
+                    const SizedBox(
                       height: 5,
                     ),
                     Text(
                       'Lý do: ${widget.user.message!}',
-                      style: TextStyle(color: Colors.red),
+                      style: const TextStyle(color: Colors.red),
                     )
                   ],
                 ),
@@ -453,7 +454,7 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
                                   },
                                 ));
                               } else {
-                                await UserController.instance.cancelUser(
+                                await AdminController.instance.cancelUser(
                                     widget.user.id!, message.text.trim());
                               }
                             },
@@ -474,7 +475,7 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
                         SizedBox(
                           child: ElevatedButton(
                             onPressed: () async {
-                              await UserController.instance
+                              await AdminController.instance
                                   .approveUser(widget.user.id!);
                             },
                             style: ElevatedButton.styleFrom(

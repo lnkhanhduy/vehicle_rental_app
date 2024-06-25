@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/screens/car/favorite_screen.dart';
-import 'package:vehicle_rental_app/screens/car/history_screen.dart';
 import 'package:vehicle_rental_app/screens/home_screen.dart';
-import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
+import 'package:vehicle_rental_app/screens/user/chat_screen.dart';
+import 'package:vehicle_rental_app/screens/user/favorite_screen.dart';
+import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 
 class LayoutScreen extends StatefulWidget {
@@ -47,7 +47,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
           children: const [
             HomeScreen(),
             FavoriteScreen(),
-            HistoryScreen(),
+            ChatScreen(),
             ProfileScreen(),
           ],
         ),
@@ -72,7 +72,7 @@ class _LayoutScreenState extends State<LayoutScreen> {
               BottomNavigationBarItem(
                   icon: Icon(Icons.favorite), label: "Yêu thích"),
               BottomNavigationBarItem(
-                  icon: Icon(Icons.history), label: "Lịch sử"),
+                  icon: Icon(Icons.message_outlined), label: "Tin nhắn"),
               BottomNavigationBarItem(
                   icon: Icon(Icons.person), label: "Thông tin"),
             ],

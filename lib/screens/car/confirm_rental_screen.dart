@@ -1,11 +1,11 @@
 import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/rental_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/rental_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/repository/rental_repository.dart';
-import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
+import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 
@@ -14,13 +14,15 @@ class ConfirmRentalScreen extends StatefulWidget {
   final UserModel userModel;
   final DateTime fromDate;
   final DateTime toDate;
+  final int days;
 
   const ConfirmRentalScreen(
       {super.key,
       required this.car,
       required this.userModel,
       required this.fromDate,
-      required this.toDate});
+      required this.toDate,
+      required this.days});
 
   @override
   State<ConfirmRentalScreen> createState() => _ConfirmRentalScreenState();
@@ -37,7 +39,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
               onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
           title: const Text(
             "Xác nhận đặt xe",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
         ),
@@ -87,7 +89,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                           children: [
                             Text(
                               widget.car.carInfoModel,
-                              style: TextStyle(
+                              style: const TextStyle(
                                   fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                             const SizedBox(
@@ -156,7 +158,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(
                                   Icons.calendar_month_outlined,
@@ -172,13 +174,13 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                 ),
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 8,
                             ),
                             Text(
                               BoardDateFormat('HH:mm dd/MM/yyyy')
                                   .format(widget.fromDate),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -189,7 +191,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                           mainAxisAlignment: MainAxisAlignment.start,
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Row(
+                            const Row(
                               children: [
                                 Icon(
                                   Icons.calendar_month_outlined,
@@ -203,24 +205,24 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                     style: TextStyle(color: Colors.grey)),
                               ],
                             ),
-                            SizedBox(
+                            const SizedBox(
                               height: 8,
                             ),
                             Text(
                               BoardDateFormat('HH:mm dd/MM/yyyy')
                                   .format(widget.toDate),
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
                           ],
-                        )
+                        ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                    const SizedBox(height: 5),
+                    Text("Số ngày: ${widget.days} ngày"),
+                    const SizedBox(height: 10),
                     const Row(
                       children: [
                         Icon(
@@ -240,7 +242,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                     ),
                     Text(
                         '${widget.car.addressRoad}, ${widget.car.addressDistrict}, ${widget.car.addressCity}',
-                        style: TextStyle(fontWeight: FontWeight.bold)),
+                        style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(
                       height: 10,
                     ),
@@ -258,20 +260,14 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                             style: TextStyle(color: Colors.grey)),
                       ],
                     ),
-                    const SizedBox(
-                      height: 6,
+                    const SizedBox(height: 6),
+                    const Text(
+                      "Thanh toán khi nhận xe",
+                      style: TextStyle(fontWeight: FontWeight.bold),
                     ),
-                    const Text("Thanh toán khi nhận xe",
-                        style: TextStyle(fontWeight: FontWeight.bold)),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    const Divider(
-                      height: 1,
-                    ),
-                    const SizedBox(
-                      height: 20,
-                    ),
+                    const SizedBox(height: 20),
+                    const Divider(height: 1),
+                    const SizedBox(height: 20),
                     const Text(
                       "Chủ xe",
                       style:
@@ -323,7 +319,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                 children: [
                                   Text(
                                     widget.userModel.name,
-                                    style: TextStyle(
+                                    style: const TextStyle(
                                         fontWeight: FontWeight.bold,
                                         fontSize: 16),
                                   ),
@@ -395,7 +391,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                       child: TextField(
                         controller: message,
                         maxLines: 4,
-                        decoration: InputDecoration.collapsed(
+                        decoration: const InputDecoration.collapsed(
                           hintText: "Nhập lời nhắn cho chủ xe",
                           hintStyle:
                               TextStyle(color: Colors.grey, fontSize: 15),
@@ -426,16 +422,15 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                           Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                Text(
+                                const Text(
                                   "Tổng tiền",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15),
                                 ),
                                 Text(
-                                  Utils.formatNumber(
-                                      int.parse(widget.car.price!)),
-                                  style: TextStyle(
+                                  '${Utils.formatNumber(int.parse(widget.car.price!) * widget.days)} VND',
+                                  style: const TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 15),
                                 ),
@@ -458,10 +453,10 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                   fromDate: widget.fromDate.toString(),
                   toDate: widget.toDate.toString(),
                   message: message.text.trim(),
-                  idOwner: widget.userModel.email!,
+                  idOwner: widget.userModel.email,
                 );
 
-                await RentalRepository.instance.sendRequestRental(rentalModel);
+                await RentalController.instance.sendRequestRental(rentalModel);
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Constants.primaryColor,

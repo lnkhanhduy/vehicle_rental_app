@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
+import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
 
 class RatingRental extends StatelessWidget {
   const RatingRental({super.key});

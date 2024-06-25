@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
-class HistoryScreen extends StatefulWidget {
-  const HistoryScreen({super.key});
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
 
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
+class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
         title: const Text(
-          "Lịch sử thuê xe",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          "Tin nhắn",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -26,13 +23,13 @@ class _HistoryScreenState extends State<HistoryScreen> {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Container(
-              padding: const EdgeInsets.fromLTRB(10, 40, 10, 20),
+              padding: const EdgeInsets.all(20),
               constraints: const BoxConstraints.expand(),
               color: Colors.white,
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text("History screen"),
+                  Text("Chat screen"),
                 ],
               ),
             ),

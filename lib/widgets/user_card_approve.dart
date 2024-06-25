@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/screens/profile/user_paper_screen.dart';
+import 'package:vehicle_rental_app/screens/user/user_paper_screen.dart';
 
 class UserCardApprove extends StatelessWidget {
   final bool view;

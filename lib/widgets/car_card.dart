@@ -1,21 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/repository/user_repository.dart';
 import 'package:vehicle_rental_app/screens/car/car_details_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 
-class CarCard extends StatelessWidget {
+class CarCard extends StatefulWidget {
   final CarModel car;
 
   const CarCard({super.key, required this.car});
 
   @override
+  State<CarCard> createState() => _CarCardState();
+}
+
+class _CarCardState extends State<CarCard> {
+  bool isFavoriteCar = false;
+
+  @override
+  void initState() {
+    super.initState();
+    isFavoriteCar = widget.car.isFavorite ?? false;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return InkWell(
         onTap: () {
-          Get.to(() => CarDetailsScreen(car: car));
+          Get.to(() => CarDetailsScreen(car: widget.car));
         },
         child: Container(
           padding: const EdgeInsets.fromLTRB(10, 10, 10, 4),
@@ -27,49 +40,58 @@ class CarCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Stack(
-                children: [
-                  Container(
-                    height: 240,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      image: car.imageCarMain != null
-                          ? DecorationImage(
-                              image: Image.network(
-                              car.imageCarMain!,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  "lib/assets/images/no_image.png",
-                                  fit: BoxFit.cover,
-                                );
-                              },
-                            ).image)
-                          : DecorationImage(
-                              image: Image.asset(
+              SizedBox(
+                height: 200,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(10),
+                        child: widget.car.imageCarMain != null
+                            ? Image.network(
+                                widget.car.imageCarMain!,
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.asset(
+                                    "lib/assets/images/no_image.png",
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              )
+                            : Image.asset(
                                 "lib/assets/images/no_car_image.png",
-                              ).image,
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                  ),
-                  Positioned(
-                    top: 5,
-                    right: 5,
-                    child: IconButton(
-                      onPressed: () {
-                        UserRepository.instance.addFavorite(car.id!);
-                      },
-                      icon: const Icon(
-                        Icons.favorite_border,
-                        color: Colors.white,
+                                fit: BoxFit.cover,
+                              ),
                       ),
-                      padding: const EdgeInsets.all(4),
-                      style: IconButton.styleFrom(
-                          backgroundColor: Colors.grey[500]),
                     ),
-                  ),
-                ],
+                    Positioned(
+                      top: 5,
+                      right: 5,
+                      child: IconButton(
+                        onPressed: () async {
+                          Get.closeCurrentSnackbar();
+                          await UserController.instance
+                              .addFavorite(widget.car.id!);
+
+                          setState(() {
+                            isFavoriteCar = !isFavoriteCar;
+                          });
+                        },
+                        icon: Icon(
+                          isFavoriteCar
+                              ? Icons.favorite
+                              : Icons.favorite_border,
+                          color: isFavoriteCar
+                              ? Constants.primaryColor
+                              : Colors.white,
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        style: IconButton.styleFrom(
+                            backgroundColor: Colors.grey.withOpacity(0.5)),
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(
                 height: 10,
@@ -80,7 +102,7 @@ class CarCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      car.carInfoModel,
+                      widget.car.carInfoModel,
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
@@ -98,7 +120,7 @@ class CarCard extends StatelessWidget {
                         ),
                         const SizedBox(width: 3),
                         Text(
-                          '${car.addressDistrict}, ${car.addressCity}',
+                          '${widget.car.addressDistrict}, ${widget.car.addressCity}',
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.grey[500],
@@ -125,8 +147,10 @@ class CarCard extends StatelessWidget {
                             const SizedBox(
                               width: 3,
                             ),
-                            Text(car.star != null && car.star!.isNotEmpty
-                                ? car.star!
+                            Text(widget.car.star != 0 &&
+                                    widget.car.totalRental != 0
+                                ? (widget.car.star / widget.car.totalRental)
+                                    .toStringAsFixed(1)
                                 : "0"),
                             SizedBox(
                               width: 17,
@@ -146,12 +170,11 @@ class CarCard extends StatelessWidget {
                             const SizedBox(
                               width: 6,
                             ),
-                            Text(
-                                '${car.totalRental != null ? car.totalRental! : "0"} chuyến'),
+                            Text('${widget.car.totalRental} chuyến'),
                           ],
                         ),
                         Row(children: [
-                          Text(Utils.formatNumber(int.parse(car.price!)),
+                          Text(Utils.formatNumber(int.parse(widget.car.price!)),
                               style: TextStyle(
                                   color: Constants.primaryColor,
                                   fontWeight: FontWeight.bold,

@@ -8,6 +8,8 @@ class RentalModel {
   final String fromDate;
   final String toDate;
   final bool isApproved;
+  final bool isResponsed;
+  final bool isCanceled;
   final String? message;
   final String? review;
   final String? star;
@@ -20,6 +22,8 @@ class RentalModel {
     required this.fromDate,
     required this.toDate,
     this.isApproved = false,
+    this.isResponsed = false,
+    this.isCanceled = false,
     this.message,
     this.review,
     this.star,
@@ -34,6 +38,8 @@ class RentalModel {
       'fromDate': fromDate,
       'toDate': toDate,
       'isApproved': isApproved,
+      'isResponsed': isResponsed,
+      'isCanceled': isCanceled,
       'message': message,
       'review': review,
       'star': star
@@ -52,6 +58,8 @@ class RentalModel {
         fromDate: data['fromDate'],
         toDate: data['toDate'],
         isApproved: data['isApproved'],
+        isResponsed: data['isResponsed'],
+        isCanceled: data['isCanceled'],
         message: data['message'],
         review: data['review'],
         star: data['star'],

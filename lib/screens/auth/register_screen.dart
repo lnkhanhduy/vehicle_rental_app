@@ -13,6 +13,10 @@ class RegisterScreen extends StatefulWidget {
 
 class _RegisterScreenState extends State<RegisterScreen> {
   bool obscureText = true;
+  final name = TextEditingController();
+  final email = TextEditingController();
+  final phone = TextEditingController();
+  final password = TextEditingController();
 
   void togglePasswordStatus() {
     setState(() {
@@ -22,11 +26,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final name = TextEditingController();
-    final email = TextEditingController();
-    final phone = TextEditingController();
-    final password = TextEditingController();
-
     Get.closeCurrentSnackbar();
     return Scaffold(
       backgroundColor: Colors.white,
@@ -189,7 +188,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             width: 30,
                           ),
                           onPressed: () {
-                            UserController.instance.googleSignIn();
+                            UserController.instance.signInWithGoogle();
                           },
                           label: const Text(
                             "Đăng nhập với Google",

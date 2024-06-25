@@ -2,26 +2,24 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 
-class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+class HistoryRentalScreen extends StatefulWidget {
+  const HistoryRentalScreen({super.key});
 
   @override
-  State<NotificationScreen> createState() => _NotificationScreenState();
+  State<HistoryRentalScreen> createState() => _HistoryRentalScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen> {
+class _HistoryRentalScreenState extends State<HistoryRentalScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.to(() => const LayoutScreen(
-                  initialIndex: 0,
-                )),
+            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 3)),
             icon: const Icon(Icons.arrow_back)),
         title: const Text(
-          "Yêu thích",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          "Lịch sử cho thuê xe",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
@@ -36,7 +34,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
               child: const Column(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
-                  Text("Notification screen"),
+                  Text("History rental screen"),
                 ],
               ),
             ),

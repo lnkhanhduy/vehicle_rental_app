@@ -2,11 +2,10 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 
 class Utils {
+  // Chọn hình ảnh
   static Future<Uint8List?> pickImage(ImageSource source) async {
     final picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: source);
@@ -19,58 +18,37 @@ class Utils {
     return null;
   }
 
+  // Tải hình ảnh
   static Future<void> uploadImage(
       image, folderName, folderId, type, collection) async {
     if (image != null) {
-      try {
-        // Tạo tên tệp duy nhất cho hình ảnh
-        String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+      String fileName = DateTime.now().millisecondsSinceEpoch.toString();
 
-        // Tải hình ảnh lên Firebase Storage
-        await firebase_storage.FirebaseStorage.instance
-            .ref('$folderName/$folderId/$fileName.png')
-            .putData(image!);
+      // Tải hình ảnh lên Firebase Storage
+      await firebase_storage.FirebaseStorage.instance
+          .ref('$folderName/$folderId/$fileName.png')
+          .putData(image!);
 
-        // Lấy URL của hình ảnh sau khi tải lên
-        String imageUrl = await firebase_storage.FirebaseStorage.instance
-            .ref('$folderName/$folderId/$fileName.png')
-            .getDownloadURL();
+      // Lấy URL của hình ảnh sau khi tải lên
+      String imageUrl = await firebase_storage.FirebaseStorage.instance
+          .ref('$folderName/$folderId/$fileName.png')
+          .getDownloadURL();
 
-        // Lưu URL của hình ảnh vào Firestore
-        await FirebaseFirestore.instance
-            .collection(collection)
-            .doc(folderId)
-            .update({type: imageUrl});
-      } catch (e) {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Không thể tải hình ảnh",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      }
+      // Lưu URL của hình ảnh vào Firestore
+      await FirebaseFirestore.instance
+          .collection(collection)
+          .doc(folderId)
+          .update({type: imageUrl});
     }
   }
 
+  // Xóa hình ảnh
   static deleteImageIfExists(String imageUrl) async {
-    try {
-      firebase_storage.Reference ref =
-          firebase_storage.FirebaseStorage.instance.refFromURL(imageUrl);
+    firebase_storage.Reference ref =
+        firebase_storage.FirebaseStorage.instance.refFromURL(imageUrl);
 
-      await ref.getData();
-      await ref.delete();
-    } catch (e) {
-      return;
-    }
+    await ref.getData();
+    await ref.delete();
   }
 
   static String formatNumber(int number) {
@@ -79,5 +57,27 @@ class Utils {
     } else {
       return number.toString();
     }
+  }
+
+  // Kiểm tra định dạng email
+  static bool isValidEmail(String email) {
+    return RegExp(
+            r"^[a-zA-Z0-9.a-zA-Z0-9.!#$%&'*+-/=?^_`{|}~]+@[a-zA-Z0-9]+\.[a-zA-Z]+")
+        .hasMatch(email);
+  }
+
+  // Kiểm tra định dạng sdt
+  static bool isPhoneNumber(String phoneNumber) {
+    final regex = RegExp(r'^(\d{10}|)$');
+    return regex.hasMatch(phoneNumber);
+  }
+
+  // Kiểm tra xem email đã tồn tại hay chưa
+  static Future<bool> isExistPhoneNumber(String phoneNumber) async {
+    final isExist = await FirebaseFirestore.instance
+        .collection("Users")
+        .where("phone", isEqualTo: phoneNumber)
+        .get();
+    return isExist.docs.isNotEmpty;
   }
 }

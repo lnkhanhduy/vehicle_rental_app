@@ -2,9 +2,10 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/admin_controller.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/screens/car/approve_car_screen.dart';
+import 'package:vehicle_rental_app/screens/admin/approve_car_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';
@@ -62,7 +63,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
               onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
           title: const Text(
             "Giá cho thuê",
-            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
           actions: [
@@ -195,7 +196,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                             },
                                           ));
                                         } else {
-                                          await CarController.instance
+                                          await AdminController.instance
                                               .cancelCar(widget.carModel.id!,
                                                   message.text.trim());
                                         }
@@ -217,7 +218,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                   SizedBox(
                                     child: ElevatedButton(
                                       onPressed: () async {
-                                        await CarController.instance
+                                        await AdminController.instance
                                             .approveCar(widget.carModel.id!);
                                       },
                                       style: ElevatedButton.styleFrom(

@@ -19,7 +19,7 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
             onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
         title: Text(
           widget.titleScreen,
-          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),

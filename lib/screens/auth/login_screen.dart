@@ -13,6 +13,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool obscureText = true;
+  final username = TextEditingController();
+  final password = TextEditingController();
 
   void togglePasswordStatus() {
     setState(() {
@@ -22,9 +24,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final username = TextEditingController();
-    final password = TextEditingController();
-
     Get.closeCurrentSnackbar();
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -106,7 +105,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: () {
                                 if (username.text.trim().isNotEmpty &&
                                     password.text.trim().isNotEmpty) {
-                                  UserController.instance.loginUser(
+                                  UserController.instance.login(
                                       username.text.trim(),
                                       password.text.trim());
                                 } else {
@@ -172,7 +171,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           width: 30,
                         ),
                         onPressed: () {
-                          UserController.instance.googleSignIn();
+                          UserController.instance.signInWithGoogle();
                         },
                         label: const Text(
                           "Đăng nhập với Google",

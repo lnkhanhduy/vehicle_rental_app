@@ -18,6 +18,10 @@ class UserModel {
   final String? message;
   final bool isAdmin;
   final String? provider;
+  final bool isRented;
+  final int totalRental;
+  final int star;
+  final bool isPublic;
 
   const UserModel({
     this.id,
@@ -37,6 +41,10 @@ class UserModel {
     this.message,
     required this.isAdmin,
     this.provider,
+    this.isRented = false,
+    this.totalRental = 0,
+    this.star = 0,
+    this.isPublic = false,
   });
 
   Map<String, dynamic> toJson() {
@@ -56,6 +64,10 @@ class UserModel {
       'message': message,
       'isAdmin': isAdmin,
       'provider': provider,
+      'isRented': isRented,
+      'totalRental': totalRental,
+      'star': star,
+      'isPublic': isPublic,
     };
   }
 
@@ -80,6 +92,10 @@ class UserModel {
       message: data['message'],
       isAdmin: data['isAdmin'],
       provider: data['provider'],
+      isRented: data['isRented'],
+      totalRental: data['totalRental'],
+      star: data['star'],
+      isPublic: data['isPublic'],
     );
   }
 }

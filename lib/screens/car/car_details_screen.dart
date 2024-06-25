@@ -1,13 +1,14 @@
 import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/repository/user_repository.dart';
 import 'package:vehicle_rental_app/screens/car/confirm_rental_screen.dart';
-import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
+import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
+import 'package:vehicle_rental_app/widgets/header_details_car.dart';
 import 'package:vehicle_rental_app/widgets/rating_rental.dart';
 
 class CarDetailsScreen extends StatefulWidget {
@@ -22,31 +23,16 @@ class CarDetailsScreen extends StatefulWidget {
 class _CarDetailsScreenState extends State<CarDetailsScreen> {
   DateTime fromDate = DateTime.now();
   DateTime toDate = DateTime.now().add(const Duration(days: 1));
+  int days = 1;
 
-  final PageController imageController = PageController();
-  int currentImage = 1;
-  List<String> imageNames = [];
   late UserModel userModel;
-
   List<Map<String, dynamic>> amenities = [];
+
+  bool isExpanded = false;
 
   @override
   void initState() {
     super.initState();
-    imageController.addListener(() {
-      setState(() {
-        currentImage = imageController.page!.round() + 1;
-      });
-    });
-
-    imageNames = [
-      widget.car.imageCarMain!,
-      widget.car.imageCarInside!,
-      widget.car.imageCarFront!,
-      widget.car.imageCarBack!,
-      widget.car.imageCarLeft!,
-      widget.car.imageCarRight!,
-    ];
 
     amenities = [
       {
@@ -104,14 +90,6 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
     amenities = amenities.where((amenity) => amenity['isAvailable']).toList();
   }
 
-  @override
-  void dispose() {
-    imageController.dispose();
-    super.dispose();
-  }
-
-  bool isExpanded = false;
-
   void _toggleExpanded() {
     setState(() {
       isExpanded = !isExpanded;
@@ -122,90 +100,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: CustomScrollView(slivers: [
-          SliverAppBar(
-            expandedHeight: 240,
-            flexibleSpace: LayoutBuilder(
-                builder: (BuildContext context, BoxConstraints constraints) {
-              return Stack(
-                fit: StackFit.expand,
-                children: <Widget>[
-                  Container(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: <Color>[
-                          Colors.black.withAlpha(0),
-                          Colors.black12,
-                          Colors.black45
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    top: constraints.maxHeight - 240.0,
-                    child: PageView.builder(
-                      controller: imageController,
-                      itemCount: imageNames.length,
-                      itemBuilder: (context, index) {
-                        if (imageNames[index].isNotEmpty) {
-                          return Image.network(
-                            imageNames[index],
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                "lib/assets/images/no_image.png",
-                                fit: BoxFit.cover,
-                              );
-                            },
-                          );
-                        } else {
-                          return Image.asset("lib/assets/images/no_image.png",
-                              fit: BoxFit.cover);
-                        }
-                      },
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 10,
-                    left: 0,
-                    right: 0,
-                    child: Align(
-                      alignment: Alignment.bottomCenter,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        child: Text(
-                          '$currentImage/${imageNames.length}',
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  )
-                ],
-              );
-            }),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.share),
-                onPressed: () {},
-              ),
-              IconButton(
-                icon: const Icon(Icons.favorite_border),
-                onPressed: () {
-                  UserRepository.instance.addFavorite(widget.car.id!);
-                },
-              ),
-            ],
-            pinned: true,
-          ),
+          HeaderDetailsCar(car: widget.car),
           SliverFillRemaining(
               hasScrollBody: false,
               child: Container(
@@ -215,7 +110,8 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                 color: Colors.white,
                 child: FutureBuilder(
                     future: Future.wait([
-                      UserRepository.instance.getUserDetails(widget.car.email!),
+                      UserController.instance
+                          .getUserByUsername(widget.car.email!),
                     ]),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done &&
@@ -228,7 +124,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                           children: [
                             Text(
                               widget.car.carInfoModel,
-                              style: TextStyle(
+                              style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 20,
                               ),
@@ -248,9 +144,10 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 const SizedBox(
                                   width: 3,
                                 ),
-                                Text(widget.car.star != null &&
-                                        widget.car.star!.isNotEmpty
-                                    ? widget.car.star!
+                                Text(widget.car.star != 0 &&
+                                        widget.car.totalRental != 0
+                                    ? (widget.car.star / widget.car.totalRental)
+                                        .toStringAsFixed(1)
                                     : "0"),
                                 SizedBox(
                                   width: 17,
@@ -270,8 +167,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 const SizedBox(
                                   width: 6,
                                 ),
-                                Text(
-                                    '${widget.car.totalRental != null ? widget.car.totalRental! : "0"} chuyến'),
+                                Text('${widget.car.totalRental} chuyến'),
                               ],
                             ),
                             const SizedBox(
@@ -302,7 +198,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                       Container(
                                         width: double.infinity,
                                         padding: const EdgeInsets.fromLTRB(
-                                            15, 10, 15, 0),
+                                            15, 10, 15, 10),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -359,9 +255,90 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                                       'Ngày mai',
                                                                 )));
                                                         if (result != null) {
-                                                          setState(() {
-                                                            fromDate = result;
-                                                          });
+                                                          if (result.isBefore(
+                                                              DateTime.now())) {
+                                                            Get.closeCurrentSnackbar();
+                                                            Get.showSnackbar(
+                                                                GetSnackBar(
+                                                              messageText:
+                                                                  const Text(
+                                                                "Thời gian nhận xe phải lớn hơn hôm nay!",
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                              duration:
+                                                                  const Duration(
+                                                                      seconds:
+                                                                          10),
+                                                              icon: const Icon(
+                                                                  Icons.error,
+                                                                  color: Colors
+                                                                      .white),
+                                                              onTap: (_) {
+                                                                Get.closeCurrentSnackbar();
+                                                              },
+                                                            ));
+                                                          } else if (result
+                                                              .isAfter(
+                                                                  toDate)) {
+                                                            Get.closeCurrentSnackbar();
+                                                            Get.showSnackbar(
+                                                                GetSnackBar(
+                                                              messageText:
+                                                                  const Text(
+                                                                "Thời gian nhận xe phải nhỏ hơn thời gian trả xe!",
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                              duration:
+                                                                  const Duration(
+                                                                      seconds:
+                                                                          10),
+                                                              icon: const Icon(
+                                                                  Icons.error,
+                                                                  color: Colors
+                                                                      .white),
+                                                              onTap: (_) {
+                                                                Get.closeCurrentSnackbar();
+                                                              },
+                                                            ));
+                                                          } else {
+                                                            setState(() {
+                                                              fromDate = result;
+                                                              Duration
+                                                                  difference =
+                                                                  toDate.difference(
+                                                                      fromDate);
+                                                              if (difference.inHours %
+                                                                          24 ==
+                                                                      0 &&
+                                                                  difference
+                                                                          .inMinutes ==
+                                                                      0) {
+                                                                days = toDate
+                                                                    .difference(
+                                                                        fromDate)
+                                                                    .inDays;
+                                                                1;
+                                                              } else {
+                                                                days = toDate
+                                                                        .difference(
+                                                                            fromDate)
+                                                                        .inDays +
+                                                                    1;
+                                                              }
+                                                            });
+                                                          }
                                                         }
                                                       },
                                                       child: Text(
@@ -410,15 +387,66 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                                       'Ngày mai',
                                                                 )));
                                                         if (result != null) {
-                                                          setState(() {
-                                                            fromDate = result;
-                                                          });
+                                                          if (result.isBefore(
+                                                              fromDate)) {
+                                                            Get.closeCurrentSnackbar();
+                                                            Get.showSnackbar(
+                                                                GetSnackBar(
+                                                              messageText:
+                                                                  const Text(
+                                                                "Thời gian trả xe phải lớn hơn thời gian nhận xe!",
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .white,
+                                                                ),
+                                                              ),
+                                                              backgroundColor:
+                                                                  Colors.red,
+                                                              duration:
+                                                                  const Duration(
+                                                                      seconds:
+                                                                          10),
+                                                              icon: const Icon(
+                                                                  Icons.error,
+                                                                  color: Colors
+                                                                      .white),
+                                                              onTap: (_) {
+                                                                Get.closeCurrentSnackbar();
+                                                              },
+                                                            ));
+                                                          } else {
+                                                            setState(() {
+                                                              toDate = result;
+                                                              Duration
+                                                                  difference =
+                                                                  toDate.difference(
+                                                                      fromDate);
+                                                              if (difference.inHours %
+                                                                          24 ==
+                                                                      0 &&
+                                                                  difference
+                                                                          .inMinutes ==
+                                                                      0) {
+                                                                days = toDate
+                                                                    .difference(
+                                                                        fromDate)
+                                                                    .inDays;
+                                                              } else {
+                                                                days = toDate
+                                                                        .difference(
+                                                                            fromDate)
+                                                                        .inDays +
+                                                                    1;
+                                                              }
+                                                            });
+                                                          }
                                                         }
                                                       },
                                                       child: Text(
                                                         BoardDateFormat(
                                                                 'HH:mm dd/MM/yyyy')
-                                                            .format(fromDate),
+                                                            .format(toDate),
                                                         style: const TextStyle(
                                                           color: Colors.black,
                                                         ),
@@ -427,7 +455,8 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                   ],
                                                 )
                                               ],
-                                            )
+                                            ),
+                                            Text("Số ngày: $days ngày")
                                           ],
                                         ),
                                       ),
@@ -467,15 +496,15 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  Text(
+                                                  const Text(
                                                     "Tôi tự đến lấy xe",
                                                     style:
                                                         TextStyle(fontSize: 14),
                                                   ),
-                                                  SizedBox(height: 3),
+                                                  const SizedBox(height: 3),
                                                   Text(
                                                     '${widget.car.addressDistrict}, ${widget.car.addressCity}',
-                                                    style: TextStyle(
+                                                    style: const TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:
                                                             FontWeight.bold),
@@ -543,7 +572,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                         widget.car.transmission == 'automatic'
                                             ? 'Số tự động'
                                             : 'Số sàn',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold))
                                   ],
                                 ),
@@ -567,8 +596,8 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                     const SizedBox(
                                       height: 2,
                                     ),
-                                    Text(widget.car.carSeat + ' ghế',
-                                        style: TextStyle(
+                                    Text('${widget.car.carSeat} ghế',
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold))
                                   ],
                                 ),
@@ -598,7 +627,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                             : widget.car.fuel == 'diesel'
                                                 ? 'Dầu Diesel'
                                                 : 'Điện',
-                                        style: TextStyle(
+                                        style: const TextStyle(
                                             fontWeight: FontWeight.bold))
                                   ],
                                 )
@@ -636,7 +665,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                       : TextOverflow.ellipsis,
                                   style: const TextStyle(fontSize: 14),
                                 ),
-                                SizedBox(height: 5),
+                                const SizedBox(height: 5),
                                 GestureDetector(
                                   onTap: _toggleExpanded,
                                   child: Text(
@@ -791,27 +820,32 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                   child: Row(
                                     children: [
                                       SizedBox(
-                                        width: 70,
-                                        height: 70,
-                                        child: userDetail.imageAvatar != null &&
-                                                userDetail
-                                                    .imageAvatar!.isNotEmpty
-                                            ? Image.network(
-                                                userDetail.imageAvatar!,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (context, error,
-                                                    stackTrace) {
-                                                  return Image.asset(
-                                                    "lib/assets/images/no_image.png",
-                                                    fit: BoxFit.cover,
-                                                  );
-                                                },
-                                              )
-                                            : Image.asset(
-                                                "lib/assets/images/no_avatar.png"),
+                                        width: 60,
+                                        height: 60,
+                                        child: ClipRRect(
+                                          borderRadius: const BorderRadius.all(
+                                              Radius.circular(100)),
+                                          child: userDetail.imageAvatar !=
+                                                      null &&
+                                                  userDetail
+                                                      .imageAvatar!.isNotEmpty
+                                              ? Image.network(
+                                                  userDetail.imageAvatar!,
+                                                  fit: BoxFit.cover,
+                                                  errorBuilder: (context, error,
+                                                      stackTrace) {
+                                                    return Image.asset(
+                                                      "lib/assets/images/no_image.png",
+                                                      fit: BoxFit.cover,
+                                                    );
+                                                  },
+                                                )
+                                              : Image.asset(
+                                                  "lib/assets/images/no_avatar.png"),
+                                        ),
                                       ),
                                       const SizedBox(
-                                        width: 5,
+                                        width: 10,
                                       ),
                                       Column(
                                         crossAxisAlignment:
@@ -819,7 +853,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                         children: [
                                           Text(
                                             userDetail.name,
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
                                                 fontSize: 16),
                                           ),
@@ -835,7 +869,14 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                               const SizedBox(
                                                 width: 3,
                                               ),
-                                              const Text("5.0"),
+                                              Text(userDetail.star != 0 &&
+                                                      userDetail.totalRental !=
+                                                          0
+                                                  ? (userDetail.star /
+                                                          userDetail
+                                                              .totalRental)
+                                                      .toStringAsFixed(1)
+                                                  : "0"),
                                               SizedBox(
                                                 width: 17,
                                                 height: 17,
@@ -854,7 +895,8 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                               const SizedBox(
                                                 width: 6,
                                               ),
-                                              const Text("2 chuyến"),
+                                              Text(
+                                                  "${userDetail.totalRental} chuyến"),
                                             ],
                                           ),
                                         ],
@@ -919,7 +961,8 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                         car: widget.car,
                         userModel: userModel,
                         fromDate: fromDate,
-                        toDate: toDate));
+                        toDate: toDate,
+                        days: days));
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Constants.primaryColor,

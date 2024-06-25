@@ -1,56 +1,49 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:vehicle_rental_app/controllers/car_controller.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/screens/profile/profile_screen.dart';
-import 'package:vehicle_rental_app/widgets/car_card_approve.dart';
+import 'package:vehicle_rental_app/widgets/car_card.dart';
 
-class CarRentalScreen extends StatefulWidget {
-  const CarRentalScreen({super.key});
+class FavoriteScreen extends StatefulWidget {
+  const FavoriteScreen({super.key});
 
   @override
-  State<CarRentalScreen> createState() => _CarRentalScreenState();
+  State<FavoriteScreen> createState() => _FavoriteScreenState();
 }
 
-class _CarRentalScreenState extends State<CarRentalScreen> {
-  final CarController controller = Get.put(CarController());
-
+class _FavoriteScreenState extends State<FavoriteScreen> {
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
-
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-            onPressed: () => Get.to(() => const ProfileScreen()),
-            icon: const Icon(Icons.arrow_back)),
         title: const Text(
-          "Xe đã đăng ký cho thuê",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          "Xe yêu thích",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
       ),
       body: FutureBuilder<List<CarModel>?>(
-        future: controller.getCarApprove(),
+        future: UserController.instance.getFavorite(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(child: CircularProgressIndicator());
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No data found'));
+            return const Center(
+                child: Text('Bạn chưa thêm xe nào vào yêu thích.'));
           } else {
             List<CarModel> carList = snapshot.data!;
+
             return ListView.builder(
               itemCount: carList.length,
               itemBuilder: (context, index) {
                 CarModel car = carList[index];
                 return Column(
                   children: [
-                    CarCardApprove(car: car, isEdit: true),
-                    const Divider(
-                      height: 1,
-                    )
+                    Container(
+                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
+                      child: CarCard(car: car),
+                    ),
                   ],
                 );
               },

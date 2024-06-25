@@ -11,10 +11,10 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final email = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    final email = TextEditingController();
-
     Get.closeCurrentSnackbar();
     return Scaffold(
       body: CustomScrollView(
