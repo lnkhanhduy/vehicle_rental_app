@@ -24,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+
     Get.closeCurrentSnackbar();
     return Scaffold(
       resizeToAvoidBottomInset: false,
@@ -102,11 +103,10 @@ class _LoginScreenState extends State<LoginScreen> {
                             width: double.infinity,
                             height: 50,
                             child: ElevatedButton(
-                              onPressed: () {
+                              onPressed: () async {
                                 if (username.text.trim().isNotEmpty &&
                                     password.text.trim().isNotEmpty) {
-                                  UserController.instance.login(
-                                      username.text.trim(),
+                                  await UserController.instance.login(username.text.trim(),
                                       password.text.trim());
                                 } else {
                                   Get.closeCurrentSnackbar();
@@ -170,8 +170,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           "lib/assets/images/logo_google.png",
                           width: 30,
                         ),
-                        onPressed: () {
-                          UserController.instance.signInWithGoogle();
+                        onPressed: () async {
+                          await UserController.instance.signInWithGoogle();
                         },
                         label: const Text(
                           "Đăng nhập với Google",

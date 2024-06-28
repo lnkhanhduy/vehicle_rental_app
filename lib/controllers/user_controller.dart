@@ -23,7 +23,7 @@ class UserController extends GetxController {
   @override
   void onReady() {
     super.onReady();
-    Future.delayed(const Duration(seconds: 6));
+    // Future.delayed(const Duration(seconds: 6));
     firebaseUser = Rx<User?>(firebaseAuth.currentUser);
     firebaseUser.bindStream(firebaseAuth.userChanges());
     ever(firebaseUser, _setInitialScreen);
@@ -33,6 +33,49 @@ class UserController extends GetxController {
     user == null
         ? Get.offAll(() => const LoginScreen())
         : Get.offAll(() => const LayoutScreen());
+  }
+
+  Future<UserModel?> getUserData() async {
+    final email = firebaseUser.value?.providerData[0].email;
+    if (email != null) {
+      try {
+        return await getUserByUsername(email);
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  Future<UserModel?> getUserByUsername(String username) async {
+    if (username.isEmpty) return null;
+
+    try {
+      QuerySnapshot snapshot;
+      if (Utils.isPhoneNumber(username)) {
+        snapshot = await firebaseFirestore
+            .collection("Users")
+            .where("phone", isEqualTo: username)
+            .get();
+      } else {
+        snapshot = await firebaseFirestore
+            .collection("Users")
+            .where("email", isEqualTo: username)
+            .get();
+      }
+
+      if (snapshot.docs.isEmpty) {
+        return null;
+      }
+
+      final userData = snapshot.docs
+          .map((e) => UserModel.fromSnapshot(
+              e as DocumentSnapshot<Map<String, dynamic>>))
+          .first;
+      return userData;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<void> login(String username, String password) async {
@@ -104,21 +147,7 @@ class UserController extends GetxController {
         },
       ));
     } catch (e) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: Text(
-          e.toString(),
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      return;
     }
   }
 
@@ -156,17 +185,21 @@ class UserController extends GetxController {
         await firebaseAuth.signInWithCredential(credential);
         Get.offAll(() => const LayoutScreen());
       }
-    } on FirebaseAuthException catch (e) {
-      Get.snackbar("Error", e.message.toString());
+    } on FirebaseAuthException {
+      return;
     } catch (e) {
-      Get.snackbar("Error", e.toString());
+      return;
     }
   }
 
   Future<void> logout() async {
-    await firebaseAuth.signOut();
-    await GoogleSignIn().signOut();
-    Get.offAll(() => const LoginScreen());
+    try {
+      await firebaseAuth.signOut();
+      await GoogleSignIn().signOut();
+      Get.offAll(() => const LoginScreen());
+    } catch (e) {
+      return;
+    }
   }
 
   Future<void> forgotPassword(String email) async {
@@ -193,39 +226,43 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      UserModel? userModel = await getUserByUsername(email);
+      try {
+        UserModel? userModel = await getUserByUsername(email);
 
-      if (userModel != null && userModel.provider != "password") {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Email được đăng ký bằng tài khoản Google, vui lòng đăng nhập với Google!",
-            style: TextStyle(
-              color: Colors.white,
+        if (userModel != null && userModel.provider != "password") {
+          Get.closeCurrentSnackbar();
+          Get.showSnackbar(GetSnackBar(
+            messageText: const Text(
+              "Email được đăng ký bằng tài khoản Google, vui lòng đăng nhập với Google!",
+              style: TextStyle(
+                color: Colors.white,
+              ),
             ),
-          ),
-          backgroundColor: Colors.red,
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      } else {
-        await firebaseAuth.sendPasswordResetEmail(email: email);
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Vui lòng kiểm tra email của bạn để đặt lại mật khẩu!",
-            style: TextStyle(
-              color: Colors.white,
+            backgroundColor: Colors.red,
+            icon: const Icon(Icons.error, color: Colors.white),
+            onTap: (_) {
+              Get.closeCurrentSnackbar();
+            },
+          ));
+        } else {
+          await firebaseAuth.sendPasswordResetEmail(email: email);
+          Get.closeCurrentSnackbar();
+          Get.showSnackbar(GetSnackBar(
+            messageText: const Text(
+              "Vui lòng kiểm tra email của bạn để đặt lại mật khẩu!",
+              style: TextStyle(
+                color: Colors.white,
+              ),
             ),
-          ),
-          backgroundColor: Colors.green,
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
+            backgroundColor: Colors.green,
+            icon: const Icon(Icons.check, color: Colors.white),
+            onTap: (_) {
+              Get.closeCurrentSnackbar();
+            },
+          ));
+        }
+      } catch (e) {
+        return;
       }
     }
   }
@@ -342,149 +379,151 @@ class UserController extends GetxController {
           ));
         }
       } catch (e) {
-        Get.snackbar(
-          "Lỗi",
-          e.toString(),
-          snackPosition: SnackPosition.TOP,
-          backgroundColor: Colors.red.withOpacity(0.1),
-          colorText: Colors.red,
-        );
+        return;
       }
     }
   }
 
   Future<void> updateUser(UserModel user) async {
-    String? error = "";
+    try {
+      String? error = "";
 
-    if (user.name.isEmpty) {
-      error = "Vui lòng nhập tên!";
-    } else if (user.phone.isEmpty) {
-      error = "Vui lòng nh1ập số điện thoại!";
-    } else if (!Utils.isPhoneNumber(user.phone)) {
-      error = "Số điện thoại phải 10 ký tự!";
-    } else if (user.addressRoad!.isEmpty) {
-      error = "Vui lòng nhập tên đường!";
-    } else if (user.addressDistrict!.isEmpty) {
-      error = "Vui lòng nhập quận/huyện!";
-    } else if (user.addressCity!.isEmpty) {
-      error = "Vui lòng nhập tỉnh/thành phố!";
-    }
-
-    if (user.phone.isNotEmpty) {
-      final UserModel? userModel = await getUserByUsername(user.email);
-      if (await Utils.isExistPhoneNumber(user.phone) &&
-          userModel?.phone != user.phone) {
-        error = "Số điện thoại đã được sử dụng!";
+      if (user.name.isEmpty) {
+        error = "Vui lòng nhập tên!";
+      } else if (user.phone.isEmpty) {
+        error = "Vui lòng nh1ập số điện thoại!";
+      } else if (!Utils.isPhoneNumber(user.phone)) {
+        error = "Số điện thoại phải 10 ký tự!";
+      } else if (user.addressRoad!.isEmpty) {
+        error = "Vui lòng nhập tên đường!";
+      } else if (user.addressDistrict!.isEmpty) {
+        error = "Vui lòng nhập quận/huyện!";
+      } else if (user.addressCity!.isEmpty) {
+        error = "Vui lòng nhập tỉnh/thành phố!";
       }
-    }
 
-    if (error != "") {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: Text(
-          error,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
-    } else {
-      await firebaseFirestore
-          .collection("Users")
-          .doc(user.email)
-          .update(user.toJson());
+      if (user.phone.isNotEmpty) {
+        final UserModel? userModel = await getUserByUsername(user.email);
+        if (await Utils.isExistPhoneNumber(user.phone) &&
+            userModel?.phone != user.phone) {
+          error = "Số điện thoại đã được sử dụng!";
+        }
+      }
 
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Cập nhật thông tin thành công!",
-          style: TextStyle(
-            color: Colors.white,
+      if (error != "") {
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: Text(
+            error,
+            style: const TextStyle(
+              color: Colors.white,
+            ),
           ),
-        ),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 5),
-        icon: const Icon(Icons.check, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          icon: const Icon(Icons.error, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      } else {
+        await firebaseFirestore
+            .collection("Users")
+            .doc(user.email)
+            .update(user.toJson());
+
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: const Text(
+            "Cập nhật thông tin thành công!",
+            style: TextStyle(
+              color: Colors.white,
+            ),
+          ),
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 5),
+          icon: const Icon(Icons.check, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      }
+    } catch (e) {
+      return;
     }
   }
 
   Future<void> updateUserWithImage(
       UserModel user, Uint8List imageAvatar) async {
-    String? error = "";
+    try {
+      String? error = "";
 
-    if (user.name.isEmpty) {
-      error = "Vui lòng nhập tên!";
-    } else if (user.phone.isEmpty) {
-      error = "Vui lòng nh1ập số điện thoại!";
-    } else if (!Utils.isPhoneNumber(user.phone)) {
-      error = "Số điện thoại phải 10 ký tự!";
-    } else if (user.addressRoad!.isEmpty) {
-      error = "Vui lòng nhập tên đường!";
-    } else if (user.addressDistrict!.isEmpty) {
-      error = "Vui lòng nhập quận/huyện!";
-    } else if (user.addressCity!.isEmpty) {
-      error = "Vui lòng nhập tỉnh/thành phố!";
-    }
-
-    if (user.phone.isNotEmpty) {
-      final UserModel? userModel = await getUserByUsername(user.email);
-      if (await Utils.isExistPhoneNumber(user.phone) &&
-          userModel?.phone != user.phone) {
-        error = "Số điện thoại đã được sử dụng!";
+      if (user.name.isEmpty) {
+        error = "Vui lòng nhập tên!";
+      } else if (user.phone.isEmpty) {
+        error = "Vui lòng nh1ập số điện thoại!";
+      } else if (!Utils.isPhoneNumber(user.phone)) {
+        error = "Số điện thoại phải 10 ký tự!";
+      } else if (user.addressRoad!.isEmpty) {
+        error = "Vui lòng nhập tên đường!";
+      } else if (user.addressDistrict!.isEmpty) {
+        error = "Vui lòng nhập quận/huyện!";
+      } else if (user.addressCity!.isEmpty) {
+        error = "Vui lòng nhập tỉnh/thành phố!";
       }
-    }
 
-    if (error != "") {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: Text(
-          error,
-          style: const TextStyle(
-            color: Colors.white,
+      if (user.phone.isNotEmpty) {
+        final UserModel? userModel = await getUserByUsername(user.email);
+        if (await Utils.isExistPhoneNumber(user.phone) &&
+            userModel?.phone != user.phone) {
+          error = "Số điện thoại đã được sử dụng!";
+        }
+      }
+
+      if (error != "") {
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: Text(
+            error,
+            style: const TextStyle(
+              color: Colors.white,
+            ),
           ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 3),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
-    } else {
-      await firebaseFirestore
-          .collection("Users")
-          .doc(user.email)
-          .update(user.toJson());
+          backgroundColor: Colors.red,
+          duration: const Duration(seconds: 3),
+          icon: const Icon(Icons.error, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      } else {
+        await firebaseFirestore
+            .collection("Users")
+            .doc(user.email)
+            .update(user.toJson());
 
-      await Utils.deleteImageIfExists(user.imageAvatar!);
-      await Utils.uploadImage(
-          imageAvatar, 'users', user.email, 'imageAvatar', "Users");
+        await Utils.deleteImageIfExists(user.imageAvatar!);
+        await Utils.uploadImage(
+            imageAvatar, 'users', user.email, 'imageAvatar', "Users");
 
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Cập nhật thông tin thành công!",
-          style: TextStyle(
-            color: Colors.white,
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: const Text(
+            "Cập nhật thông tin thành công!",
+            style: TextStyle(
+              color: Colors.white,
+            ),
           ),
-        ),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 5),
-        icon: const Icon(Icons.check, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 5),
+          icon: const Icon(Icons.check, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      }
+    } catch (e) {
+      return;
     }
   }
 
@@ -511,61 +550,65 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      UserModel? userModel = await getUserByUsername(email);
-      if (userModel?.imageIdCardFront == null &&
-          userModel?.imageIdCardBack == null &&
-          userModel?.imageLicenseFront == null &&
-          userModel?.imageLicenseBack == null) {
-        await Utils.uploadImage(
-            imageIdCardFront, "users", email, "imageIdCardFront", "Users");
-        await Utils.uploadImage(
-            imageIdCardBack, "users", email, "imageIdCardBack", "Users");
-        await Utils.uploadImage(
-            imageLicenseFront, "users", email, "imageLicenseFront", "Users");
-        await Utils.uploadImage(
-            imageLicenseBack, "users", email, "imageLicenseBack", "Users");
-      } else {
-        if (imageIdCardFront != null) {
+      try {
+        UserModel? userModel = await getUserByUsername(email);
+        if (userModel?.imageIdCardFront == null &&
+            userModel?.imageIdCardBack == null &&
+            userModel?.imageLicenseFront == null &&
+            userModel?.imageLicenseBack == null) {
           await Utils.uploadImage(
               imageIdCardFront, "users", email, "imageIdCardFront", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageIdCardFront ?? "");
-        }
-        if (imageIdCardBack != null) {
           await Utils.uploadImage(
               imageIdCardBack, "users", email, "imageIdCardBack", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageIdCardBack ?? "");
-        }
-        if (imageLicenseFront != null) {
           await Utils.uploadImage(
               imageLicenseFront, "users", email, "imageLicenseFront", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageLicenseFront ?? "");
-        }
-        if (imageLicenseBack != null) {
           await Utils.uploadImage(
               imageLicenseBack, "users", email, "imageLicenseBack", "Users");
-          await Utils.deleteImageIfExists(userModel?.imageLicenseBack ?? "");
-        }
+        } else {
+          if (imageIdCardFront != null) {
+            await Utils.uploadImage(
+                imageIdCardFront, "users", email, "imageIdCardFront", "Users");
+            await Utils.deleteImageIfExists(userModel?.imageIdCardFront ?? "");
+          }
+          if (imageIdCardBack != null) {
+            await Utils.uploadImage(
+                imageIdCardBack, "users", email, "imageIdCardBack", "Users");
+            await Utils.deleteImageIfExists(userModel?.imageIdCardBack ?? "");
+          }
+          if (imageLicenseFront != null) {
+            await Utils.uploadImage(imageLicenseFront, "users", email,
+                "imageLicenseFront", "Users");
+            await Utils.deleteImageIfExists(userModel?.imageLicenseFront ?? "");
+          }
+          if (imageLicenseBack != null) {
+            await Utils.uploadImage(
+                imageLicenseBack, "users", email, "imageLicenseBack", "Users");
+            await Utils.deleteImageIfExists(userModel?.imageLicenseBack ?? "");
+          }
 
-        await firebaseFirestore
-            .collection("Users")
-            .doc(email)
-            .update({"message": "", "isVerified": false});
+          await firebaseFirestore
+              .collection("Users")
+              .doc(email)
+              .update({"message": "", "isVerified": false});
 
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Cập nhật giấy tờ thành công!",
-            style: TextStyle(
-              color: Colors.white,
+          Get.closeCurrentSnackbar();
+          Get.showSnackbar(GetSnackBar(
+            messageText: const Text(
+              "Cập nhật giấy tờ thành công!",
+              style: TextStyle(
+                color: Colors.white,
+              ),
             ),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 3),
+            icon: const Icon(Icons.check, color: Colors.white),
+            onTap: (_) {
+              Get.closeCurrentSnackbar();
+            },
+          ));
+        }
+      } catch (e) {
+        return;
       }
     }
   }
@@ -606,73 +649,47 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      UserModel? userModel = await getUserByUsername(email);
-      if (userModel?.provider == "password") {
-        final User? user = FirebaseAuth.instance.currentUser;
-        if (user != null) {
-          await user.updatePassword(password);
-        }
-      } else {
-        await firebaseAuth.createUserWithEmailAndPassword(
-            email: email, password: password);
-        final snapshot = await firebaseFirestore
-            .collection("Users")
-            .where("email", isEqualTo: email)
-            .get();
+      try {
+        UserModel? userModel = await getUserByUsername(email);
+        if (userModel?.provider == "password") {
+          final User? user = FirebaseAuth.instance.currentUser;
+          if (user != null) {
+            await user.updatePassword(password);
+          }
+        } else {
+          await firebaseAuth.createUserWithEmailAndPassword(
+              email: email, password: password);
+          final snapshot = await firebaseFirestore
+              .collection("Users")
+              .where("email", isEqualTo: email)
+              .get();
 
-        if (snapshot.docs.isNotEmpty) {
-          final userDoc = snapshot.docs.first;
-          await userDoc.reference.update({"provider": "password"});
+          if (snapshot.docs.isNotEmpty) {
+            final userDoc = snapshot.docs.first;
+            await userDoc.reference.update({"provider": "password"});
+          }
         }
-      }
 
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: Text(
-          userModel?.provider == "password"
-              ? "Mật khẩu đã được thay đổi thành công!"
-              : "Tạo mật khẩu mới thành công!",
-          style: const TextStyle(
-            color: Colors.white,
+        Get.closeCurrentSnackbar();
+        Get.showSnackbar(GetSnackBar(
+          messageText: Text(
+            userModel?.provider == "password"
+                ? "Mật khẩu đã được thay đổi thành công!"
+                : "Tạo mật khẩu mới thành công!",
+            style: const TextStyle(
+              color: Colors.white,
+            ),
           ),
-        ),
-        backgroundColor: Colors.green,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.check, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
-    }
-  }
-
-  Future<UserModel?> getUserData() async {
-    final email = firebaseUser.value?.providerData[0].email;
-    if (email != null) {
-      return await getUserByUsername(email);
-    }
-    return null;
-  }
-
-  Future<UserModel?> getUserByUsername(String username) async {
-    if (username.isEmpty) return null;
-
-    if (Utils.isPhoneNumber(username)) {
-      final snapshot = await firebaseFirestore
-          .collection("Users")
-          .where("phone", isEqualTo: username)
-          .get();
-      final userData =
-          snapshot.docs.map((e) => UserModel.fromSnapshot(e)).single;
-      return userData;
-    } else {
-      final snapshot = await firebaseFirestore
-          .collection("Users")
-          .where("email", isEqualTo: username)
-          .get();
-      final userData =
-          snapshot.docs.map((e) => UserModel.fromSnapshot(e)).single;
-      return userData;
+          backgroundColor: Colors.green,
+          duration: const Duration(seconds: 10),
+          icon: const Icon(Icons.check, color: Colors.white),
+          onTap: (_) {
+            Get.closeCurrentSnackbar();
+          },
+        ));
+      } catch (e) {
+        return;
+      }
     }
   }
 
@@ -695,27 +712,31 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      final listFavorite =
-          await firebaseFirestore.collection("Favorites").doc(email).get();
+      try {
+        final listFavorite =
+            await firebaseFirestore.collection("Favorites").doc(email).get();
 
-      if (listFavorite.data() == null) {
-        await firebaseFirestore.collection("Favorites").doc(email).set({
-          "listFavorite": [id]
-        });
-      } else {
-        if (listFavorite.data()!["listFavorite"].contains(id)) {
-          await firebaseFirestore.collection("Favorites").doc(email).update({
-            "listFavorite": FieldValue.arrayRemove([id])
+        if (listFavorite.data() == null) {
+          await firebaseFirestore.collection("Favorites").doc(email).set({
+            "listFavorite": [id]
           });
-
-          Get.snackbar("Thông báo", "Đã xóa khỏi yêu thích");
         } else {
-          await firebaseFirestore.collection("Favorites").doc(email).update({
-            "listFavorite": FieldValue.arrayUnion([id])
-          });
+          if (listFavorite.data()!["listFavorite"].contains(id)) {
+            await firebaseFirestore.collection("Favorites").doc(email).update({
+              "listFavorite": FieldValue.arrayRemove([id])
+            });
 
-          Get.snackbar("Thông báo", "Đã thêm vào yêu thích");
+            Get.snackbar("Thông báo", "Đã xóa khỏi yêu thích");
+          } else {
+            await firebaseFirestore.collection("Favorites").doc(email).update({
+              "listFavorite": FieldValue.arrayUnion([id])
+            });
+
+            Get.snackbar("Thông báo", "Đã thêm vào yêu thích");
+          }
         }
+      } catch (e) {
+        return;
       }
     }
   }
@@ -740,28 +761,32 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      final listFavorite =
-          await firebaseFirestore.collection("Favorites").doc(email).get();
+      try {
+        final listFavorite =
+            await firebaseFirestore.collection("Favorites").doc(email).get();
 
-      if (!listFavorite.exists) {
-        return [];
-      }
-
-      List<dynamic> favoriteIds = listFavorite.data()?["listFavorite"] ?? [];
-
-      List<CarModel> carList = [];
-      for (var id in favoriteIds) {
-        final carDoc =
-            await FirebaseFirestore.instance.collection("Cars").doc(id).get();
-        if (carDoc.exists) {
-          carList.add(CarModel.fromSnapshot(
-            carDoc,
-            isFavorite: true,
-          ));
+        if (!listFavorite.exists) {
+          return [];
         }
-      }
 
-      return carList;
+        List<dynamic> favoriteIds = listFavorite.data()?["listFavorite"] ?? [];
+
+        List<CarModel> carList = [];
+        for (var id in favoriteIds) {
+          final carDoc =
+              await FirebaseFirestore.instance.collection("Cars").doc(id).get();
+          if (carDoc.exists) {
+            carList.add(CarModel.fromSnapshot(
+              carDoc,
+              isFavorite: true,
+            ));
+          }
+        }
+
+        return carList;
+      } catch (e) {
+        return null;
+      }
     }
     return null;
   }
@@ -786,17 +811,21 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      QuerySnapshot querySnapshot = await firebaseFirestore
-          .collection("Cars")
-          .where("email", isEqualTo: email)
-          .get();
+      try {
+        QuerySnapshot querySnapshot = await firebaseFirestore
+            .collection("Cars")
+            .where("email", isEqualTo: email)
+            .get();
 
-      List<CarModel> carList = querySnapshot.docs.map((doc) {
-        return CarModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
+        List<CarModel> carList = querySnapshot.docs.map((doc) {
+          return CarModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
 
-      return carList;
+        return carList;
+      } catch (e) {
+        return null;
+      }
     }
 
     return null;
@@ -822,39 +851,41 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      QuerySnapshot querySnapshot = await firebaseFirestore
-          .collection("Rentals")
-          .where("idOwner", isEqualTo: email)
-          .where("isApproved", isEqualTo: false)
-          .where("isResponsed", isEqualTo: false)
-          .where("isCanceled", isEqualTo: false)
-          .get();
+      try {
+        QuerySnapshot querySnapshot = await firebaseFirestore
+            .collection("Rentals")
+            .where("idOwner", isEqualTo: email)
+            .where("status", isEqualTo: "waiting")
+            .get();
 
-      List<RentalModel> rentalList = querySnapshot.docs.map((doc) {
-        return RentalModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
+        List<RentalModel> rentalList = querySnapshot.docs.map((doc) {
+          return RentalModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
 
-      List<RentalCarModel> rentalCarModelList = [];
-      for (var rental in rentalList) {
-        if (DateTime.parse(rental.fromDate).isBefore(DateTime.now())) {
-          final carDoc = await FirebaseFirestore.instance
-              .collection("Cars")
-              .doc(rental.idCar)
-              .get();
+        List<RentalCarModel> rentalCarModelList = [];
+        for (var rental in rentalList) {
+          if (DateTime.parse(rental.fromDate).isBefore(DateTime.now())) {
+            final carDoc = await FirebaseFirestore.instance
+                .collection("Cars")
+                .doc(rental.idCar)
+                .get();
 
-          if (carDoc.exists) {
-            rentalCarModelList.add(
-              RentalCarModel(
-                rentalModel: rental,
-                carModel: CarModel.fromSnapshot(carDoc),
-              ),
-            );
+            if (carDoc.exists) {
+              rentalCarModelList.add(
+                RentalCarModel(
+                  rentalModel: rental,
+                  carModel: CarModel.fromSnapshot(carDoc),
+                ),
+              );
+            }
           }
         }
-      }
 
-      return rentalCarModelList;
+        return rentalCarModelList;
+      } catch (e) {
+        return null;
+      }
     }
     return null;
   }
@@ -879,34 +910,38 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      QuerySnapshot querySnapshot = await firebaseFirestore
-          .collection("Rentals")
-          .where("email", isEqualTo: email)
-          .get();
-
-      List<RentalModel> rentalList = querySnapshot.docs.map((doc) {
-        return RentalModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
-
-      List<RentalCarModel> rentalCarModelList = [];
-      for (var rental in rentalList) {
-        final carDoc = await FirebaseFirestore.instance
-            .collection("Cars")
-            .doc(rental.idCar)
+      try {
+        QuerySnapshot querySnapshot = await firebaseFirestore
+            .collection("Rentals")
+            .where("email", isEqualTo: email)
             .get();
 
-        if (carDoc.exists) {
-          rentalCarModelList.add(
-            RentalCarModel(
-              rentalModel: rental,
-              carModel: CarModel.fromSnapshot(carDoc),
-            ),
-          );
-        }
-      }
+        List<RentalModel> rentalList = querySnapshot.docs.map((doc) {
+          return RentalModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
 
-      return rentalCarModelList;
+        List<RentalCarModel> rentalCarModelList = [];
+        for (var rental in rentalList) {
+          final carDoc = await FirebaseFirestore.instance
+              .collection("Cars")
+              .doc(rental.idCar)
+              .get();
+
+          if (carDoc.exists) {
+            rentalCarModelList.add(
+              RentalCarModel(
+                rentalModel: rental,
+                carModel: CarModel.fromSnapshot(carDoc),
+              ),
+            );
+          }
+        }
+
+        return rentalCarModelList;
+      } catch (e) {
+        return null;
+      }
     }
     return null;
   }
@@ -931,34 +966,39 @@ class UserController extends GetxController {
         },
       ));
     } else {
-      QuerySnapshot querySnapshot = await firebaseFirestore
-          .collection("Rentals")
-          .where("idOwner", isEqualTo: email)
-          .get();
-
-      List<RentalModel> rentalList = querySnapshot.docs.map((doc) {
-        return RentalModel.fromSnapshot(
-            doc as DocumentSnapshot<Map<String, dynamic>>);
-      }).toList();
-
-      List<RentalCarModel> rentalCarModelList = [];
-      for (var rental in rentalList) {
-        final carDoc = await FirebaseFirestore.instance
-            .collection("Cars")
-            .doc(rental.idCar)
+      try {
+        QuerySnapshot querySnapshot = await firebaseFirestore
+            .collection("Rentals")
+            .where("idOwner", isEqualTo: email)
+            .orderBy("status", descending: true)
             .get();
 
-        if (carDoc.exists) {
-          rentalCarModelList.add(
-            RentalCarModel(
-              rentalModel: rental,
-              carModel: CarModel.fromSnapshot(carDoc),
-            ),
-          );
-        }
-      }
+        List<RentalModel> rentalList = querySnapshot.docs.map((doc) {
+          return RentalModel.fromSnapshot(
+              doc as DocumentSnapshot<Map<String, dynamic>>);
+        }).toList();
 
-      return rentalCarModelList;
+        List<RentalCarModel> rentalCarModelList = [];
+        for (var rental in rentalList) {
+          final carDoc = await FirebaseFirestore.instance
+              .collection("Cars")
+              .doc(rental.idCar)
+              .get();
+
+          if (carDoc.exists) {
+            rentalCarModelList.add(
+              RentalCarModel(
+                rentalModel: rental,
+                carModel: CarModel.fromSnapshot(carDoc),
+              ),
+            );
+          }
+        }
+
+        return rentalCarModelList;
+      } catch (e) {
+        return null;
+      }
     }
     return null;
   }

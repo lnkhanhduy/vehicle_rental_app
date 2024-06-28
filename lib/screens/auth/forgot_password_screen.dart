@@ -15,6 +15,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final controller = Get.put(UserController());
     Get.closeCurrentSnackbar();
     return Scaffold(
       body: CustomScrollView(
@@ -75,8 +76,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               },
                             ));
                           } else {
-                            UserController.instance
-                                .forgotPassword(email.text.trim());
+                            controller.forgotPassword(email.text.trim());
                           }
                         },
                         style: ElevatedButton.styleFrom(

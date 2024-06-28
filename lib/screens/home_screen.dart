@@ -525,7 +525,6 @@ class _HomeScreenState extends State<HomeScreen> {
                             ],
                           );
                         } else {
-                          print("Error: ${snapshot.error}");
                           return const Center(
                             child: Text(
                               "Lỗi dữ liệu",

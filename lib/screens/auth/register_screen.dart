@@ -112,7 +112,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               width: double.infinity,
                               height: 50,
                               child: ElevatedButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   if (name.text.trim().isNotEmpty &&
                                       email.text.trim().isNotEmpty &&
                                       phone.text.trim().isNotEmpty &&
@@ -125,7 +125,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       isAdmin: false,
                                       provider: "password",
                                     );
-                                    UserController.instance.createUser(user);
+                                    await UserController.instance.createUser(user);
                                   } else {
                                     Get.showSnackbar(GetSnackBar(
                                       messageText: const Text(
@@ -187,8 +187,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             "lib/assets/images/logo_google.png",
                             width: 30,
                           ),
-                          onPressed: () {
-                            UserController.instance.signInWithGoogle();
+                          onPressed: () async {
+                            await UserController.instance.signInWithGoogle();
                           },
                           label: const Text(
                             "Đăng nhập với Google",

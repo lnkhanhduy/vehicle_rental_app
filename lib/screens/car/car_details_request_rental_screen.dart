@@ -5,6 +5,7 @@ import 'package:vehicle_rental_app/controllers/rental_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
+import 'package:vehicle_rental_app/screens/car/rating_car_screen.dart';
 import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
@@ -616,13 +617,13 @@ class _CarDetailsRequestRentalScreenState
                           height: 20,
                         ),
                         if (widget.isOwner)
-                          Text(
+                          const Text(
                             "Người thuê",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
                           ),
                         if (!widget.isOwner)
-                          Text(
+                          const Text(
                             "Chủ xe",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold, fontSize: 16),
@@ -768,73 +769,121 @@ class _CarDetailsRequestRentalScreenState
                         const SizedBox(
                           height: 20,
                         ),
-                        if (widget.rentalCarModel.rentalModel.isApproved ==
-                                true &&
+                        if (widget.rentalCarModel.rentalModel.status ==
+                                "approved" &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.fromDate)
                                 .isBefore(DateTime.now()) &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.toDate)
                                 .isAfter(DateTime.now()))
-                          Text(
+                          const Text(
                             "Đang được thuê",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: Colors.green),
                           ),
-                        if (widget.rentalCarModel.rentalModel.isApproved ==
-                                true &&
+                        if (widget.rentalCarModel.rentalModel.status ==
+                                "approved" &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.fromDate)
                                 .isBefore(DateTime.now()) &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.toDate)
                                 .isBefore(DateTime.now()))
-                          Text(
+                          const Text(
+                            "Chờ đánh giá",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.blue),
+                          ),
+                        if (widget.rentalCarModel.rentalModel.status == "paid")
+                          const Text(
                             "Đã trả",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: Colors.green),
                           ),
-                        if (widget.rentalCarModel.rentalModel.isApproved ==
-                                false &&
-                            widget.rentalCarModel.rentalModel.isResponsed ==
-                                false &&
+                        if (widget.rentalCarModel.rentalModel.status ==
+                                "waiting" &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.fromDate)
                                 .isBefore(DateTime.now()) &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.toDate)
                                 .isAfter(DateTime.now()))
-                          Text(
+                          const Text(
                             "Chờ phản hồi",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: Colors.amber),
                           ),
-                        if (widget.rentalCarModel.rentalModel.isApproved ==
-                                false &&
-                            widget.rentalCarModel.rentalModel.isResponsed ==
-                                true)
-                          Text(
+                        if (widget.rentalCarModel.rentalModel.status ==
+                            "rejected")
+                          const Text(
                             "Từ chối",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: Colors.red),
                           ),
-                        if (widget.rentalCarModel.rentalModel.isCanceled ==
-                            true)
-                          Text(
+                        if (widget.rentalCarModel.rentalModel.status ==
+                            "canceled")
+                          const Text(
                             "Đã hủy",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                                 color: Colors.red),
                           ),
+                        if (widget.rentalCarModel.rentalModel.status == "paid")
+                          Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                const Divider(
+                                  height: 1,
+                                ),
+                                const SizedBox(
+                                  height: 20,
+                                ),
+                                const Text(
+                                  "Đánh giá",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                                const SizedBox(
+                                  height: 5,
+                                ),
+                                Row(
+                                  children: [
+                                    SizedBox(
+                                      width: 13,
+                                      height: 13,
+                                      child: Image.asset(
+                                        "lib/assets/icons/star.png",
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      width: 3,
+                                    ),
+                                    Text(
+                                      widget.rentalCarModel.rentalModel.star
+                                          .toString(),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 5),
+                                Text(
+                                    'Nhận xét: ${widget.rentalCarModel.rentalModel.review!}'),
+                              ]),
                         const SizedBox(
                           height: 20,
                         ),
@@ -845,10 +894,14 @@ class _CarDetailsRequestRentalScreenState
                           height: 20,
                         ),
                         if (widget.isOwner == true &&
-                            widget.rentalCarModel.rentalModel.isApproved ==
-                                false &&
-                            widget.rentalCarModel.rentalModel.isResponsed ==
-                                false)
+                            widget.rentalCarModel.rentalModel.status ==
+                                "waiting" &&
+                            DateTime.parse(
+                                    widget.rentalCarModel.rentalModel.fromDate)
+                                .isBefore(DateTime.now()) &&
+                            DateTime.parse(
+                                    widget.rentalCarModel.rentalModel.toDate)
+                                .isAfter(DateTime.now()))
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
@@ -932,18 +985,65 @@ class _CarDetailsRequestRentalScreenState
                               ),
                             ],
                           ),
-                        if ((widget.isOwner == true &&
-                                widget.rentalCarModel.rentalModel.isApproved ==
-                                    true) ||
-                            (widget.isOwner != true &&
-                                widget.rentalCarModel.rentalModel.isApproved ==
-                                    true))
+                        if (widget.isOwner != true &&
+                            widget.rentalCarModel.rentalModel.status ==
+                                "approved" &&
+                            DateTime.parse(
+                                    widget.rentalCarModel.rentalModel.fromDate)
+                                .isBefore(DateTime.now()) &&
+                            DateTime.parse(
+                                    widget.rentalCarModel.rentalModel.toDate)
+                                .isBefore(DateTime.now()))
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SizedBox(
                                   child: ElevatedButton(
-                                    onPressed: () async {},
+                                    onPressed: () => Get.to(() =>
+                                        RatingCarScreen(
+                                            idRental: widget
+                                                .rentalCarModel.rentalModel.id!,
+                                            idUserRental: widget.rentalCarModel
+                                                .rentalModel.email!,
+                                            idCar: widget.rentalCarModel
+                                                .rentalModel.idCar)),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.blue,
+                                      foregroundColor: Colors.white,
+                                      shape: const RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.all(
+                                            Radius.circular(8)),
+                                      ),
+                                    ),
+                                    child: const Text("Đánh giá"),
+                                  ),
+                                ),
+                              ]),
+                        if ((widget.isOwner == true &&
+                                widget.rentalCarModel.rentalModel.status ==
+                                    "canceled") ||
+                            (widget.rentalCarModel.rentalModel.status ==
+                                    "waiting" &&
+                                DateTime
+                                        .parse(
+                                            widget.rentalCarModel.rentalModel
+                                                .fromDate)
+                                    .isBefore(DateTime.now())) ||
+                            (widget.isOwner !=
+                                    true &&
+                                widget
+                                        .rentalCarModel.rentalModel.status ==
+                                    "canceled") ||
+                            (widget.isOwner != true &&
+                                widget.rentalCarModel.rentalModel.status ==
+                                    "rejected") ||
+                            widget.rentalCarModel.rentalModel.status == "paid")
+                          Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  child: ElevatedButton(
+                                    onPressed: () => Get.back(),
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Constants.primaryColor,
                                       foregroundColor: Colors.white,
@@ -957,14 +1057,24 @@ class _CarDetailsRequestRentalScreenState
                                 ),
                               ]),
                         if (widget.isOwner != true &&
-                            widget.rentalCarModel.rentalModel.isApproved !=
-                                true)
+                            widget.rentalCarModel.rentalModel.status ==
+                                "waiting " &&
+                            DateTime.parse(
+                                    widget.rentalCarModel.rentalModel.fromDate)
+                                .isAfter(DateTime.now()) &&
+                            DateTime.parse(
+                                    widget.rentalCarModel.rentalModel.toDate)
+                                .isAfter(DateTime.now()))
                           Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SizedBox(
                                   child: ElevatedButton(
-                                    onPressed: () async {},
+                                    onPressed: () {
+                                      RentalController.instance
+                                          .cancelRequestByUser(widget
+                                              .rentalCarModel.rentalModel.id!);
+                                    },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red,
                                       foregroundColor: Colors.white,

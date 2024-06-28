@@ -7,12 +7,10 @@ class RentalModel {
   final String idCar;
   final String fromDate;
   final String toDate;
-  final bool isApproved;
-  final bool isResponsed;
-  final bool isCanceled;
+  final String status;
   final String? message;
   final String? review;
-  final String? star;
+  final int star;
 
   const RentalModel({
     this.id,
@@ -21,12 +19,10 @@ class RentalModel {
     required this.idCar,
     required this.fromDate,
     required this.toDate,
-    this.isApproved = false,
-    this.isResponsed = false,
-    this.isCanceled = false,
+    this.status = 'waiting',
     this.message,
     this.review,
-    this.star,
+    this.star = 0,
   });
 
   Map<String, dynamic> toJson() {
@@ -37,9 +33,7 @@ class RentalModel {
       'idCar': idCar,
       'fromDate': fromDate,
       'toDate': toDate,
-      'isApproved': isApproved,
-      'isResponsed': isResponsed,
-      'isCanceled': isCanceled,
+      'status': status,
       'message': message,
       'review': review,
       'star': star
@@ -57,9 +51,7 @@ class RentalModel {
         idCar: data['idCar'],
         fromDate: data['fromDate'],
         toDate: data['toDate'],
-        isApproved: data['isApproved'],
-        isResponsed: data['isResponsed'],
-        isCanceled: data['isCanceled'],
+        status: data['status'],
         message: data['message'],
         review: data['review'],
         star: data['star'],

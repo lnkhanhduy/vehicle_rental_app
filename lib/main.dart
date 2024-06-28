@@ -13,8 +13,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   Get.put(UserController());
-  Get.put(AdminController());
   Get.put(CarController());
+  Get.put(AdminController());
   Get.put(RentalController());
 
   runApp(const MyApp());

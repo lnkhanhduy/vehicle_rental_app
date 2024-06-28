@@ -103,7 +103,6 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
       selectedTire = widget.car?.tire ?? false;
       selectedEtc = widget.car?.etc ?? false;
     }
-    print(isHidden);
   }
 
   @override

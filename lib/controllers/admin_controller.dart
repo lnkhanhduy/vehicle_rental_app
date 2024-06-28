@@ -13,24 +13,28 @@ class AdminController extends GetxController {
   final firebaseFirestore = FirebaseFirestore.instance;
 
   Future<List<UserModel>?> getUserApproveScreen() async {
-    QuerySnapshot querySnapshot = await firebaseFirestore
-        .collection("Users")
-        .where("isAdmin", isEqualTo: false)
-        .orderBy("isVerified", descending: false)
-        .get();
+    try {
+      QuerySnapshot querySnapshot = await firebaseFirestore
+          .collection("Users")
+          .where("isAdmin", isEqualTo: false)
+          .orderBy("isVerified", descending: false)
+          .get();
 
-    List<UserModel> userList = querySnapshot.docs.where((doc) {
-      final data = doc.data() as Map<String, dynamic>;
-      return data['imageIdCardFront'] != null &&
-          data['imageIdCardBack'] != null &&
-          data['imageLicenseFront'] != null &&
-          data['imageLicenseBack'] != null;
-    }).map((doc) {
-      return UserModel.fromSnapshot(
-          doc as DocumentSnapshot<Map<String, dynamic>>);
-    }).toList();
+      List<UserModel> userList = querySnapshot.docs.where((doc) {
+        final data = doc.data() as Map<String, dynamic>;
+        return data['imageIdCardFront'] != null &&
+            data['imageIdCardBack'] != null &&
+            data['imageLicenseFront'] != null &&
+            data['imageLicenseBack'] != null;
+      }).map((doc) {
+        return UserModel.fromSnapshot(
+            doc as DocumentSnapshot<Map<String, dynamic>>);
+      }).toList();
 
-    return userList;
+      return userList;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<void> approveUser(String id) async {
@@ -58,17 +62,21 @@ class AdminController extends GetxController {
   }
 
   Future<List<CarModel>?> getCarApproveScreen() async {
-    QuerySnapshot querySnapshot = await firebaseFirestore
-        .collection("Cars")
-        .orderBy("isApproved", descending: false)
-        .get();
+    try {
+      QuerySnapshot querySnapshot = await firebaseFirestore
+          .collection("Cars")
+          .orderBy("isApproved", descending: false)
+          .get();
 
-    List<CarModel> carList = querySnapshot.docs.map((doc) {
-      return CarModel.fromSnapshot(
-          doc as DocumentSnapshot<Map<String, dynamic>>);
-    }).toList();
+      List<CarModel> carList = querySnapshot.docs.map((doc) {
+        return CarModel.fromSnapshot(
+            doc as DocumentSnapshot<Map<String, dynamic>>);
+      }).toList();
 
-    return carList;
+      return carList;
+    } catch (e) {
+      return null;
+    }
   }
 
   Future<void> approveCar(String id) async {

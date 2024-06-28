@@ -47,83 +47,155 @@ class RentalController extends GetxController {
         },
       ));
     } else {
-      await firebaseFirestore.collection("Rentals").doc().set({
-        "idCar": rentalModel.idCar,
-        "email": email,
-        "fromDate": rentalModel.fromDate,
-        "toDate": rentalModel.toDate,
-        "message": rentalModel.message,
-        "idOwner": rentalModel.idOwner,
-        "isCanceled": false,
-        "isApproved": false,
-        "isResponsed": false,
-      });
+      try {
+        await firebaseFirestore.collection("Rentals").doc().set({
+          "idCar": rentalModel.idCar,
+          "email": email,
+          "fromDate": rentalModel.fromDate,
+          "toDate": rentalModel.toDate,
+          "message": rentalModel.message,
+          "idOwner": rentalModel.idOwner,
+          "status": "waiting"
+        });
 
-      Get.to(() => const SuccessScreen(
-          title: "Gửi yêu cầu thuê xe thành công",
-          content:
-              "Bạn đã gửi yêu cầu thuê xe thành công. Chủ xe sẽ sớm liên hệ với bạn."));
+        Get.to(() => const SuccessScreen(
+            title: "Gửi yêu cầu thuê xe thành công",
+            content:
+                "Bạn đã gửi yêu cầu thuê xe thành công. Chủ xe sẽ sớm liên hệ với bạn."));
+      } catch (e) {
+        return;
+      }
     }
   }
 
   Future<void> approveRequest(
       String idRental, String idUserRental, String idCar) async {
-    await firebaseFirestore
-        .collection("Rentals")
-        .doc(idRental)
-        .update({"isApproved": true, "isResponsed": true});
+    try {
+      await firebaseFirestore
+          .collection("Rentals")
+          .doc(idRental)
+          .update({"status": "approved"});
 
-    await firebaseFirestore.collection("Cars").doc(idCar).update({
-      "isRented": true,
-    });
-
-    QuerySnapshot querySnapshot = await firebaseFirestore
-        .collection("Users")
-        .where('email', isEqualTo: idUserRental)
-        .get();
-
-    if (querySnapshot.docs.isNotEmpty) {
-      DocumentSnapshot userDoc = querySnapshot.docs.first;
-      await firebaseFirestore.collection("Users").doc(userDoc.id).update({
-        'isRented': true,
+      await firebaseFirestore.collection("Cars").doc(idCar).update({
+        "isRented": true,
       });
-    }
 
-    Get.to(() => const SuccessScreen(
-        title: "Chấp nhận cho thuê xe thành công",
-        content:
-            "Chấp nhận cho thuê xe thành công. Người thuê sẽ sớm đến lấy xe."));
+      QuerySnapshot querySnapshot = await firebaseFirestore
+          .collection("Users")
+          .where('email', isEqualTo: idUserRental)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot userDoc = querySnapshot.docs.first;
+        await firebaseFirestore.collection("Users").doc(userDoc.id).update({
+          'isRented': true,
+        });
+      }
+
+      Get.to(() => const SuccessScreen(
+          title: "Chấp nhận cho thuê xe thành công",
+          content:
+              "Chấp nhận cho thuê xe thành công. Người thuê sẽ sớm đến lấy xe."));
+    } catch (e) {
+      return;
+    }
   }
 
   Future<void> cancelRequest(String idRental) async {
-    await firebaseFirestore
-        .collection("Rentals")
-        .doc(idRental)
-        .update({"isApproved": false, "isResponsed": true});
+    try {
+      await firebaseFirestore
+          .collection("Rentals")
+          .doc(idRental)
+          .update({"status": "rejected"});
 
-    Get.to(() => const RequestRentalCarScreen());
+      Get.to(() => const RequestRentalCarScreen());
+    } catch (e) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: Text(e.toString()),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    }
   }
 
   Future<void> cancelRequestByUser(String idRental) async {
-    await firebaseFirestore
-        .collection("Rentals")
-        .doc(idRental)
-        .update({"isCanceled": true});
+    try {
+      await firebaseFirestore
+          .collection("Rentals")
+          .doc(idRental)
+          .update({"status": "canceled"});
 
-    Get.closeCurrentSnackbar();
-    Get.showSnackbar(GetSnackBar(
-      messageText: const Text(
-        "Bạn đã hủy thuê xe thành công!",
-        style: TextStyle(
-          color: Colors.white,
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: const Text(
+          "Bạn đã hủy thuê xe thành công!",
+          style: TextStyle(
+            color: Colors.white,
+          ),
         ),
-      ),
-      backgroundColor: Colors.green,
-      duration: const Duration(seconds: 3),
-      icon: const Icon(Icons.check, color: Colors.white),
-      onTap: (_) {
-        Get.closeCurrentSnackbar();
-      },
-    ));
+        backgroundColor: Colors.green,
+        duration: const Duration(seconds: 3),
+        icon: const Icon(Icons.check, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } catch (e) {
+      return;
+    }
+  }
+
+  Future<void> ratingRental(String idRental, String idUserRental, String idCar,
+      int star, String review) async {
+    try {
+      await firebaseFirestore
+          .collection("Rentals")
+          .doc(idRental)
+          .update({"status": "paid", "star": star, "review": review});
+
+      DocumentSnapshot<Map<String, dynamic>> carModel =
+          await firebaseFirestore.collection("Cars").doc(idCar).get();
+
+      if (carModel.data() != null) {
+        await firebaseFirestore.collection("Cars").doc(idCar).update({
+          "isRented": false,
+          "totalRental": carModel.data()!["totalRental"] + 1,
+          "star": carModel.data()!["star"] + star
+        });
+      }
+
+      QuerySnapshot querySnapshot = await firebaseFirestore
+          .collection("Users")
+          .where('email', isEqualTo: idUserRental)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot userDoc = querySnapshot.docs.first;
+        Map<String, dynamic>? userData =
+            userDoc.data() as Map<String, dynamic>?;
+
+        if (userData != null) {
+          await FirebaseFirestore.instance
+              .collection("Users")
+              .doc(userDoc.id)
+              .update({
+            'isRented': false,
+            "totalRental": userData["totalRental"] + 1,
+            "star": userData["star"] + star
+          });
+        }
+      }
+
+      Get.to(() => const SuccessScreen(
+          title: "Đánh giá thành công",
+          content: "Bạn đã đánh giá thuê xe thành công."));
+    } catch (e) {
+      return;
+    }
   }
 }
