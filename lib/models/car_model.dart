@@ -9,9 +9,7 @@ class CarModel {
   final String carSeat;
   final String transmission;
   final String fuel;
-  final String addressRoad;
-  final String addressDistrict;
-  final String addressCity;
+  final String address;
   final String? description;
   final bool? map;
   final bool? cctv;
@@ -50,9 +48,7 @@ class CarModel {
     required this.carSeat,
     required this.transmission,
     required this.fuel,
-    required this.addressRoad,
-    required this.addressDistrict,
-    required this.addressCity,
+    required this.address,
     this.description,
     this.map,
     this.cctv,
@@ -93,9 +89,7 @@ class CarModel {
       'carSeat': carSeat,
       'transmission': transmission,
       'fuel': fuel,
-      'addressRoad': addressRoad,
-      'addressDistrict': addressDistrict,
-      'addressCity': addressCity,
+      'address': address,
       'description': description,
       'map': map,
       'cctv': cctv,
@@ -140,9 +134,7 @@ class CarModel {
         carSeat: data['carSeat'],
         transmission: data['transmission'],
         fuel: data['fuel'],
-        addressRoad: data['addressRoad'],
-        addressDistrict: data['addressDistrict'],
-        addressCity: data['addressCity'],
+        address: data['address'],
         description: data['description'],
         map: data['map'],
         cctv: data['cctv'],

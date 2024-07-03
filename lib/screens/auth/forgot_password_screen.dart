@@ -58,7 +58,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       width: double.infinity,
                       height: 50,
                       child: ElevatedButton(
-                        onPressed: () {
+                        onPressed: () async {
                           if (email.text.trim().isEmpty) {
                             Get.showSnackbar(GetSnackBar(
                               messageText: const Text(
@@ -76,7 +76,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               },
                             ));
                           } else {
-                            controller.forgotPassword(email.text.trim());
+                            await controller.forgotPassword(email.text.trim());
                           }
                         },
                         style: ElevatedButton.styleFrom(

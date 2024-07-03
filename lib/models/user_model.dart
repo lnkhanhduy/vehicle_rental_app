@@ -7,9 +7,7 @@ class UserModel {
   final String phone;
   final String password;
   final String? imageAvatar;
-  final String? addressRoad;
-  final String? addressDistrict;
-  final String? addressCity;
+  final String? address;
   final String? imageLicenseFront;
   final String? imageLicenseBack;
   final String? imageIdCardFront;
@@ -30,9 +28,7 @@ class UserModel {
     required this.phone,
     required this.password,
     this.imageAvatar,
-    this.addressRoad,
-    this.addressDistrict,
-    this.addressCity,
+    this.address,
     this.imageLicenseFront,
     this.imageLicenseBack,
     this.imageIdCardFront,
@@ -53,9 +49,7 @@ class UserModel {
       'email': email,
       'phone': phone,
       'imageAvatar': imageAvatar,
-      'addressRoad': addressRoad,
-      'addressDistrict': addressDistrict,
-      'addressCity': addressCity,
+      'address': address,
       'imageLicenseFront': imageLicenseFront,
       'imageLicenseBack': imageLicenseBack,
       'imageIdCardFront': imageIdCardFront,
@@ -81,9 +75,7 @@ class UserModel {
       phone: data['phone'],
       password: '',
       imageAvatar: data['imageAvatar'],
-      addressRoad: data['addressRoad'],
-      addressDistrict: data['addressDistrict'],
-      addressCity: data['addressCity'],
+      address: data['address'],
       imageLicenseFront: data['imageLicenseFront'],
       imageLicenseBack: data['imageLicenseBack'],
       imageIdCardFront: data['imageIdCardFront'],

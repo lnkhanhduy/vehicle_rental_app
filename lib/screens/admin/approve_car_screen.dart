@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/admin_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
+import 'package:vehicle_rental_app/screens/flash_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/widgets/car_card_approve.dart';
 
@@ -32,11 +33,11 @@ class _ApproveCarScreenState extends State<ApproveCarScreen> {
         future: AdminController.instance.getCarApproveScreen(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return FlashScreen();
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('No data found'));
+            return const Center(child: Text('Không có xe cần duyệt.'));
           } else {
             List<CarModel> carList = snapshot.data!;
             return ListView.builder(

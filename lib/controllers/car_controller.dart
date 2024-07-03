@@ -229,6 +229,7 @@ class CarController extends GetxController {
             .where("isApproved", isEqualTo: true)
             .where("isRented", isEqualTo: false)
             .where("isHidden", isEqualTo: false)
+            .where("email", isNotEqualTo: email)
             .orderBy("isApproved", descending: true)
             .get();
 
@@ -244,34 +245,16 @@ class CarController extends GetxController {
           );
         }).toList();
 
-        if (carList.length > 10 &&
-            userModel!.addressDistrict != null &&
-            userModel.addressCity != null) {
-          List<CarModel> districtCars = carList
-              .where((car) =>
-                  car.addressDistrict.contains(userModel.addressDistrict!) ||
-                  userModel.addressDistrict!.contains(car.addressDistrict))
+        if (carList.length > 10 && userModel!.address != null) {
+          List<CarModel> listCarAddress = carList
+              .where((car) => car.address.contains(userModel.address!))
               .toList();
 
-          if (districtCars.length < 10) {
-            List<CarModel> cityCars = carList
-                .where((car) =>
-                    car.addressCity.contains(userModel.addressCity!) ||
-                    userModel.addressCity!.contains(car.addressCity))
-                .toList();
-
-            for (var cityCar in cityCars) {
-              if (districtCars.length >= 10) break;
-              if (!districtCars.contains(cityCar)) {
-                districtCars.add(cityCar);
-              }
-            }
-
-            while (districtCars.length < 10) {
-              districtCars.addAll(districtCars.take(10 - districtCars.length));
-            }
+          while (listCarAddress.length < 10) {
+            listCarAddress.addAll(carList.take(10 - listCarAddress.length));
           }
-          return districtCars;
+
+          return listCarAddress;
         } else {
           return carList;
         }
@@ -324,5 +307,92 @@ class CarController extends GetxController {
     } catch (e) {
       return;
     }
+  }
+
+  Future<List<CarModel>?> getMoreCar(String? keyword, String? priceFrom,
+      String? priceTo, String? companyCar, String? transmission) async {
+    final email = userController.firebaseUser.value?.providerData[0].email;
+    if (email == null) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: const Text(
+          "Có lỗi xảy ra. Vui lòng thử lại sau!",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } else {
+      try {
+        QuerySnapshot querySnapshot = await firebaseFirestore
+            .collection("Cars")
+            .where("isApproved", isEqualTo: true)
+            .where("isRented", isEqualTo: false)
+            .where("isHidden", isEqualTo: false)
+            .where("email", isNotEqualTo: email)
+            .get();
+
+        final listFavorite =
+            await firebaseFirestore.collection("Favorites").doc(email).get();
+        List<dynamic> favoriteIds = listFavorite.data()?["listFavorite"] ?? [];
+
+        List<CarModel> carList = querySnapshot.docs.map((doc) {
+          final isFavorite = favoriteIds.contains(doc.id);
+          return CarModel.fromSnapshot(
+            doc as DocumentSnapshot<Map<String, dynamic>>,
+            isFavorite: isFavorite,
+          );
+        }).toList();
+
+        if (keyword != null && keyword.isNotEmpty) {
+          carList = carList
+              .where((car) =>
+                  car.carCompany.contains(keyword) ||
+                  car.carInfoModel.contains(keyword) ||
+                  car.address.contains(keyword) ||
+                  keyword.contains(car.carCompany) ||
+                  keyword.contains(car.address) ||
+                  keyword.contains(car.carInfoModel))
+              .toList();
+        }
+
+        if (priceFrom != null &&
+            priceFrom.isNotEmpty &&
+            priceTo != null &&
+            priceTo.isNotEmpty &&
+            double.parse(priceFrom) < double.parse(priceTo)) {
+          carList = carList
+              .where(
+                  (car) => double.parse(car.price!) >= double.parse(priceFrom))
+              .where((car) => double.parse(car.price!) <= double.parse(priceTo))
+              .toList();
+        }
+
+        if (companyCar != null &&
+            companyCar.isNotEmpty &&
+            companyCar != 'all') {
+          carList =
+              carList.where((car) => car.carCompany == companyCar).toList();
+        }
+
+        if (transmission != null &&
+            transmission.isNotEmpty &&
+            transmission != 'all') {
+          carList =
+              carList.where((car) => car.transmission == transmission).toList();
+        }
+
+        return carList;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
   }
 }

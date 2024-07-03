@@ -10,7 +10,8 @@ class RentalModel {
   final String status;
   final String? message;
   final String? review;
-  final int star;
+  final int? star;
+  final String? reviewDate;
 
   const RentalModel({
     this.id,
@@ -22,7 +23,8 @@ class RentalModel {
     this.status = 'waiting',
     this.message,
     this.review,
-    this.star = 0,
+    this.star,
+    this.reviewDate,
   });
 
   Map<String, dynamic> toJson() {
@@ -36,7 +38,8 @@ class RentalModel {
       'status': status,
       'message': message,
       'review': review,
-      'star': star
+      'star': star,
+      'reviewDate': reviewDate
     };
   }
 
@@ -55,6 +58,7 @@ class RentalModel {
         message: data['message'],
         review: data['review'],
         star: data['star'],
+        reviewDate: data['reviewDate'],
       );
     }
   }

@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final email = TextEditingController();
   final phone = TextEditingController();
   final password = TextEditingController();
+  bool isWaiting = false;
 
   void togglePasswordStatus() {
     setState(() {
@@ -125,7 +126,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                       isAdmin: false,
                                       provider: "password",
                                     );
-                                    await UserController.instance.createUser(user);
+                                    await UserController.instance
+                                        .createUser(user);
                                   } else {
                                     Get.showSnackbar(GetSnackBar(
                                       messageText: const Text(
@@ -183,12 +185,21 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                           ),
-                          icon: Image.asset(
-                            "lib/assets/images/logo_google.png",
-                            width: 30,
-                          ),
+                          icon: isWaiting
+                              ? const CircularProgressIndicator(
+                                  color: Colors.black87, strokeWidth: 1.5)
+                              : Image.asset(
+                                  "lib/assets/images/logo_google.png",
+                                  width: 30,
+                                ),
                           onPressed: () async {
+                            setState(() {
+                              isWaiting = true;
+                            });
                             await UserController.instance.signInWithGoogle();
+                            setState(() {
+                              isWaiting = false;
+                            });
                           },
                           label: const Text(
                             "Đăng nhập với Google",

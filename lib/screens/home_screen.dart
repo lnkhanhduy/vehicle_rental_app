@@ -1,4 +1,3 @@
-import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
@@ -6,8 +5,8 @@ import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/more_cars_screen.dart';
+import 'package:vehicle_rental_app/screens/user/account_screen.dart';
 import 'package:vehicle_rental_app/screens/user/notification_screen.dart';
-import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
 import 'package:vehicle_rental_app/screens/user_rental/info_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/car_card.dart';
@@ -20,8 +19,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  DateTime fromDate = DateTime.now();
-  DateTime toDate = DateTime.now().add(const Duration(days: 1));
+  final keyword = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -43,9 +41,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
                         if (snapshot.hasData) {
-                          List<CarModel> cars =
-                              snapshot.data![0] as List<CarModel>;
-                          UserModel userModel = snapshot.data![1] as UserModel;
+                          List<CarModel>? cars;
+
+                          UserModel? userModel;
+                          if (snapshot.data![0] != null) {
+                            cars = snapshot.data![0] as List<CarModel>;
+                          }
+                          if (snapshot.data![1] != null) {
+                            userModel = snapshot.data![1] as UserModel;
+                          }
+
                           return Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -59,7 +64,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       GestureDetector(
                                         onTap: () {
-                                          Get.to(() => const ProfileScreen());
+                                          Get.to(() => const AccountScreen());
                                         },
                                         child: SizedBox(
                                           width: 54,
@@ -68,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                             borderRadius:
                                                 const BorderRadius.all(
                                                     Radius.circular(100)),
-                                            child: (userModel.imageAvatar !=
+                                            child: (userModel!.imageAvatar !=
                                                         null &&
                                                     userModel.imageAvatar != "")
                                                 ? Image(
@@ -154,13 +159,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                           const Row(
                                             children: [
                                               Icon(
-                                                Icons.location_on,
+                                                Icons.search,
                                                 size: 18,
                                                 color: Colors.black,
                                               ),
                                               SizedBox(width: 8.0),
                                               Text(
-                                                "Địa điểm",
+                                                "Từ khóa",
                                                 style: TextStyle(
                                                     fontWeight: FontWeight.bold,
                                                     fontSize: 15),
@@ -168,9 +173,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                             ],
                                           ),
                                           const SizedBox(height: 2),
-                                          const TextField(
-                                            decoration: InputDecoration(
-                                              hintText: 'Số nhà/Tên đường',
+                                          TextField(
+                                            controller: keyword,
+                                            decoration: const InputDecoration(
+                                              hintText: 'Nhập từ khóa tìm xe',
                                               hintStyle:
                                                   TextStyle(fontSize: 15),
                                               contentPadding:
@@ -179,200 +185,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                       vertical: 0),
                                             ),
                                           ),
-                                          const SizedBox(
-                                            height: 5,
-                                          ),
-                                          const Row(children: [
-                                            Expanded(
-                                              child: TextField(
-                                                decoration: InputDecoration(
-                                                  hintText: 'Quận/Huyện',
-                                                  hintStyle:
-                                                      TextStyle(fontSize: 14),
-                                                  contentPadding:
-                                                      EdgeInsets.fromLTRB(
-                                                          26, 0, 10, 0),
-                                                ),
-                                              ),
-                                            ),
-
-                                            SizedBox(width: 16.0),
-                                            // Add space between the TextFields
-                                            Expanded(
-                                              child: TextField(
-                                                decoration: InputDecoration(
-                                                  hintText: 'Tỉnh/Thành phố',
-                                                  hintStyle:
-                                                      TextStyle(fontSize: 14),
-                                                  contentPadding:
-                                                      EdgeInsets.fromLTRB(
-                                                          10, 0, 26, 0),
-                                                ),
-                                              ),
-                                            ),
-                                          ]),
-                                          const SizedBox(height: 15),
-                                          const Row(
-                                            children: [
-                                              Icon(
-                                                Icons.calendar_today,
-                                                size: 18,
-                                                color: Colors.black,
-                                              ),
-                                              SizedBox(width: 8.0),
-                                              Text(
-                                                "Thời gian thuê",
-                                                style: TextStyle(
-                                                  fontSize: 15,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          Container(
-                                            padding:
-                                                const EdgeInsets.only(left: 26),
-                                            child: Column(
-                                              children: [
-                                                Row(
-                                                    mainAxisAlignment:
-                                                        MainAxisAlignment
-                                                            .spaceBetween,
-                                                    children: [
-                                                      const Text(
-                                                        "Từ ngày",
-                                                        style: TextStyle(
-                                                          fontWeight:
-                                                              FontWeight.w500,
-                                                        ),
-                                                      ),
-                                                      Stack(children: [
-                                                        TextButton(
-                                                          onPressed: () async {
-                                                            final result =
-                                                                await showBoardDateTimePicker(
-                                                                    context:
-                                                                        context,
-                                                                    pickerType:
-                                                                        DateTimePickerType
-                                                                            .datetime,
-                                                                    options:
-                                                                        const BoardDateTimeOptions(
-                                                                            languages:
-                                                                                BoardPickerLanguages(
-                                                                      locale:
-                                                                          'vi',
-                                                                      today:
-                                                                          'Hôm nay',
-                                                                      tomorrow:
-                                                                          'Ngày mai',
-                                                                    )));
-                                                            if (result !=
-                                                                null) {
-                                                              setState(() {
-                                                                fromDate =
-                                                                    result;
-                                                              });
-                                                            }
-                                                          },
-                                                          child: Text(
-                                                            BoardDateFormat(
-                                                                    'HH:mm dd/MM/yyyy')
-                                                                .format(toDate),
-                                                            style: const TextStyle(
-                                                                fontSize: 14,
-                                                                color: Colors
-                                                                    .black54),
-                                                          ),
-                                                        ),
-                                                        Positioned(
-                                                          bottom: 5,
-                                                          left: 0,
-                                                          right: 0,
-                                                          child: Container(
-                                                            height: 1.5,
-                                                            color:
-                                                                Colors.black54,
-                                                          ),
-                                                        ),
-                                                      ]),
-                                                    ]),
-                                                Row(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment
-                                                          .spaceBetween,
-                                                  children: [
-                                                    const Text(
-                                                      "Đến ngày",
-                                                      style: TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                      ),
-                                                    ),
-                                                    Stack(children: [
-                                                      TextButton(
-                                                        onPressed: () async {
-                                                          final result =
-                                                              await showBoardDateTimePicker(
-                                                                  context:
-                                                                      context,
-                                                                  pickerType:
-                                                                      DateTimePickerType
-                                                                          .datetime,
-                                                                  options:
-                                                                      const BoardDateTimeOptions(
-                                                                          languages:
-                                                                              BoardPickerLanguages(
-                                                                    locale:
-                                                                        'vi',
-                                                                    today:
-                                                                        'Hôm nay',
-                                                                    tomorrow:
-                                                                        'Ngày mai',
-                                                                  )));
-                                                          if (result != null) {
-                                                            setState(() {
-                                                              toDate = result;
-                                                            });
-                                                          }
-                                                        },
-                                                        child: Text(
-                                                          BoardDateFormat(
-                                                                  'HH:mm dd/MM/yyyy')
-                                                              .format(toDate),
-                                                          style:
-                                                              const TextStyle(
-                                                                  fontSize: 14,
-                                                                  color: Colors
-                                                                      .black54),
-                                                        ),
-                                                      ),
-                                                      Positioned(
-                                                        bottom: 5,
-                                                        left: 0,
-                                                        right: 0,
-                                                        child: Container(
-                                                          height: 1.5,
-                                                          color: Colors.black54,
-                                                        ),
-                                                      ),
-                                                    ]),
-                                                  ],
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          const SizedBox(
-                                            height: 20,
-                                          ),
+                                          const SizedBox(height: 20),
                                           SizedBox(
                                             width: double.infinity,
                                             height: 40,
                                             child: ElevatedButton(
                                               onPressed: () {
-                                                Get.to(() =>
-                                                    const MoreCarsScreen(
-                                                        titleScreen: "Tìm xe"));
+                                                Get.to(() => MoreCarsScreen(
+                                                    keyword:
+                                                        keyword.text.trim()));
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
@@ -415,8 +236,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                   TextButton(
                                       onPressed: () {
-                                        Get.to(() => const MoreCarsScreen(
-                                            titleScreen: "Tất cả xe"));
+                                        Get.to(() =>
+                                            const MoreCarsScreen(keyword: ""));
                                       },
                                       child: Text(
                                         "Xem thêm",
@@ -429,7 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               const SizedBox(
                                 height: 10,
                               ),
-                              cars.isNotEmpty
+                              cars!.isNotEmpty
                                   ? SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
                                       child: Row(

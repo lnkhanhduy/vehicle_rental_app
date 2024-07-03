@@ -6,7 +6,7 @@ import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/rating_car_screen.dart';
-import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
+import 'package:vehicle_rental_app/screens/user/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 import 'package:vehicle_rental_app/widgets/header_details_car.dart';
@@ -300,7 +300,7 @@ class _CarDetailsRequestRentalScreenState
                                     color: Colors.white,
                                   ),
                                   child: Text(
-                                    '${widget.rentalCarModel.carModel.addressDistrict}, ${widget.rentalCarModel.carModel.addressCity}',
+                                    widget.rentalCarModel.carModel.address,
                                     style: const TextStyle(fontSize: 14),
                                   ),
                                 ),
@@ -605,8 +605,7 @@ class _CarDetailsRequestRentalScreenState
                         const SizedBox(
                           height: 10,
                         ),
-                        Text(
-                            '${widget.rentalCarModel.carModel.addressRoad}, ${widget.rentalCarModel.carModel.addressDistrict}, ${widget.rentalCarModel.carModel.addressCity}'),
+                        Text(widget.rentalCarModel.carModel.address),
                         const SizedBox(
                           height: 20,
                         ),
@@ -643,7 +642,7 @@ class _CarDetailsRequestRentalScreenState
                             ),
                             child: InkWell(
                               onTap: () {
-                                Get.to(() => const ProfileScreen());
+                                Get.to(() => const ProfileDisplayScreen());
                               },
                               child: Row(
                                 children: [
@@ -773,6 +772,21 @@ class _CarDetailsRequestRentalScreenState
                                 "approved" &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.fromDate)
+                                .isAfter(DateTime.now()) &&
+                            DateTime.parse(
+                                    widget.rentalCarModel.rentalModel.toDate)
+                                .isAfter(DateTime.now()))
+                          const Text(
+                            "Chờ nhận xe",
+                            style: TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                                color: Colors.blue),
+                          ),
+                        if (widget.rentalCarModel.rentalModel.status ==
+                                "approved" &&
+                            DateTime.parse(
+                                    widget.rentalCarModel.rentalModel.fromDate)
                                 .isBefore(DateTime.now()) &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.toDate)
@@ -811,7 +825,7 @@ class _CarDetailsRequestRentalScreenState
                                 "waiting" &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.fromDate)
-                                .isBefore(DateTime.now()) &&
+                                .isAfter(DateTime.now()) &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.toDate)
                                 .isAfter(DateTime.now()))
@@ -823,13 +837,18 @@ class _CarDetailsRequestRentalScreenState
                                 color: Colors.amber),
                           ),
                         if (widget.rentalCarModel.rentalModel.status ==
-                            "rejected")
+                                "rejected" ||
+                            (widget.rentalCarModel.rentalModel.status ==
+                                    "waiting" &&
+                                DateTime.parse(widget
+                                        .rentalCarModel.rentalModel.fromDate)
+                                    .isBefore(DateTime.now())))
                           const Text(
-                            "Từ chối",
+                            "Hết hạn",
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
-                                color: Colors.red),
+                                color: Colors.grey),
                           ),
                         if (widget.rentalCarModel.rentalModel.status ==
                             "canceled")
@@ -880,7 +899,7 @@ class _CarDetailsRequestRentalScreenState
                                     ),
                                   ],
                                 ),
-                                SizedBox(height: 5),
+                                const SizedBox(height: 5),
                                 Text(
                                     'Nhận xét: ${widget.rentalCarModel.rentalModel.review!}'),
                               ]),
@@ -898,7 +917,7 @@ class _CarDetailsRequestRentalScreenState
                                 "waiting" &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.fromDate)
-                                .isBefore(DateTime.now()) &&
+                                .isAfter(DateTime.now()) &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.toDate)
                                 .isAfter(DateTime.now()))
@@ -1004,7 +1023,7 @@ class _CarDetailsRequestRentalScreenState
                                             idRental: widget
                                                 .rentalCarModel.rentalModel.id!,
                                             idUserRental: widget.rentalCarModel
-                                                .rentalModel.email!,
+                                                .rentalModel.idOwner!,
                                             idCar: widget.rentalCarModel
                                                 .rentalModel.idCar)),
                                     style: ElevatedButton.styleFrom(
@@ -1057,8 +1076,10 @@ class _CarDetailsRequestRentalScreenState
                                 ),
                               ]),
                         if (widget.isOwner != true &&
-                            widget.rentalCarModel.rentalModel.status ==
-                                "waiting " &&
+                            (widget.rentalCarModel.rentalModel.status ==
+                                    "waiting" ||
+                                widget.rentalCarModel.rentalModel.status ==
+                                    "approved") &&
                             DateTime.parse(
                                     widget.rentalCarModel.rentalModel.fromDate)
                                 .isAfter(DateTime.now()) &&
@@ -1072,8 +1093,13 @@ class _CarDetailsRequestRentalScreenState
                                   child: ElevatedButton(
                                     onPressed: () {
                                       RentalController.instance
-                                          .cancelRequestByUser(widget
-                                              .rentalCarModel.rentalModel.id!);
+                                          .cancelRequestByUser(
+                                              widget.rentalCarModel.rentalModel
+                                                  .id!,
+                                              widget.rentalCarModel.rentalModel
+                                                  .idCar,
+                                              widget.rentalCarModel.rentalModel
+                                                  .email!);
                                     },
                                     style: ElevatedButton.styleFrom(
                                       backgroundColor: Colors.red,

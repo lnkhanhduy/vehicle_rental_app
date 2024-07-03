@@ -6,7 +6,7 @@ import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/controllers/rental_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/firebase_options.dart';
-import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
+import 'package:vehicle_rental_app/screens/flash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginScreen(),
+      home: FlashScreen(),
     );
   }
 }

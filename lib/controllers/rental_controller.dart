@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/rental_model.dart';
+import 'package:vehicle_rental_app/models/rental_user_model.dart';
+import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/success_screen.dart';
 import 'package:vehicle_rental_app/screens/user_rental/request_rental_car_screen.dart';
 
@@ -49,12 +51,12 @@ class RentalController extends GetxController {
     } else {
       try {
         await firebaseFirestore.collection("Rentals").doc().set({
-          "idCar": rentalModel.idCar,
           "email": email,
+          "idOwner": rentalModel.idOwner,
+          "idCar": rentalModel.idCar,
           "fromDate": rentalModel.fromDate,
           "toDate": rentalModel.toDate,
           "message": rentalModel.message,
-          "idOwner": rentalModel.idOwner,
           "status": "waiting"
         });
 
@@ -123,12 +125,29 @@ class RentalController extends GetxController {
     }
   }
 
-  Future<void> cancelRequestByUser(String idRental) async {
+  Future<void> cancelRequestByUser(
+      String idRental, String idCar, String email) async {
     try {
       await firebaseFirestore
           .collection("Rentals")
           .doc(idRental)
           .update({"status": "canceled"});
+
+      await firebaseFirestore.collection("Cars").doc(idCar).update({
+        "isRented": false,
+      });
+
+      QuerySnapshot querySnapshot = await firebaseFirestore
+          .collection("Users")
+          .where('email', isEqualTo: email)
+          .get();
+
+      if (querySnapshot.docs.isNotEmpty) {
+        DocumentSnapshot userDoc = querySnapshot.docs.first;
+        await firebaseFirestore.collection("Users").doc(userDoc.id).update({
+          'isRented': false,
+        });
+      }
 
       Get.closeCurrentSnackbar();
       Get.showSnackbar(GetSnackBar(
@@ -153,10 +172,12 @@ class RentalController extends GetxController {
   Future<void> ratingRental(String idRental, String idUserRental, String idCar,
       int star, String review) async {
     try {
-      await firebaseFirestore
-          .collection("Rentals")
-          .doc(idRental)
-          .update({"status": "paid", "star": star, "review": review});
+      await firebaseFirestore.collection("Rentals").doc(idRental).update({
+        "status": "paid",
+        "star": star,
+        "review": review,
+        "reviewDate": DateTime.now().toString()
+      });
 
       DocumentSnapshot<Map<String, dynamic>> carModel =
           await firebaseFirestore.collection("Cars").doc(idCar).get();
@@ -196,6 +217,44 @@ class RentalController extends GetxController {
           content: "Bạn đã đánh giá thuê xe thành công."));
     } catch (e) {
       return;
+    }
+  }
+
+  Future<List<RentalUserModel>?> getListRentalModelByCar(String idCar) async {
+    try {
+      QuerySnapshot querySnapshot = await firebaseFirestore
+          .collection("Rentals")
+          .where('idCar', isEqualTo: idCar)
+          .where('status', isEqualTo: 'paid')
+          .get();
+      if (querySnapshot.docs.isEmpty) {
+        return null;
+      }
+
+      List<RentalModel> rentalList = querySnapshot.docs.map((doc) {
+        return RentalModel.fromSnapshot(
+          doc as DocumentSnapshot<Map<String, dynamic>>,
+        );
+      }).toList();
+
+      List<RentalUserModel> rentalUserModelList = [];
+      for (var rental in rentalList) {
+        final userDoc =
+            await firebaseFirestore.collection("Users").doc(rental.email).get();
+
+        if (userDoc.exists) {
+          rentalUserModelList.add(
+            RentalUserModel(
+              rentalModel: rental,
+              userModel: UserModel.fromSnapshot(userDoc),
+            ),
+          );
+        }
+      }
+
+      return rentalUserModelList;
+    } catch (e) {
+      return null;
     }
   }
 }

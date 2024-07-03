@@ -9,27 +9,27 @@ class CarCardRental extends StatelessWidget {
   final bool isOwner;
   final bool isHistory;
 
-  const CarCardRental({super.key,
-    required this.rentalCarModel,
-    this.isOwner = false,
-    this.isHistory = false});
+  const CarCardRental(
+      {super.key,
+      required this.rentalCarModel,
+      this.isOwner = false,
+      this.isHistory = false});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
         onTap: () {
           Get.to(
-                () =>
-                CarDetailsRequestRentalScreen(
-                    rentalCarModel: rentalCarModel,
-                    isOwner: isOwner,
-                    isHistory: isHistory),
+            () => CarDetailsRequestRentalScreen(
+                rentalCarModel: rentalCarModel,
+                isOwner: isOwner,
+                isHistory: isHistory),
           );
         },
         child: Container(
           padding: const EdgeInsets.all(20),
           child:
-          Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(
               children: [
                 SizedBox(
@@ -41,24 +41,22 @@ class CarCardRental extends StatelessWidget {
                         borderRadius: BorderRadius.circular(4),
                         child: rentalCarModel.carModel.imageCarMain != null
                             ? Image(
-                          image: Image
-                              .network(
-                            rentalCarModel.carModel.imageCarMain!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                "lib/assets/images/no_image.png",
+                                image: Image.network(
+                                  rentalCarModel.carModel.imageCarMain!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      "lib/assets/images/no_image.png",
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ).image,
                                 fit: BoxFit.cover,
-                              );
-                            },
-                          )
-                              .image,
-                          fit: BoxFit.cover,
-                        )
+                              )
                             : Image.asset(
-                          "lib/assets/images/no_avatar.png",
-                          fit: BoxFit.cover,
-                        ),
+                                "lib/assets/images/no_avatar.png",
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
                   ]),
@@ -76,18 +74,13 @@ class CarCardRental extends StatelessWidget {
                             fontSize: 16, fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'Ngày thuê: ${BoardDateFormat('HH:mm dd/MM/yyyy')
-                            .format(DateTime.parse(rentalCarModel.rentalModel
-                            .fromDate))}',
+                        'Ngày thuê: ${BoardDateFormat('HH:mm dd/MM/yyyy').format(DateTime.parse(rentalCarModel.rentalModel.fromDate))}',
                         style: const TextStyle(
                           color: Colors.black,
                         ),
                       ),
-                      Text(isHistory ? "his" : "no"),
                       Text(
-                        'Ngày trả: ${BoardDateFormat('HH:mm dd/MM/yyyy').format(
-                            DateTime.parse(rentalCarModel.rentalModel
-                                .toDate))}',
+                        'Ngày trả: ${BoardDateFormat('HH:mm dd/MM/yyyy').format(DateTime.parse(rentalCarModel.rentalModel.toDate))}',
                         style: const TextStyle(
                           color: Colors.black,
                         ),
@@ -118,13 +111,12 @@ class CarCardRental extends StatelessWidget {
                           ),
                         ),
                       if (isHistory == true &&
-                          rentalCarModel.rentalModel.status == "paid" )
+                          rentalCarModel.rentalModel.status == "paid")
                         const Text(
                           'Đã trả xe',
                           style: TextStyle(
                             color: Colors.green,
                           ),
-
                         ),
                       if (isHistory == true &&
                           rentalCarModel.rentalModel.status == "approved" &&
@@ -139,13 +131,13 @@ class CarCardRental extends StatelessWidget {
                           ),
                         ),
                       if (isHistory == true &&
-                          rentalCarModel.rentalModel.status == "waiting" &&
-                          (DateTime.parse(
-                              rentalCarModel.rentalModel.fromDate)
-                              .isBefore(DateTime.now()) ||
-                              DateTime.parse(
-                                  rentalCarModel.rentalModel.toDate)
-                                  .isBefore(DateTime.now())) ||
+                              rentalCarModel.rentalModel.status == "waiting" &&
+                              (DateTime.parse(
+                                          rentalCarModel.rentalModel.fromDate)
+                                      .isBefore(DateTime.now()) ||
+                                  DateTime.parse(
+                                          rentalCarModel.rentalModel.toDate)
+                                      .isBefore(DateTime.now())) ||
                           rentalCarModel.rentalModel.status == "rejected")
                         const Text(
                           'Từ chối',

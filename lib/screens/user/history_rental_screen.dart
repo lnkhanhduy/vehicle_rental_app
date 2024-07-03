@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/user_controller.dart';
+import 'package:vehicle_rental_app/models/rental_car_model.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/widgets/car_card_rental.dart';
 
 class HistoryRentalScreen extends StatefulWidget {
   const HistoryRentalScreen({super.key});
@@ -23,23 +26,37 @@ class _HistoryRentalScreenState extends State<HistoryRentalScreen> {
         ),
         centerTitle: true,
       ),
-      body: CustomScrollView(
-        slivers: [
-          SliverFillRemaining(
-            hasScrollBody: false,
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(10, 40, 10, 20),
-              constraints: const BoxConstraints.expand(),
-              color: Colors.white,
-              child: const Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  Text("History rental screen"),
-                ],
-              ),
-            ),
-          ),
-        ],
+      body: FutureBuilder<List<RentalCarModel>?>(
+        future: UserController.instance.getHistoryRental(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Error: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Bạn chưa từng cho thuê xe'));
+          } else {
+            List<RentalCarModel> rentalCarList = snapshot.data!;
+            return ListView.builder(
+              itemCount: rentalCarList.length,
+              itemBuilder: (context, index) {
+                RentalCarModel rentalCarModel = rentalCarList[index];
+                return Column(
+                  children: [
+                    CarCardRental(
+                      rentalCarModel: rentalCarModel,
+                      isHistory: true,
+                      isOwner: true,
+                    ),
+                    const Divider(
+                      height: 1,
+                    )
+                  ],
+                );
+              },
+            );
+          }
+        },
       ),
     );
   }

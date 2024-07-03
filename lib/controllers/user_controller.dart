@@ -37,6 +37,7 @@ class UserController extends GetxController {
 
   Future<UserModel?> getUserData() async {
     final email = firebaseUser.value?.providerData[0].email;
+
     if (email != null) {
       try {
         return await getUserByUsername(email);
@@ -103,8 +104,9 @@ class UserController extends GetxController {
             Get.closeCurrentSnackbar();
           },
         ));
-      } else if (Utils.isPhoneNumber(username)) {
+      } else {
         UserModel? user = await getUserByUsername(username);
+
         if (user == null) {
           Get.closeCurrentSnackbar();
           Get.showSnackbar(GetSnackBar(
@@ -124,13 +126,11 @@ class UserController extends GetxController {
         } else {
           await firebaseAuth.signInWithEmailAndPassword(
               email: user.email, password: password);
+          Get.offAll(() => const LayoutScreen());
         }
-      } else {
-        await firebaseAuth.signInWithEmailAndPassword(
-            email: username, password: password);
       }
-      Get.offAll(() => const LayoutScreen());
-    } on FirebaseAuthException {
+    } on FirebaseAuthException catch (e) {
+      print(e);
       Get.closeCurrentSnackbar();
       Get.showSnackbar(GetSnackBar(
         messageText: const Text(
@@ -147,6 +147,7 @@ class UserController extends GetxController {
         },
       ));
     } catch (e) {
+      print(e);
       return;
     }
   }
@@ -394,12 +395,8 @@ class UserController extends GetxController {
         error = "Vui lòng nh1ập số điện thoại!";
       } else if (!Utils.isPhoneNumber(user.phone)) {
         error = "Số điện thoại phải 10 ký tự!";
-      } else if (user.addressRoad!.isEmpty) {
-        error = "Vui lòng nhập tên đường!";
-      } else if (user.addressDistrict!.isEmpty) {
-        error = "Vui lòng nhập quận/huyện!";
-      } else if (user.addressCity!.isEmpty) {
-        error = "Vui lòng nhập tỉnh/thành phố!";
+      } else if (user.address!.isEmpty) {
+        error = "Vui lòng nhập địa chỉ!";
       }
 
       if (user.phone.isNotEmpty) {
@@ -464,12 +461,8 @@ class UserController extends GetxController {
         error = "Vui lòng nh1ập số điện thoại!";
       } else if (!Utils.isPhoneNumber(user.phone)) {
         error = "Số điện thoại phải 10 ký tự!";
-      } else if (user.addressRoad!.isEmpty) {
-        error = "Vui lòng nhập tên đường!";
-      } else if (user.addressDistrict!.isEmpty) {
-        error = "Vui lòng nhập quận/huyện!";
-      } else if (user.addressCity!.isEmpty) {
-        error = "Vui lòng nhập tỉnh/thành phố!";
+      } else if (user.address!.isEmpty) {
+        error = "Vui lòng nhập địa chỉ!";
       }
 
       if (user.phone.isNotEmpty) {
@@ -652,7 +645,7 @@ class UserController extends GetxController {
       try {
         UserModel? userModel = await getUserByUsername(email);
         if (userModel?.provider == "password") {
-          final User? user = FirebaseAuth.instance.currentUser;
+          final User? user = firebaseAuth.currentUser;
           if (user != null) {
             await user.updatePassword(password);
           }
@@ -681,7 +674,7 @@ class UserController extends GetxController {
             ),
           ),
           backgroundColor: Colors.green,
-          duration: const Duration(seconds: 10),
+          duration: const Duration(seconds: 3),
           icon: const Icon(Icons.check, color: Colors.white),
           onTap: (_) {
             Get.closeCurrentSnackbar();
@@ -833,7 +826,6 @@ class UserController extends GetxController {
 
   Future<List<RentalCarModel>?> getRequestCarRentalScreen() async {
     final email = firebaseUser.value?.providerData[0].email;
-
     if (email == null) {
       Get.closeCurrentSnackbar();
       Get.showSnackbar(GetSnackBar(
@@ -865,7 +857,7 @@ class UserController extends GetxController {
 
         List<RentalCarModel> rentalCarModelList = [];
         for (var rental in rentalList) {
-          if (DateTime.parse(rental.fromDate).isBefore(DateTime.now())) {
+          if (DateTime.parse(rental.fromDate).isAfter(DateTime.now())) {
             final carDoc = await FirebaseFirestore.instance
                 .collection("Cars")
                 .doc(rental.idCar)
@@ -914,6 +906,7 @@ class UserController extends GetxController {
         QuerySnapshot querySnapshot = await firebaseFirestore
             .collection("Rentals")
             .where("email", isEqualTo: email)
+            .orderBy("status", descending: true)
             .get();
 
         List<RentalModel> rentalList = querySnapshot.docs.map((doc) {

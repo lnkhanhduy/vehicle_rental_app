@@ -5,7 +5,7 @@ import 'package:vehicle_rental_app/controllers/rental_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/rental_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
+import 'package:vehicle_rental_app/screens/user/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 
@@ -59,27 +59,35 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                     Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 20, vertical: 15),
-                          decoration: BoxDecoration(
-                            color: Colors.grey.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Image.network(
-                            widget.car.imageCarMain!,
-                            fit: BoxFit.cover,
-                            width: 60,
-                            height: 40,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                "lib/assets/images/no_car_image.png",
-                                fit: BoxFit.cover,
-                                width: 60,
-                                height: 40,
-                              );
-                            },
-                          ),
+                        SizedBox(
+                          width: 90,
+                          height: 60,
+                          child: Stack(children: [
+                            Positioned.fill(
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: widget.car.imageCarMain != null
+                                    ? Image(
+                                        image: Image.network(
+                                          widget.car.imageCarMain!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                              "lib/assets/images/no_car_image.png",
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
+                                        ).image,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        "lib/assets/images/no_car_image.png",
+                                        fit: BoxFit.cover,
+                                      ),
+                              ),
+                            ),
+                          ]),
                         ),
                         const SizedBox(
                           width: 15,
@@ -107,7 +115,11 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                 const SizedBox(
                                   width: 3,
                                 ),
-                                const Text("5.0"),
+                                Text(widget.car.star != 0 &&
+                                        widget.car.totalRental != 0
+                                    ? (widget.car.star / widget.car.totalRental)
+                                        .toStringAsFixed(1)
+                                    : "0"),
                                 SizedBox(
                                   width: 17,
                                   height: 17,
@@ -126,7 +138,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                 const SizedBox(
                                   width: 6,
                                 ),
-                                const Text("2 chuyến"),
+                                Text('${widget.car.totalRental} chuyến'),
                               ],
                             ),
                           ],
@@ -240,8 +252,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                     const SizedBox(
                       height: 6,
                     ),
-                    Text(
-                        '${widget.car.addressRoad}, ${widget.car.addressDistrict}, ${widget.car.addressCity}',
+                    Text(widget.car.address,
                         style: const TextStyle(fontWeight: FontWeight.bold)),
                     const SizedBox(
                       height: 10,
@@ -288,7 +299,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            Get.to(() => const ProfileScreen());
+                            Get.to(() => const ProfileDisplayScreen());
                           },
                           child: Row(
                             children: [
@@ -335,7 +346,12 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                       const SizedBox(
                                         width: 3,
                                       ),
-                                      const Text("5.0"),
+                                      Text(widget.userModel.star != 0 &&
+                                              widget.userModel.totalRental != 0
+                                          ? (widget.userModel.star /
+                                                  widget.userModel.totalRental)
+                                              .toStringAsFixed(1)
+                                          : "0"),
                                       SizedBox(
                                         width: 17,
                                         height: 17,
@@ -354,7 +370,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                       const SizedBox(
                                         width: 6,
                                       ),
-                                      const Text("2 chuyến"),
+                                      Text(
+                                          '${widget.userModel.totalRental} chuyến'),
                                     ],
                                   ),
                                 ],

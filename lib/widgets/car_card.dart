@@ -120,7 +120,7 @@ class _CarCardState extends State<CarCard> {
                         ),
                         const SizedBox(width: 3),
                         Text(
-                          '${widget.car.addressDistrict}, ${widget.car.addressCity}',
+                          widget.car.address,
                           style: TextStyle(
                             fontSize: 15,
                             color: Colors.grey[500],

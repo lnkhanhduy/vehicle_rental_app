@@ -1,11 +1,13 @@
 import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/controllers/rental_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
+import 'package:vehicle_rental_app/models/rental_user_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/confirm_rental_screen.dart';
-import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
+import 'package:vehicle_rental_app/screens/user/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 import 'package:vehicle_rental_app/widgets/header_details_car.dart';
@@ -21,8 +23,8 @@ class CarDetailsScreen extends StatefulWidget {
 }
 
 class _CarDetailsScreenState extends State<CarDetailsScreen> {
-  DateTime fromDate = DateTime.now();
-  DateTime toDate = DateTime.now().add(const Duration(days: 1));
+  DateTime fromDate = DateTime.now().add(const Duration(days: 1));
+  DateTime toDate = DateTime.now().add(const Duration(days: 2));
   int days = 1;
 
   late UserModel userModel;
@@ -112,11 +114,15 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                     future: Future.wait([
                       UserController.instance
                           .getUserByUsername(widget.car.email!),
+                      RentalController.instance
+                          .getListRentalModelByCar(widget.car.id!)
                     ]),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done &&
                           snapshot.hasData) {
                         UserModel userDetail = snapshot.data![0] as UserModel;
+                        List<RentalUserModel>? listRentalUser =
+                            snapshot.data![1] as List<RentalUserModel>?;
                         userModel = userDetail;
                         return Column(
                           mainAxisAlignment: MainAxisAlignment.start,
@@ -174,325 +180,314 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                               height: 10,
                             ),
                             Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 20, vertical: 15),
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      const Text(
-                                        "Thời gian thuê xe",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.fromLTRB(
-                                            15, 10, 15, 10),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: Colors.grey.withOpacity(0.5),
-                                          ),
-                                          color: Colors.white,
+                              width: double.infinity,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 20, vertical: 15),
+                              decoration: BoxDecoration(
+                                color: Colors.grey.withOpacity(0.15),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      "Thời gian thuê xe",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.fromLTRB(
+                                          15, 10, 15, 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.grey.withOpacity(0.5),
                                         ),
-                                        child: Column(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.start,
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment
-                                                      .spaceBetween,
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      "Nhận xe",
-                                                    ),
-                                                    TextButton(
-                                                      style:
-                                                          TextButton.styleFrom(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(0),
-                                                      ),
-                                                      onPressed: () async {
-                                                        final result =
-                                                            await showBoardDateTimePicker(
-                                                                context:
-                                                                    context,
-                                                                pickerType:
-                                                                    DateTimePickerType
-                                                                        .datetime,
-                                                                options:
-                                                                    const BoardDateTimeOptions(
-                                                                        languages:
-                                                                            BoardPickerLanguages(
-                                                                  locale: 'vi',
-                                                                  today:
-                                                                      'Hôm nay',
-                                                                  tomorrow:
-                                                                      'Ngày mai',
-                                                                )));
-                                                        if (result != null) {
-                                                          if (result.isBefore(
-                                                              DateTime.now())) {
-                                                            Get.closeCurrentSnackbar();
-                                                            Get.showSnackbar(
-                                                                GetSnackBar(
-                                                              messageText:
-                                                                  const Text(
-                                                                "Thời gian nhận xe phải lớn hơn hôm nay!",
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              ),
-                                                              backgroundColor:
-                                                                  Colors.red,
-                                                              duration:
-                                                                  const Duration(
-                                                                      seconds:
-                                                                          10),
-                                                              icon: const Icon(
-                                                                  Icons.error,
-                                                                  color: Colors
-                                                                      .white),
-                                                              onTap: (_) {
-                                                                Get.closeCurrentSnackbar();
-                                                              },
-                                                            ));
-                                                          } else if (result
-                                                              .isAfter(
-                                                                  toDate)) {
-                                                            Get.closeCurrentSnackbar();
-                                                            Get.showSnackbar(
-                                                                GetSnackBar(
-                                                              messageText:
-                                                                  const Text(
-                                                                "Thời gian nhận xe phải nhỏ hơn thời gian trả xe!",
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              ),
-                                                              backgroundColor:
-                                                                  Colors.red,
-                                                              duration:
-                                                                  const Duration(
-                                                                      seconds:
-                                                                          10),
-                                                              icon: const Icon(
-                                                                  Icons.error,
-                                                                  color: Colors
-                                                                      .white),
-                                                              onTap: (_) {
-                                                                Get.closeCurrentSnackbar();
-                                                              },
-                                                            ));
-                                                          } else {
-                                                            setState(() {
-                                                              fromDate = result;
-                                                              Duration
-                                                                  difference =
-                                                                  toDate.difference(
-                                                                      fromDate);
-                                                              if (difference.inHours %
-                                                                          24 ==
-                                                                      0 &&
-                                                                  difference
-                                                                          .inMinutes ==
-                                                                      0) {
-                                                                days = toDate
-                                                                    .difference(
-                                                                        fromDate)
-                                                                    .inDays;
-                                                                1;
-                                                              } else {
-                                                                days = toDate
-                                                                        .difference(
-                                                                            fromDate)
-                                                                        .inDays +
-                                                                    1;
-                                                              }
-                                                            });
-                                                          }
-                                                        }
-                                                      },
-                                                      child: Text(
-                                                        BoardDateFormat(
-                                                                'HH:mm dd/MM/yyyy')
-                                                            .format(fromDate),
-                                                        style: const TextStyle(
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.start,
-                                                  crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                  children: [
-                                                    const Text(
-                                                      "Trả xe",
-                                                    ),
-                                                    TextButton(
-                                                      style:
-                                                          TextButton.styleFrom(
-                                                        padding:
-                                                            const EdgeInsets
-                                                                .all(0),
-                                                      ),
-                                                      onPressed: () async {
-                                                        final result =
-                                                            await showBoardDateTimePicker(
-                                                                context:
-                                                                    context,
-                                                                pickerType:
-                                                                    DateTimePickerType
-                                                                        .datetime,
-                                                                options:
-                                                                    const BoardDateTimeOptions(
-                                                                        languages:
-                                                                            BoardPickerLanguages(
-                                                                  locale: 'vi',
-                                                                  today:
-                                                                      'Hôm nay',
-                                                                  tomorrow:
-                                                                      'Ngày mai',
-                                                                )));
-                                                        if (result != null) {
-                                                          if (result.isBefore(
-                                                              fromDate)) {
-                                                            Get.closeCurrentSnackbar();
-                                                            Get.showSnackbar(
-                                                                GetSnackBar(
-                                                              messageText:
-                                                                  const Text(
-                                                                "Thời gian trả xe phải lớn hơn thời gian nhận xe!",
-                                                                style:
-                                                                    TextStyle(
-                                                                  color: Colors
-                                                                      .white,
-                                                                ),
-                                                              ),
-                                                              backgroundColor:
-                                                                  Colors.red,
-                                                              duration:
-                                                                  const Duration(
-                                                                      seconds:
-                                                                          10),
-                                                              icon: const Icon(
-                                                                  Icons.error,
-                                                                  color: Colors
-                                                                      .white),
-                                                              onTap: (_) {
-                                                                Get.closeCurrentSnackbar();
-                                                              },
-                                                            ));
-                                                          } else {
-                                                            setState(() {
-                                                              toDate = result;
-                                                              Duration
-                                                                  difference =
-                                                                  toDate.difference(
-                                                                      fromDate);
-                                                              if (difference.inHours %
-                                                                          24 ==
-                                                                      0 &&
-                                                                  difference
-                                                                          .inMinutes ==
-                                                                      0) {
-                                                                days = toDate
-                                                                    .difference(
-                                                                        fromDate)
-                                                                    .inDays;
-                                                              } else {
-                                                                days = toDate
-                                                                        .difference(
-                                                                            fromDate)
-                                                                        .inDays +
-                                                                    1;
-                                                              }
-                                                            });
-                                                          }
-                                                        }
-                                                      },
-                                                      child: Text(
-                                                        BoardDateFormat(
-                                                                'HH:mm dd/MM/yyyy')
-                                                            .format(toDate),
-                                                        style: const TextStyle(
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              ],
-                                            ),
-                                            Text("Số ngày: $days ngày")
-                                          ],
-                                        ),
+                                        color: Colors.white,
                                       ),
-                                      const SizedBox(
-                                        height: 15,
-                                      ),
-                                      const Text(
-                                        "Địa điểm giao nhận xe",
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16),
-                                      ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
-                                      Container(
-                                        width: double.infinity,
-                                        padding: const EdgeInsets.fromLTRB(
-                                            0, 10, 15, 10),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                            color: Colors.grey.withOpacity(0.5),
-                                          ),
-                                          color: Colors.white,
-                                        ),
-                                        child: Stack(children: [
+                                      child: Column(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
                                           Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
                                             children: [
-                                              Radio(
-                                                value: null,
-                                                groupValue: null,
-                                                onChanged: (value) {},
+                                              Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Text(
+                                                    "Nhận xe",
+                                                  ),
+                                                  TextButton(
+                                                    style: TextButton.styleFrom(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              0),
+                                                    ),
+                                                    onPressed: () async {
+                                                      final result =
+                                                          await showBoardDateTimePicker(
+                                                              context: context,
+                                                              pickerType:
+                                                                  DateTimePickerType
+                                                                      .datetime,
+                                                              options:
+                                                                  const BoardDateTimeOptions(
+                                                                      languages:
+                                                                          BoardPickerLanguages(
+                                                                locale: 'vi',
+                                                                today:
+                                                                    'Hôm nay',
+                                                                tomorrow:
+                                                                    'Ngày mai',
+                                                              )));
+                                                      if (result != null) {
+                                                        if (result.isBefore(
+                                                            DateTime.now())) {
+                                                          Get.closeCurrentSnackbar();
+                                                          Get.showSnackbar(
+                                                              GetSnackBar(
+                                                            messageText:
+                                                                const Text(
+                                                              "Thời gian nhận xe phải lớn hơn hôm nay!",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors.red,
+                                                            duration:
+                                                                const Duration(
+                                                                    seconds:
+                                                                        10),
+                                                            icon: const Icon(
+                                                                Icons.error,
+                                                                color: Colors
+                                                                    .white),
+                                                            onTap: (_) {
+                                                              Get.closeCurrentSnackbar();
+                                                            },
+                                                          ));
+                                                        } else if (result
+                                                            .isAfter(toDate)) {
+                                                          Get.closeCurrentSnackbar();
+                                                          Get.showSnackbar(
+                                                              GetSnackBar(
+                                                            messageText:
+                                                                const Text(
+                                                              "Thời gian nhận xe phải nhỏ hơn thời gian trả xe!",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors.red,
+                                                            duration:
+                                                                const Duration(
+                                                                    seconds:
+                                                                        10),
+                                                            icon: const Icon(
+                                                                Icons.error,
+                                                                color: Colors
+                                                                    .white),
+                                                            onTap: (_) {
+                                                              Get.closeCurrentSnackbar();
+                                                            },
+                                                          ));
+                                                        } else {
+                                                          setState(() {
+                                                            fromDate = result;
+                                                            Duration
+                                                                difference =
+                                                                toDate.difference(
+                                                                    fromDate);
+                                                            if (difference.inHours %
+                                                                        24 ==
+                                                                    0 &&
+                                                                difference
+                                                                        .inMinutes ==
+                                                                    0) {
+                                                              days = toDate
+                                                                  .difference(
+                                                                      fromDate)
+                                                                  .inDays;
+                                                              1;
+                                                            } else {
+                                                              days = toDate
+                                                                      .difference(
+                                                                          fromDate)
+                                                                      .inDays +
+                                                                  1;
+                                                            }
+                                                          });
+                                                        }
+                                                      }
+                                                    },
+                                                    child: Text(
+                                                      BoardDateFormat(
+                                                              'HH:mm dd/MM/yyyy')
+                                                          .format(fromDate),
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                               Column(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.start,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  const Text(
+                                                    "Trả xe",
+                                                  ),
+                                                  TextButton(
+                                                    style: TextButton.styleFrom(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                              0),
+                                                    ),
+                                                    onPressed: () async {
+                                                      final result =
+                                                          await showBoardDateTimePicker(
+                                                              context: context,
+                                                              pickerType:
+                                                                  DateTimePickerType
+                                                                      .datetime,
+                                                              options:
+                                                                  const BoardDateTimeOptions(
+                                                                      languages:
+                                                                          BoardPickerLanguages(
+                                                                locale: 'vi',
+                                                                today:
+                                                                    'Hôm nay',
+                                                                tomorrow:
+                                                                    'Ngày mai',
+                                                              )));
+                                                      if (result != null) {
+                                                        if (result.isBefore(
+                                                            fromDate)) {
+                                                          Get.closeCurrentSnackbar();
+                                                          Get.showSnackbar(
+                                                              GetSnackBar(
+                                                            messageText:
+                                                                const Text(
+                                                              "Thời gian trả xe phải lớn hơn thời gian nhận xe!",
+                                                              style: TextStyle(
+                                                                color: Colors
+                                                                    .white,
+                                                              ),
+                                                            ),
+                                                            backgroundColor:
+                                                                Colors.red,
+                                                            duration:
+                                                                const Duration(
+                                                                    seconds:
+                                                                        10),
+                                                            icon: const Icon(
+                                                                Icons.error,
+                                                                color: Colors
+                                                                    .white),
+                                                            onTap: (_) {
+                                                              Get.closeCurrentSnackbar();
+                                                            },
+                                                          ));
+                                                        } else {
+                                                          setState(() {
+                                                            toDate = result;
+                                                            Duration
+                                                                difference =
+                                                                toDate.difference(
+                                                                    fromDate);
+                                                            if (difference.inHours %
+                                                                        24 ==
+                                                                    0 &&
+                                                                difference
+                                                                        .inMinutes ==
+                                                                    0) {
+                                                              days = toDate
+                                                                  .difference(
+                                                                      fromDate)
+                                                                  .inDays;
+                                                            } else {
+                                                              days = toDate
+                                                                      .difference(
+                                                                          fromDate)
+                                                                      .inDays +
+                                                                  1;
+                                                            }
+                                                          });
+                                                        }
+                                                      }
+                                                    },
+                                                    child: Text(
+                                                      BoardDateFormat(
+                                                              'HH:mm dd/MM/yyyy')
+                                                          .format(toDate),
+                                                      style: const TextStyle(
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              )
+                                            ],
+                                          ),
+                                          Text("Số ngày: $days ngày")
+                                        ],
+                                      ),
+                                    ),
+                                    const SizedBox(
+                                      height: 15,
+                                    ),
+                                    const Text(
+                                      "Địa điểm giao nhận xe",
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Container(
+                                      width: double.infinity,
+                                      padding: const EdgeInsets.fromLTRB(
+                                          0, 10, 15, 10),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.grey.withOpacity(0.5),
+                                        ),
+                                        color: Colors.white,
+                                      ),
+                                      child: Stack(children: [
+                                        Row(
+                                          children: [
+                                            Radio(
+                                              value: null,
+                                              groupValue: null,
+                                              onChanged: (value) {},
+                                            ),
+                                            Expanded(
+                                              child: Column(
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
@@ -503,31 +498,35 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                                   ),
                                                   const SizedBox(height: 3),
                                                   Text(
-                                                    '${widget.car.addressDistrict}, ${widget.car.addressCity}',
+                                                    widget.car.address,
                                                     style: const TextStyle(
                                                         fontSize: 14,
                                                         fontWeight:
                                                             FontWeight.bold),
+                                                    maxLines: null,
+                                                    overflow:
+                                                        TextOverflow.visible,
                                                   )
                                                 ],
                                               ),
-                                            ],
-                                          ),
-                                          Positioned(
-                                            top: 0,
-                                            right: 0,
-                                            child: Text(
-                                              "Miễn phí",
-                                              style: TextStyle(
-                                                  fontSize: 14,
-                                                  fontWeight: FontWeight.bold,
-                                                  color:
-                                                      Constants.primaryColor),
                                             ),
-                                          )
-                                        ]),
-                                      ),
-                                    ])),
+                                          ],
+                                        ),
+                                        Positioned(
+                                          top: 0,
+                                          right: 0,
+                                          child: Text(
+                                            "Miễn phí",
+                                            style: TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: Constants.primaryColor),
+                                          ),
+                                        )
+                                      ]),
+                                    ),
+                                  ]),
+                            ),
                             const SizedBox(
                               height: 20,
                             ),
@@ -784,8 +783,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                             const SizedBox(
                               height: 10,
                             ),
-                            Text(
-                                '${widget.car.addressRoad}, ${widget.car.addressDistrict}, ${widget.car.addressCity}'),
+                            Text(widget.car.address),
                             const SizedBox(
                               height: 20,
                             ),
@@ -815,7 +813,7 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 ),
                                 child: InkWell(
                                   onTap: () {
-                                    Get.to(() => const ProfileScreen());
+                                    Get.to(() => const ProfileDisplayScreen());
                                   },
                                   child: Row(
                                     children: [
@@ -921,14 +919,17 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                             const SizedBox(
                               height: 15,
                             ),
-                            const Column(
-                              children: [
-                                RatingRental(),
-                                SizedBox(
-                                  height: 15,
-                                ),
-                                RatingRental()
-                              ],
+                            Column(
+                              children: listRentalUser!.map((rentalUser) {
+                                return Column(
+                                  children: [
+                                    RatingRental(rentalUserModel: rentalUser),
+                                    const SizedBox(
+                                      height: 15,
+                                    ),
+                                  ],
+                                );
+                              }).toList(),
                             )
                           ],
                         );

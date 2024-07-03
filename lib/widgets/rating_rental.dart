@@ -1,10 +1,19 @@
+import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:vehicle_rental_app/screens/user/profile_screen.dart';
+import 'package:vehicle_rental_app/models/rental_user_model.dart';
+import 'package:vehicle_rental_app/screens/user/account_screen.dart';
 
-class RatingRental extends StatelessWidget {
-  const RatingRental({super.key});
+class RatingRental extends StatefulWidget {
+  final RentalUserModel rentalUserModel;
 
+  const RatingRental({super.key, required this.rentalUserModel});
+
+  @override
+  State<RatingRental> createState() => _RatingRentalState();
+}
+
+class _RatingRentalState extends State<RatingRental> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -19,7 +28,7 @@ class RatingRental extends StatelessWidget {
         ),
         child: InkWell(
             onTap: () {
-              Get.to(() => const ProfileScreen());
+              Get.to(() => const AccountScreen());
             },
             child: Stack(
               children: [
@@ -31,33 +40,53 @@ class RatingRental extends StatelessWidget {
                         SizedBox(
                           width: 50,
                           height: 50,
-                          child: Image.asset(
-                            "lib/assets/images/no_avatar.png",
-                          ),
+                          child: (widget.rentalUserModel.userModel
+                                          .imageAvatar !=
+                                      null &&
+                                  widget.rentalUserModel.userModel
+                                          .imageAvatar !=
+                                      "")
+                              ? Image(
+                                  image: Image.network(
+                                  widget.rentalUserModel.userModel.imageAvatar!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      "lib/assets/images/no_avatar.png",
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ).image)
+                              : Image.asset(
+                                  "lib/assets/images/no_avatar.png",
+                                ),
                         ),
                         const SizedBox(
                           width: 5,
                         ),
-                        const Column(
+                        Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "Lê Nguyễn Khánh Duy",
+                              widget.rentalUserModel.userModel.name,
                               style: TextStyle(
                                   fontWeight: FontWeight.bold, fontSize: 13),
                             ),
                             Text(
-                              "16/06/2024",
+                              BoardDateFormat('dd/MM/yyyy').format(
+                                  DateTime.parse(widget.rentalUserModel
+                                      .rentalModel.reviewDate!)),
                               style: TextStyle(fontSize: 12),
                             )
                           ],
                         ),
                       ],
                     ),
-                    const Padding(
+                    Padding(
                         padding: EdgeInsets.fromLTRB(10, 10, 10, 0),
                         child: Text(
-                          "good",
+                          widget.rentalUserModel.rentalModel.review ??
+                              "Không có nhận xét.",
                           style: TextStyle(fontSize: 13),
                         ))
                   ],

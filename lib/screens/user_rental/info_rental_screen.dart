@@ -21,13 +21,11 @@ class InfoRentalScreen extends StatefulWidget {
 
 class _InfoRentalScreenState extends State<InfoRentalScreen> {
   TextEditingController licensePlates = TextEditingController();
-  TextEditingController carCompany = TextEditingController();
   TextEditingController carInfoModel = TextEditingController();
-  TextEditingController addressRoad = TextEditingController();
-  TextEditingController addressDistrict = TextEditingController();
-  TextEditingController addressCity = TextEditingController();
+  TextEditingController address = TextEditingController();
   TextEditingController description = TextEditingController();
 
+  late String selectedCarCompany = 'Audi';
   late String selectedYear = '2024';
   late String selectedSeat = '4';
   late String selectedTransmission = 'automatic';
@@ -43,6 +41,24 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
   late bool selectedTire = false;
   late bool selectedEtc = false;
   bool isHidden = false;
+
+  List<String> companyCars = [
+    'Audi',
+    'BMW',
+    'Cadillac',
+    'Ford',
+    'Honda',
+    'Hyundai',
+    'Lexus',
+    'Mazda',
+    'Mercedes-Benz',
+    'Mitsubishi',
+    'Nissan',
+    'Porsche',
+    'Tesla',
+    'Toyota',
+    'VinFast',
+  ];
 
   List<String> years = [
     '2024',
@@ -82,11 +98,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
     if (widget.isEdit || widget.view) {
       isHidden = widget.car?.isHidden ?? false;
       licensePlates.text = widget.car?.licensePlates ?? '';
-      carCompany.text = widget.car?.carCompany ?? '';
+      selectedCarCompany = widget.car?.carCompany ?? 'Audi';
       carInfoModel.text = widget.car?.carInfoModel ?? '';
-      addressRoad.text = widget.car?.addressRoad ?? '';
-      addressDistrict.text = widget.car?.addressDistrict ?? '';
-      addressCity.text = widget.car?.addressCity ?? '';
+      address.text = widget.car?.address ?? '';
       description.text = widget.car?.description ?? '';
       selectedYear = widget.car?.yearManufacture ?? '2024';
       selectedSeat = widget.car?.carSeat ?? '4';
@@ -111,7 +125,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
+              onPressed: () =>
+                  Get.to(() => const LayoutScreen(initialIndex: 3)),
+              icon: const Icon(Icons.arrow_back)),
           title: const Text(
             "Thông tin",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -235,27 +251,48 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                           const SizedBox(
                             height: 5,
                           ),
-                          TextField(
-                            readOnly: widget.view,
-                            controller: carCompany,
-                            decoration: InputDecoration(
-                              hintText: 'Nhập hãng xe',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.withOpacity(0.1),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Constants.primaryColor,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 12),
+                          SizedBox(
+                            child: FormField<String>(
+                              builder: (FormFieldState<String> state) {
+                                return InputDecorator(
+                                  decoration: InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderSide: BorderSide(
+                                        color: Colors.grey.withOpacity(0.1),
+                                      ),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8.0),
+                                      borderSide: BorderSide(
+                                        color: Constants.primaryColor,
+                                      ),
+                                    ),
+                                    contentPadding: const EdgeInsets.symmetric(
+                                        horizontal: 12),
+                                  ),
+                                  isEmpty: selectedCarCompany == '',
+                                  child: DropdownButtonHideUnderline(
+                                    child: DropdownButton<String>(
+                                      value: selectedCarCompany,
+                                      isDense: true,
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          selectedCarCompany = newValue!;
+                                          state.didChange(newValue);
+                                        });
+                                      },
+                                      items: companyCars.map((String company) {
+                                        return DropdownMenuItem<String>(
+                                          value: company,
+                                          child: Text(company),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                );
+                              },
                             ),
-                            style: const TextStyle(fontSize: 15),
                           )
                         ],
                       ),
@@ -645,11 +682,11 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                               ),
                               TextField(
                                 readOnly: widget.view,
-                                controller: addressRoad,
+                                controller: address,
                                 decoration: InputDecoration(
                                   labelStyle: const TextStyle(
                                       color: Colors.black, fontSize: 14),
-                                  labelText: 'Số nhà, tên đường',
+                                  labelText: 'Nhập địa chỉ',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                     borderSide: BorderSide(
@@ -668,60 +705,6 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                 style: const TextStyle(fontSize: 15),
                               )
                             ],
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          TextField(
-                            readOnly: widget.view,
-                            controller: addressDistrict,
-                            decoration: InputDecoration(
-                              labelStyle: const TextStyle(
-                                  color: Colors.black, fontSize: 14),
-                              labelText: 'Quận/Huyện',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.withOpacity(0.1),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Constants.primaryColor,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 12),
-                            ),
-                            style: const TextStyle(fontSize: 15),
-                          ),
-                          const SizedBox(
-                            height: 15,
-                          ),
-                          TextField(
-                            readOnly: widget.view,
-                            controller: addressCity,
-                            decoration: InputDecoration(
-                              labelStyle: const TextStyle(
-                                  color: Colors.black, fontSize: 14),
-                              labelText: 'Tỉnh/Thành phố',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.withOpacity(0.1),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Constants.primaryColor,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 0, horizontal: 12),
-                            ),
-                            style: const TextStyle(fontSize: 15),
                           ),
                         ],
                       ),
@@ -791,15 +774,13 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                 CarModel carModel = CarModel(
                   id: widget.car?.id,
                   licensePlates: licensePlates.text.trim(),
-                  carCompany: carCompany.text.trim(),
+                  carCompany: selectedCarCompany,
                   carInfoModel: carInfoModel.text.trim(),
                   yearManufacture: selectedYear,
                   carSeat: selectedSeat,
                   transmission: selectedTransmission,
                   fuel: selectedFuel,
-                  addressRoad: addressRoad.text.trim(),
-                  addressDistrict: addressDistrict.text.trim(),
-                  addressCity: addressCity.text.trim(),
+                  address: address.text.trim(),
                   description: description.text.trim(),
                   map: selectedMap,
                   cctv: selectedCctv,
@@ -836,11 +817,8 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                         isEdit: true,
                       ));
                 } else if (licensePlates.text.trim().isEmpty ||
-                    carCompany.text.trim().isEmpty ||
                     carInfoModel.text.trim().isEmpty ||
-                    addressRoad.text.trim().isEmpty ||
-                    addressDistrict.text.trim().isEmpty ||
-                    addressCity.text.trim().isEmpty) {
+                    address.text.trim().isEmpty) {
                   Get.closeCurrentSnackbar();
                   Get.showSnackbar(GetSnackBar(
                     messageText: const Text(
@@ -881,7 +859,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
       builder: (BuildContext context) {
         return Container(
             width: double.infinity,
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
             child: Stack(
               children: [
                 Column(

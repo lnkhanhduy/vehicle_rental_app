@@ -365,7 +365,7 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                     imageBack != null || imageBackUrl != null,
                                 height: 130.0,
                                 width: MediaQuery.of(context).size.width * 0.42,
-                                imageUnit8List: imageFront,
+                                imageUnit8List: imageBack,
                                 imageUrl: imageFrontUrl,
                                 imageAsset: 'lib/assets/icons/car_back.png'),
                             widget.view == true
