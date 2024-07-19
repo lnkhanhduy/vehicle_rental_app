@@ -27,7 +27,18 @@ class CarCardRental extends StatelessWidget {
           );
         },
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: Offset(0, 5),
+              ),
+            ],
+          ),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(
@@ -54,7 +65,7 @@ class CarCardRental extends StatelessWidget {
                                 fit: BoxFit.cover,
                               )
                             : Image.asset(
-                                "lib/assets/images/no_avatar.png",
+                                "lib/assets/images/no_image.png",
                                 fit: BoxFit.cover,
                               ),
                       ),

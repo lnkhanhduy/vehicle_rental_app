@@ -1,8 +1,10 @@
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:vehicle_rental_app/screens/chat/chat_screen.dart';
 import 'package:vehicle_rental_app/screens/home_screen.dart';
-import 'package:vehicle_rental_app/screens/user/account_screen.dart';
-import 'package:vehicle_rental_app/screens/user/chat_screen.dart';
+import 'package:vehicle_rental_app/screens/profile/account_screen.dart';
+import 'package:vehicle_rental_app/screens/register_car/info_rental_screen.dart';
 import 'package:vehicle_rental_app/screens/user/favorite_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 
@@ -17,7 +19,7 @@ class LayoutScreen extends StatefulWidget {
 
 class _LayoutScreenState extends State<LayoutScreen> {
   int _currentIndex = 0;
-  late PageController _pageController = PageController();
+  PageController _pageController = PageController();
 
   @override
   void initState() {
@@ -34,54 +36,62 @@ class _LayoutScreenState extends State<LayoutScreen> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     Get.closeCurrentSnackbar();
     return Scaffold(
-        body: PageView(
-          controller: _pageController,
-          onPageChanged: (index) {
-            setState(() {
-              _currentIndex = index;
-            });
-          },
-          children: const [
-            HomeScreen(),
-            FavoriteScreen(),
-            ChatScreen(),
-            AccountScreen(),
+      body: PageView(
+        controller: _pageController,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        children: const [
+          HomeScreen(),
+          FavoriteScreen(),
+          InfoRentalScreen(),
+          ChatScreen(),
+          AccountScreen(),
+        ],
+      ),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 1,
+            ),
           ],
         ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.2),
-                spreadRadius: 1,
-                blurRadius: 1,
-              ),
-            ],
-          ),
-          child: BottomNavigationBar(
-            currentIndex: _currentIndex,
-            onTap: onTabTapped,
-            items: const [
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                label: "Trang chủ",
-              ),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.favorite), label: "Yêu thích"),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.message_outlined), label: "Tin nhắn"),
-              BottomNavigationBarItem(
-                  icon: Icon(Icons.person), label: "Tài khoản"),
-            ],
-            selectedItemColor: Constants.primaryColor,
-            unselectedItemColor: Colors.grey,
-            showUnselectedLabels: true,
-            selectedLabelStyle: const TextStyle(fontSize: 13),
-            unselectedLabelStyle: const TextStyle(fontSize: 13),
-          ),
-        ));
+        child: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: onTabTapped,
+          items: [
+            BottomNavigationBarItem(icon: Icon(Icons.home), label: "Trang chủ"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.favorite), label: "Yêu thích"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.car_rental), label: "Cho thuê"),
+            BottomNavigationBarItem(
+                icon: Icon(EvaIcons.messageSquare), label: "Tin nhắn"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.person_2), label: "Tài khoản"),
+          ],
+          selectedItemColor: Constants.primaryColor,
+          unselectedItemColor: Colors.black54,
+          showUnselectedLabels: true,
+          selectedLabelStyle: const TextStyle(fontSize: 13),
+          unselectedLabelStyle: const TextStyle(fontSize: 12),
+          backgroundColor: Colors.white,
+        ),
+      ),
+    );
   }
 }

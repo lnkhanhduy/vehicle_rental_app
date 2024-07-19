@@ -20,8 +20,9 @@ class UserModel {
   final int totalRental;
   final int star;
   final bool isPublic;
+  late String? pushToken;
 
-  const UserModel({
+  UserModel({
     this.id,
     required this.name,
     required this.email,
@@ -41,6 +42,7 @@ class UserModel {
     this.totalRental = 0,
     this.star = 0,
     this.isPublic = false,
+    this.pushToken,
   });
 
   Map<String, dynamic> toJson() {
@@ -62,6 +64,7 @@ class UserModel {
       'totalRental': totalRental,
       'star': star,
       'isPublic': isPublic,
+      'pushToken': pushToken,
     };
   }
 
@@ -88,6 +91,7 @@ class UserModel {
       totalRental: data['totalRental'],
       star: data['star'],
       isPublic: data['isPublic'],
+      pushToken: data['pushToken'],
     );
   }
 }

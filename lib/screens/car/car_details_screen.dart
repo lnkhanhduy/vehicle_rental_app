@@ -7,7 +7,7 @@ import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/rental_user_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/confirm_rental_screen.dart';
-import 'package:vehicle_rental_app/screens/user/profile_display_screen.dart';
+import 'package:vehicle_rental_app/screens/profile/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 import 'package:vehicle_rental_app/widgets/header_details_car.dart';
@@ -710,26 +710,30 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                       for (int i = 0;
                                           i < amenities.length ~/ 2;
                                           i++)
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: Image.asset(
-                                                amenities[i]['iconPath'],
-                                                color: Constants.primaryColor,
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.symmetric(vertical: 6),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: Image.asset(
+                                                  amenities[i]['iconPath'],
+                                                  color: Constants.primaryColor,
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(
-                                              width: 8,
-                                            ),
-                                            Text(amenities[i]['name']),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                          ],
+                                              const SizedBox(
+                                                width: 8,
+                                              ),
+                                              Text(amenities[i]['name']),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                     ],
                                   ),
@@ -740,26 +744,30 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                       for (int i = amenities.length ~/ 2;
                                           i < amenities.length;
                                           i++)
-                                        Row(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
-                                          children: [
-                                            SizedBox(
-                                              width: 20,
-                                              height: 20,
-                                              child: Image.asset(
-                                                amenities[i]['iconPath'],
-                                                color: Constants.primaryColor,
+                                        Padding(
+                                          padding:
+                                              EdgeInsets.symmetric(vertical: 6),
+                                          child: Row(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.end,
+                                            children: [
+                                              SizedBox(
+                                                width: 20,
+                                                height: 20,
+                                                child: Image.asset(
+                                                  amenities[i]['iconPath'],
+                                                  color: Constants.primaryColor,
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(
-                                              width: 8,
-                                            ),
-                                            Text(amenities[i]['name']),
-                                            const SizedBox(
-                                              height: 10,
-                                            ),
-                                          ],
+                                              const SizedBox(
+                                                width: 8,
+                                              ),
+                                              Text(amenities[i]['name']),
+                                              const SizedBox(
+                                                height: 10,
+                                              ),
+                                            ],
+                                          ),
                                         ),
                                     ],
                                   )
@@ -813,7 +821,11 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                                 ),
                                 child: InkWell(
                                   onTap: () {
-                                    Get.to(() => const ProfileDisplayScreen());
+                                    Get.to(
+                                      () => ProfileDisplayScreen(
+                                        userModel: userDetail,
+                                      ),
+                                    );
                                   },
                                   child: Row(
                                     children: [

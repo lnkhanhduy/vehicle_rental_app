@@ -59,7 +59,7 @@ class _CarCardState extends State<CarCard> {
                                 },
                               )
                             : Image.asset(
-                                "lib/assets/images/no_car_image.png",
+                                "lib/assets/images/no_image.png",
                                 fit: BoxFit.cover,
                               ),
                       ),

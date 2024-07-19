@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/screens/user/user_paper_screen.dart';
+import 'package:vehicle_rental_app/screens/profile/user_paper_screen.dart';
 
 class UserCardApprove extends StatelessWidget {
   final bool view;
@@ -34,7 +34,7 @@ class UserCardApprove extends StatelessWidget {
                           fit: BoxFit.cover,
                           errorBuilder: (context, error, stackTrace) {
                             return Image.asset(
-                              "lib/assets/images/no_image.png",
+                              "lib/assets/images/no_avatar.png",
                               fit: BoxFit.cover,
                             );
                           },

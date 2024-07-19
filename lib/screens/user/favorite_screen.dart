@@ -19,7 +19,9 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           "Xe yêu thích",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
+        leading: Container(),
         centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: FutureBuilder<List<CarModel>?>(
         future: UserController.instance.getFavorite(),
@@ -34,19 +36,23 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
           } else {
             List<CarModel> carList = snapshot.data!;
 
-            return ListView.builder(
-              itemCount: carList.length,
-              itemBuilder: (context, index) {
-                CarModel car = carList[index];
-                return Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.fromLTRB(20, 10, 20, 10),
-                      child: CarCard(car: car),
-                    ),
-                  ],
-                );
-              },
+            return Container(
+              padding: const EdgeInsets.fromLTRB(30, 5, 30, 0),
+              color: Colors.white,
+              child: ListView.builder(
+                itemCount: carList.length,
+                itemBuilder: (context, index) {
+                  CarModel car = carList[index];
+                  return Column(
+                    children: [
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 20),
+                        child: CarCard(car: car),
+                      ),
+                    ],
+                  );
+                },
+              ),
             );
           }
         },

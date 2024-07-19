@@ -2,7 +2,7 @@ import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/models/rental_user_model.dart';
-import 'package:vehicle_rental_app/screens/user/account_screen.dart';
+import 'package:vehicle_rental_app/screens/profile/profile_display_screen.dart';
 
 class RatingRental extends StatefulWidget {
   final RentalUserModel rentalUserModel;
@@ -28,7 +28,10 @@ class _RatingRentalState extends State<RatingRental> {
         ),
         child: InkWell(
             onTap: () {
-              Get.to(() => const AccountScreen());
+              Get.to(
+                () => ProfileDisplayScreen(
+                    userModel: widget.rentalUserModel.userModel),
+              );
             },
             child: Stack(
               children: [

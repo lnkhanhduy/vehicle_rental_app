@@ -5,7 +5,7 @@ import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
-import 'package:vehicle_rental_app/screens/user_rental/price_rental_screen.dart';
+import 'package:vehicle_rental_app/screens/register_car/price_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';

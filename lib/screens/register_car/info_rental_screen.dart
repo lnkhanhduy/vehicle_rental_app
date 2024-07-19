@@ -3,7 +3,7 @@ import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
-import 'package:vehicle_rental_app/screens/user_rental/image_rental_screen.dart';
+import 'package:vehicle_rental_app/screens/register_car/image_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';
 
@@ -124,10 +124,8 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
     Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
-          leading: IconButton(
-              onPressed: () =>
-                  Get.to(() => const LayoutScreen(initialIndex: 3)),
-              icon: const Icon(Icons.arrow_back)),
+          leading: Container(),
+          backgroundColor: Colors.white,
           title: const Text(
             "Thông tin",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -141,23 +139,24 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
               ),
             if (widget.isEdit)
               TextButton(
-                  onPressed: () {
-                    CarController.instance
-                        .changeStatusCar(widget.car!.id!, isHidden);
-                    setState(() {
-                      isHidden = !isHidden;
-                    });
-                  },
-                  child: Text(
-                    isHidden ? "ẨN" : "HIỆN",
-                    style: const TextStyle(color: Colors.black54, fontSize: 17),
-                  )),
+                onPressed: () {
+                  CarController.instance
+                      .changeStatusCar(widget.car!.id!, isHidden);
+                  setState(() {
+                    isHidden = !isHidden;
+                  });
+                },
+                child: Text(
+                  isHidden ? "ẨN" : "HIỆN",
+                  style: const TextStyle(color: Colors.black54, fontSize: 17),
+                ),
+              ),
             IconButton(
               onPressed: () => Get.to(() => const LayoutScreen(
                     initialIndex: 0,
                   )),
               icon: const Icon(
-                Icons.close,
+                Icons.home,
               ),
             ),
           ],

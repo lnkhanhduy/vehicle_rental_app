@@ -5,7 +5,7 @@ import 'package:vehicle_rental_app/controllers/rental_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/rental_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/screens/user/profile_display_screen.dart';
+import 'package:vehicle_rental_app/screens/profile/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 
@@ -74,7 +74,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                           errorBuilder:
                                               (context, error, stackTrace) {
                                             return Image.asset(
-                                              "lib/assets/images/no_car_image.png",
+                                              "lib/assets/images/no_image.png",
                                               fit: BoxFit.cover,
                                             );
                                           },
@@ -82,7 +82,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                         fit: BoxFit.cover,
                                       )
                                     : Image.asset(
-                                        "lib/assets/images/no_car_image.png",
+                                        "lib/assets/images/no_image.png",
                                         fit: BoxFit.cover,
                                       ),
                               ),
@@ -299,7 +299,11 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                         ),
                         child: InkWell(
                           onTap: () {
-                            Get.to(() => const ProfileDisplayScreen());
+                            Get.to(
+                              () => ProfileDisplayScreen(
+                                userModel: widget.userModel,
+                              ),
+                            );
                           },
                           child: Row(
                             children: [
@@ -314,7 +318,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                         errorBuilder:
                                             (context, error, stackTrace) {
                                           return Image.asset(
-                                            "lib/assets/images/no_image.png",
+                                            "lib/assets/images/no_avatar.png",
                                             fit: BoxFit.cover,
                                           );
                                         },

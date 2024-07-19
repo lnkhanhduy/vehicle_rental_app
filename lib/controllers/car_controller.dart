@@ -387,6 +387,59 @@ class CarController extends GetxController {
           carList =
               carList.where((car) => car.transmission == transmission).toList();
         }
+        carList = List.generate(21, (index) => carList[0]);
+
+        return carList;
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+  Future<List<CarModel>?> getCarProfileScreen(String emailUser) async {
+    final email = userController.firebaseUser.value?.providerData[0].email;
+    if (email == null) {
+      Get.closeCurrentSnackbar();
+      Get.showSnackbar(GetSnackBar(
+        messageText: const Text(
+          "Có lỗi xảy ra. Vui lòng thử lại sau!",
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: Colors.red,
+        duration: const Duration(seconds: 10),
+        icon: const Icon(Icons.error, color: Colors.white),
+        onTap: (_) {
+          Get.closeCurrentSnackbar();
+        },
+      ));
+    } else {
+      try {
+        // UserModel? userModel =
+        //     await UserController.instance.getUserByUsername(email);
+
+        QuerySnapshot querySnapshot = await firebaseFirestore
+            .collection("Cars")
+            .where("isApproved", isEqualTo: true)
+            .where("isRented", isEqualTo: false)
+            .where("isHidden", isEqualTo: false)
+            .where("email", isEqualTo: emailUser)
+            .orderBy("isApproved", descending: true)
+            .get();
+
+        final listFavorite =
+            await firebaseFirestore.collection("Favorites").doc(email).get();
+        List<dynamic> favoriteIds = listFavorite.data()?["listFavorite"] ?? [];
+
+        List<CarModel> carList = querySnapshot.docs.map((doc) {
+          final isFavorite = favoriteIds.contains(doc.id);
+          return CarModel.fromSnapshot(
+            doc as DocumentSnapshot<Map<String, dynamic>>,
+            isFavorite: isFavorite,
+          );
+        }).toList();
 
         return carList;
       } catch (e) {

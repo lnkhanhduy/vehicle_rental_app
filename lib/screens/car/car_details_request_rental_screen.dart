@@ -6,7 +6,7 @@ import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/rating_car_screen.dart';
-import 'package:vehicle_rental_app/screens/user/profile_display_screen.dart';
+import 'package:vehicle_rental_app/screens/profile/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 import 'package:vehicle_rental_app/widgets/header_details_car.dart';
@@ -642,7 +642,11 @@ class _CarDetailsRequestRentalScreenState
                             ),
                             child: InkWell(
                               onTap: () {
-                                Get.to(() => const ProfileDisplayScreen());
+                                Get.to(
+                                  () => ProfileDisplayScreen(
+                                    userModel: userDetail,
+                                  ),
+                                );
                               },
                               child: Row(
                                 children: [

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/screens/user_rental/info_rental_screen.dart';
+import 'package:vehicle_rental_app/screens/register_car/info_rental_screen.dart';
 
 class CarCardApprove extends StatelessWidget {
   final bool view;
@@ -41,7 +41,7 @@ class CarCardApprove extends StatelessWidget {
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return Image.asset(
-                                "lib/assets/images/no_car_image.png",
+                                "lib/assets/images/no_image.png",
                                 fit: BoxFit.cover,
                               );
                             },
@@ -51,7 +51,7 @@ class CarCardApprove extends StatelessWidget {
                           fit: BoxFit.cover,
                         )
                       : Image.asset(
-                          "lib/assets/images/no_car_image.png",
+                          "lib/assets/images/no_image.png",
                           width: 60,
                           height: 40,
                           fit: BoxFit.cover,

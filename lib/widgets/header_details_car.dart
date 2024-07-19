@@ -83,13 +83,13 @@ class _HeaderDetailsCarState extends State<HeaderDetailsCar> {
                       fit: BoxFit.cover,
                       errorBuilder: (context, error, stackTrace) {
                         return Image.asset(
-                          "lib/assets/images/no_car_image.png",
+                          "lib/assets/images/no_image.png",
                           fit: BoxFit.cover,
                         );
                       },
                     );
                   } else {
-                    return Image.asset("lib/assets/images/no_car_image.png",
+                    return Image.asset("lib/assets/images/no_image.png",
                         fit: BoxFit.cover);
                   }
                 },

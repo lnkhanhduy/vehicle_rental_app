@@ -1,7 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:vehicle_rental_app/screens/chat/chat_details_screen.dart';
 
 class ChatCard extends StatefulWidget {
-  const ChatCard({super.key});
+  final String name;
+  final String emailReceiver;
+  final String lastMessage;
+  final String roomId;
+  final String? imageUrl;
+  final String? phone;
+
+  const ChatCard(
+      {super.key,
+      required this.name,
+      required this.emailReceiver,
+      required this.lastMessage,
+      required this.roomId,
+      this.imageUrl,
+      this.phone});
 
   @override
   State<ChatCard> createState() => _ChatCardState();
@@ -12,10 +28,14 @@ class _ChatCardState extends State<ChatCard> {
   Widget build(BuildContext context) {
     return InkWell(
         onTap: () {
-          print("click");
+          Get.to(() => ChatDetailsScreen(
+                emailReceiver: widget.emailReceiver,
+                name: widget.name,
+                phone: widget.phone,
+              ));
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(10),
@@ -28,31 +48,31 @@ class _ChatCardState extends State<ChatCard> {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   SizedBox(
-                    width: 60,
-                    height: 60,
+                    width: 50,
+                    height: 50,
                     child: Stack(children: [
                       Positioned.fill(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(100),
-                          child: Image.asset(
-                            "lib/assets/images/no_avatar.png",
-                            fit: BoxFit.cover,
-                          ),
+                          child: widget.imageUrl != null &&
+                                  widget.imageUrl!.isNotEmpty
+                              ? Image.network(widget.imageUrl!)
+                              : Image.asset("lib/assets/images/no_avatar.png"),
                         ),
                       ),
                     ]),
                   ),
-                  SizedBox(width: 5),
+                  SizedBox(width: 10),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Duy ne",
+                        widget.name,
                         style: TextStyle(
                             fontWeight: FontWeight.w500, fontSize: 15),
                       ),
                       Text(
-                        '123456789',
+                        widget.lastMessage,
                         style: TextStyle(color: Colors.grey),
                       ),
                     ],

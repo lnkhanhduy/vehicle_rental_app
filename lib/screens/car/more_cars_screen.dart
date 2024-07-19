@@ -20,12 +20,6 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
   TextEditingController priceFrom = TextEditingController();
   TextEditingController priceTo = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-    keyword = TextEditingController(text: widget.keyword);
-  }
-
   late String selectedCarCompany = 'all';
   late String selectedTransmission = 'all';
 
@@ -87,8 +81,8 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
                   }
                 },
                 icon: SizedBox(
-                  width: 20,
-                  height: 20,
+                  width: 18,
+                  height: 18,
                   child: Image.asset('lib/assets/icons/search.png'),
                 ),
               ),
@@ -100,12 +94,14 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
               onPressed: () {
                 Get.to(() => const LayoutScreen(initialIndex: 0));
               },
-              icon: const Icon(Icons.close))
+              icon: const Icon(Icons.home_outlined))
         ],
         centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       drawer: Drawer(
         child: Container(
+          color: Colors.white,
           width: double.infinity,
           padding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
           child: Stack(
@@ -320,28 +316,32 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
                       },
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 15),
                   Align(
                     alignment: Alignment.center,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        setState(() {
-                          selectedCarCompany = 'all';
-                          selectedTransmission = 'all';
-                          keyword.text = '';
-                          priceFrom.text = '';
-                          priceTo.text = '';
-                        });
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue,
-                        foregroundColor: Colors.white,
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                    child: SizedBox(
+                      width: 110,
+                      height: 38,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          setState(() {
+                            selectedCarCompany = 'all';
+                            selectedTransmission = 'all';
+                            keyword.text = '';
+                            priceFrom.text = '';
+                            priceTo.text = '';
+                          });
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Constants.primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: const RoundedRectangleBorder(
+                            borderRadius: BorderRadius.all(Radius.circular(8)),
+                          ),
                         ),
-                      ),
-                      child: const Text(
-                        "Đặt lại",
+                        child: const Text(
+                          "Đặt lại",
+                        ),
                       ),
                     ),
                   ),
@@ -378,16 +378,24 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
             return const Center(child: Text('Không tìm thấy xe có thể thuê.'));
           } else {
             List<CarModel> listCar = snapshot.data!;
-            return ListView.builder(
-              itemCount: listCar.length,
-              itemBuilder: (context, index) {
-                CarModel carModel = listCar[index];
-                return Container(
-                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 10),
-                  width: MediaQuery.of(context).size.width - 40,
-                  child: CarCard(car: carModel),
-                );
-              },
+            return Container(
+              color: Colors.white,
+              padding: EdgeInsets.symmetric(vertical: 12, horizontal: 20),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.builder(
+                      itemCount: listCar.length,
+                      itemBuilder: (context, index) {
+                        CarModel carModel = listCar[index];
+                        return Padding(
+                            padding: EdgeInsets.symmetric(vertical: 6),
+                            child: CarCard(car: carModel));
+                      },
+                    ),
+                  ),
+                ],
+              ),
             );
           }
         },

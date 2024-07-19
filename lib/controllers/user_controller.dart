@@ -6,9 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
+import 'package:vehicle_rental_app/models/chat_model.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
 import 'package:vehicle_rental_app/models/rental_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
+import 'package:vehicle_rental_app/screens/auth/email_verification_screen.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
@@ -18,21 +20,25 @@ class UserController extends GetxController {
 
   final firebaseAuth = FirebaseAuth.instance;
   final firebaseFirestore = FirebaseFirestore.instance;
+
   late final Rx<User?> firebaseUser;
 
   @override
   void onReady() {
     super.onReady();
-    // Future.delayed(const Duration(seconds: 6));
     firebaseUser = Rx<User?>(firebaseAuth.currentUser);
     firebaseUser.bindStream(firebaseAuth.userChanges());
-    ever(firebaseUser, _setInitialScreen);
+    ever(firebaseUser, setInitialScreen);
   }
 
-  void _setInitialScreen(User? user) {
-    user == null
-        ? Get.offAll(() => const LoginScreen())
-        : Get.offAll(() => const LayoutScreen());
+  void setInitialScreen(User? user) {
+    if (user == null) {
+      Get.offAll(() => const LoginScreen());
+    } else if (user.emailVerified) {
+      Get.offAll(() => const LayoutScreen());
+    } else {
+      Get.offAll(() => const EmailVerificationScreen());
+    }
   }
 
   Future<UserModel?> getUserData() async {
@@ -124,9 +130,9 @@ class UserController extends GetxController {
             },
           ));
         } else {
-          await firebaseAuth.signInWithEmailAndPassword(
+          final userLogin = await firebaseAuth.signInWithEmailAndPassword(
               email: user.email, password: password);
-          Get.offAll(() => const LayoutScreen());
+          setInitialScreen(userLogin.user);
         }
       }
     } on FirebaseAuthException catch (e) {
@@ -995,4 +1001,107 @@ class UserController extends GetxController {
     }
     return null;
   }
+
+  Future<bool> sendMessage(String message, String emailReceiver) async {
+    final email = firebaseUser.value?.providerData[0].email;
+
+    if (email == null) {
+      return false;
+    } else {
+      try {
+        final querySnapshot = await firebaseFirestore
+            .collection("ChatRooms")
+            .where("participants",
+                arrayContainsAny: [emailReceiver, email]).get();
+        UserModel? userModel = await getUserByUsername(emailReceiver);
+
+        if (querySnapshot.docs.isNotEmpty) {
+          final chatRoomId = querySnapshot.docs.first.id;
+
+          await firebaseFirestore
+              .collection("ChatRooms")
+              .doc(chatRoomId)
+              .collection("Messages")
+              .add({
+            "message": message,
+            "emailSender": email,
+            "emailReceiver": emailReceiver,
+            "time": DateTime.now(),
+          });
+
+          await firebaseFirestore
+              .collection("ChatRooms")
+              .doc(chatRoomId)
+              .update({
+            "lastMessage": message,
+            "name": userModel!.name,
+            "avatar": userModel.imageAvatar ?? null,
+            "phone": userModel.phone,
+          });
+        } else {
+          final newChatRoomRef =
+              firebaseFirestore.collection("ChatRooms").doc();
+          await newChatRoomRef.set({
+            "participants": [emailReceiver, email],
+            "name": userModel!.name,
+            "avatar": userModel.imageAvatar ?? null,
+            "phone": userModel.phone,
+          });
+          await newChatRoomRef.collection("Messages").add({
+            "message": message,
+            "emailSender": email,
+            "emailReceiver": emailReceiver,
+            "time": DateTime.now(),
+          });
+
+          await newChatRoomRef.update({
+            "lastMessage": message,
+          });
+        }
+
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+  }
+
+  Future<ChatModel?> getChatRoom(String emailReceiver) async {
+    final email = firebaseUser.value?.providerData[0].email;
+
+    if (email == null) {
+      return null;
+    } else {
+      try {
+        final querySnapshot = await firebaseFirestore
+            .collection("ChatRooms")
+            .where("participants",
+                arrayContainsAny: [emailReceiver, email]).get();
+
+        if (querySnapshot.docs.isNotEmpty) {
+          final chatRoomId = querySnapshot.docs.first.id;
+
+          final chatRoomDoc = await firebaseFirestore
+              .collection("ChatRooms")
+              .doc(chatRoomId)
+              .get();
+          return ChatModel.fromSnapshot(chatRoomDoc);
+        }
+      } catch (e) {
+        return null;
+      }
+    }
+    return null;
+  }
+
+// Future<bool> sendVerificationEmail() async {
+//   try {
+//     await firebaseAuth.currentUser?.sendEmailVerification();
+//     return true;
+//   } on FirebaseAuthException {
+//     return false;
+//   } catch (e) {
+//     return false;
+//   }
+// }
 }

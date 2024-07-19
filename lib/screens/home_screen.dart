@@ -5,9 +5,9 @@ import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/more_cars_screen.dart';
-import 'package:vehicle_rental_app/screens/user/account_screen.dart';
+import 'package:vehicle_rental_app/screens/profile/change_profile_screen.dart';
+import 'package:vehicle_rental_app/screens/register_car/info_rental_screen.dart';
 import 'package:vehicle_rental_app/screens/user/notification_screen.dart';
-import 'package:vehicle_rental_app/screens/user_rental/info_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/car_card.dart';
 
@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: FutureBuilder(
                     future: Future.wait([
                       CarController.instance.getCarHomeScreen(),
-                      UserController.instance.getUserData()
+                      UserController.instance.getUserData(),
                     ]),
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.done) {
@@ -64,11 +64,12 @@ class _HomeScreenState extends State<HomeScreen> {
                                     children: [
                                       GestureDetector(
                                         onTap: () {
-                                          Get.to(() => const AccountScreen());
+                                          Get.to(() =>
+                                              const ChangeProfileScreen());
                                         },
                                         child: SizedBox(
-                                          width: 54,
-                                          height: 54,
+                                          width: 48,
+                                          height: 48,
                                           child: ClipRRect(
                                             borderRadius:
                                                 const BorderRadius.all(
@@ -90,16 +91,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                                   ).image)
                                                 : Image.asset(
                                                     "lib/assets/images/no_avatar.png",
+                                                    fit: BoxFit.cover,
                                                   ),
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(
-                                        width: 5,
-                                      ),
+                                      const SizedBox(width: 7),
                                       Text(
                                         userModel.name,
-                                        style: const TextStyle(fontSize: 16),
+                                        style: const TextStyle(fontSize: 15),
                                         textAlign: TextAlign.start,
                                       ),
                                     ],
@@ -112,117 +112,40 @@ class _HomeScreenState extends State<HomeScreen> {
                                   ),
                                 ],
                               ),
-                              const SizedBox(height: 20),
+                              const SizedBox(height: 30),
                               Container(
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(10),
-                                  boxShadow: const [
-                                    BoxShadow(
-                                      color: Colors.black26,
-                                      blurRadius: 10,
-                                      offset: Offset(0, 5),
-                                    ),
-                                  ],
-                                ),
-                                child: Column(
-                                  children: [
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 12),
-                                      decoration: BoxDecoration(
-                                        color: Constants.primaryColor,
-                                        borderRadius: const BorderRadius.only(
-                                          topLeft: Radius.circular(10),
-                                          topRight: Radius.circular(10),
-                                        ),
-                                      ),
-                                      child: const SizedBox(
-                                        width: double.infinity,
-                                        child: Text(
-                                          "Tìm xe",
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(10),
+                                    border: Border.all(
+                                      color: Colors.grey,
+                                    )),
+                                child: Row(children: [
+                                  Expanded(
+                                    child: TextField(
+                                      controller: keyword,
+                                      onSubmitted: (value) {
+                                        Get.to(() => MoreCarsScreen(
+                                            keyword: value.trim()));
+                                      },
+                                      decoration: const InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: "Tìm xe",
+                                        hintStyle: TextStyle(fontSize: 15),
+                                        contentPadding:
+                                            EdgeInsets.only(left: 13),
                                       ),
                                     ),
-                                    Container(
-                                      padding: const EdgeInsets.all(16.0),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          const Row(
-                                            children: [
-                                              Icon(
-                                                Icons.search,
-                                                size: 18,
-                                                color: Colors.black,
-                                              ),
-                                              SizedBox(width: 8.0),
-                                              Text(
-                                                "Từ khóa",
-                                                style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 15),
-                                              ),
-                                            ],
-                                          ),
-                                          const SizedBox(height: 2),
-                                          TextField(
-                                            controller: keyword,
-                                            decoration: const InputDecoration(
-                                              hintText: 'Nhập từ khóa tìm xe',
-                                              hintStyle:
-                                                  TextStyle(fontSize: 15),
-                                              contentPadding:
-                                                  EdgeInsets.symmetric(
-                                                      horizontal: 26,
-                                                      vertical: 0),
-                                            ),
-                                          ),
-                                          const SizedBox(height: 20),
-                                          SizedBox(
-                                            width: double.infinity,
-                                            height: 40,
-                                            child: ElevatedButton(
-                                              onPressed: () {
-                                                Get.to(() => MoreCarsScreen(
-                                                    keyword:
-                                                        keyword.text.trim()));
-                                              },
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    Constants.primaryColor,
-                                                foregroundColor: Colors.white,
-                                                shape:
-                                                    const RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                          Radius.circular(4)),
-                                                ),
-                                              ),
-                                              child: const Text(
-                                                "TÌM XE",
-                                                style: TextStyle(
-                                                  fontSize: 16,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                  IconButton(
+                                      onPressed: () {
+                                        Get.to(() => MoreCarsScreen(
+                                            keyword: keyword.text.trim()));
+                                      },
+                                      icon: Icon(Icons.search))
+                                ]),
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 15),
                               Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
@@ -247,9 +170,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                       ))
                                 ],
                               ),
-                              const SizedBox(
-                                height: 10,
-                              ),
+                              const SizedBox(height: 6),
                               cars!.isNotEmpty
                                   ? SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
@@ -320,8 +241,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                           SizedBox(
                                             child: ElevatedButton(
                                               onPressed: () {
-                                                Get.to(
-                                                    const InfoRentalScreen());
+                                                Get.to(InfoRentalScreen());
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:
