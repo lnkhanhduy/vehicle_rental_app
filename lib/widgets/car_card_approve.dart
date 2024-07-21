@@ -22,40 +22,54 @@ class CarCardApprove extends StatelessWidget {
               ));
         },
         child: Container(
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(10),
+            boxShadow: const [
+              BoxShadow(
+                color: Colors.black26,
+                blurRadius: 10,
+                offset: Offset(0, 5),
+              ),
+            ],
+          ),
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(
               children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                  decoration: BoxDecoration(
-                    color: Colors.grey.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: car.imageCarMain != null
-                      ? Image(
-                          image: Image.network(
-                            car.imageCarMain!,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return Image.asset(
-                                "lib/assets/images/no_image.png",
+                SizedBox(
+                  width: 80,
+                  height: 50,
+                  child: Stack(children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: car.imageCarMain != null
+                            ? Image(
+                                image: Image.network(
+                                  car.imageCarMain!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      "lib/assets/images/no_image.png",
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ).image,
+                                width: 60,
+                                height: 40,
                                 fit: BoxFit.cover,
-                              );
-                            },
-                          ).image,
-                          width: 60,
-                          height: 40,
-                          fit: BoxFit.cover,
-                        )
-                      : Image.asset(
-                          "lib/assets/images/no_image.png",
-                          width: 60,
-                          height: 40,
-                          fit: BoxFit.cover,
-                        ),
+                              )
+                            : Image.asset(
+                                "lib/assets/images/no_image.png",
+                                width: 60,
+                                height: 40,
+                                fit: BoxFit.cover,
+                              ),
+                      ),
+                    ),
+                  ]),
                 ),
                 const SizedBox(
                   width: 15,

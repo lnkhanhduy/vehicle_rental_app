@@ -20,13 +20,14 @@ class _RequestRentalCarScreenState extends State<RequestRentalCarScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 3)),
-            icon: const Icon(Icons.arrow_back)),
+            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 4)),
+            icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: const Text(
           "Yêu cầu thuê xe",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: FutureBuilder<List<RentalCarModel>?>(
         future: UserController.instance.getRequestCarRentalScreen(),
@@ -36,23 +37,25 @@ class _RequestRentalCarScreenState extends State<RequestRentalCarScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Bạn chưa có yêu cầu thuê xe'));
+            return Container(
+              color: Colors.white,
+              child: Center(child: Text('Bạn chưa có yêu cầu thuê xe')),
+            );
           } else {
             List<RentalCarModel> rentalCarList = snapshot.data!;
-            return ListView.builder(
-              itemCount: rentalCarList.length,
-              itemBuilder: (context, index) {
-                RentalCarModel rentalCarModel = rentalCarList[index];
-                return Column(
-                  children: [
-                    CarCardRental(
+            return Container(
+              color: Colors.white,
+              child: ListView.builder(
+                itemCount: rentalCarList.length,
+                itemBuilder: (context, index) {
+                  RentalCarModel rentalCarModel = rentalCarList[index];
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+                    child: CarCardRental(
                         rentalCarModel: rentalCarModel, isOwner: true),
-                    const Divider(
-                      height: 1,
-                    )
-                  ],
-                );
-              },
+                  );
+                },
+              ),
             );
           }
         },

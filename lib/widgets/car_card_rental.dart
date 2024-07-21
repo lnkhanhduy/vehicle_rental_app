@@ -2,7 +2,7 @@ import 'package:board_datetime_picker/board_datetime_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
-import 'package:vehicle_rental_app/screens/car/car_details_request_rental_screen.dart';
+import 'package:vehicle_rental_app/screens/user_rental/car_details_request_rental_screen.dart';
 
 class CarCardRental extends StatelessWidget {
   final RentalCarModel rentalCarModel;

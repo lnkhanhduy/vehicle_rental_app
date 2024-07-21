@@ -9,7 +9,6 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/chat_model.dart';
 import 'package:vehicle_rental_app/screens/chat/display_message.dart';
-import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
@@ -30,9 +29,11 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    print(widget.phone);
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: Text(
           widget.name,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -41,7 +42,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           widget.phone != null && widget.phone!.isNotEmpty
               ? IconButton(
                   icon: Icon(
-                    Icons.call,
+                    Icons.call_outlined,
                     size: 24,
                   ),
                   onPressed: () async {
@@ -54,14 +55,6 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                     }
                   })
               : SizedBox(),
-          IconButton(
-              icon: Icon(
-                Icons.home,
-                size: 24,
-              ),
-              onPressed: () {
-                Get.to(() => const LayoutScreen(initialIndex: 0));
-              })
         ],
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -81,80 +74,83 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                   chatRoomId = chatModel.id;
                 }
 
-                return Column(
-                  children: [
-                    SizedBox(
-                      height: MediaQuery.of(context).size.height * 0.8,
-                      child: DisplayMessage(
-                        emailReceiver: widget.emailReceiver,
-                        chatRoomId: chatRoomId,
+                return Container(
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.8,
+                        child: DisplayMessage(
+                          emailReceiver: widget.emailReceiver,
+                          chatRoomId: chatRoomId,
+                        ),
                       ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: message,
-                              onSubmitted: (value) async {
+                      Padding(
+                        padding: EdgeInsets.all(12),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: message,
+                                onSubmitted: (value) async {
+                                  sendMessage();
+                                },
+                                decoration: InputDecoration(
+                                    filled: true,
+                                    hintText: "Nhập tin nhắn",
+                                    hintStyle: TextStyle(fontSize: 15),
+                                    enabled: true,
+                                    contentPadding: EdgeInsets.only(
+                                        left: 15, top: 4, bottom: 4),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Constants.primaryColor),
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors.grey.shade50),
+                                      borderRadius: BorderRadius.circular(20),
+                                    )),
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () async {
+                                final List<XFile>? images =
+                                    await ImagePicker().pickMultiImage();
+                                List<Uint8List> imageFileList = [];
+
+                                if (images != null && images.isNotEmpty) {
+                                  for (var image in images) {
+                                    final bytes = await image.readAsBytes();
+                                    imageFileList.add(bytes);
+                                  }
+                                }
+
+                                for (var imageBytes in imageFileList) {
+                                  uploadImage(imageBytes);
+                                }
+                              },
+                              icon: Icon(
+                                Icons.image_outlined,
+                                size: 30,
+                              ),
+                            ),
+                            IconButton(
+                              onPressed: () async {
                                 sendMessage();
                               },
-                              decoration: InputDecoration(
-                                  filled: true,
-                                  hintText: "Nhập tin nhắn",
-                                  hintStyle: TextStyle(fontSize: 15),
-                                  enabled: true,
-                                  contentPadding: EdgeInsets.only(
-                                      left: 15, top: 4, bottom: 4),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(
-                                        color: Constants.primaryColor),
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide:
-                                        BorderSide(color: Colors.grey.shade50),
-                                    borderRadius: BorderRadius.circular(20),
-                                  )),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () async {
-                              final List<XFile>? images =
-                                  await ImagePicker().pickMultiImage();
-                              List<Uint8List> imageFileList = [];
-
-                              if (images != null && images.isNotEmpty) {
-                                for (var image in images) {
-                                  final bytes = await image.readAsBytes();
-                                  imageFileList.add(bytes);
-                                }
-                              }
-
-                              for (var imageBytes in imageFileList) {
-                                uploadImage(imageBytes);
-                              }
-                            },
-                            icon: Icon(
-                              Icons.image_outlined,
-                              size: 30,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () async {
-                              sendMessage();
-                            },
-                            icon: Icon(
-                              Icons.send,
-                              size: 30,
-                              color: Constants.primaryColor,
-                            ),
-                          )
-                        ],
-                      ),
-                    )
-                  ],
+                              icon: Icon(
+                                Icons.send,
+                                size: 30,
+                                color: Constants.primaryColor,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ],
+                  ),
                 );
               }
               return Container();

@@ -13,42 +13,59 @@ class UserCardApprove extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.to(() => UserPaperScreen(user: user, view: true));
+        Get.to(() => UserPaperScreen(
+            user: user, view: true, title: "Xét duyệt giấy tờ"));
       },
       child: Container(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(10),
+          boxShadow: const [
+            BoxShadow(
+              color: Colors.black26,
+              blurRadius: 10,
+              offset: Offset(0, 5),
+            ),
+          ],
+        ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(
             children: [
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                decoration: BoxDecoration(
-                  color: Colors.grey.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: user.imageAvatar != null
-                    ? Image(
-                        image: Image.network(
-                          user.imageAvatar!,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) {
-                            return Image.asset(
-                              "lib/assets/images/no_avatar.png",
-                              fit: BoxFit.cover,
-                            );
-                          },
-                        ).image,
-                        width: 60,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      )
-                    : Image.asset(
-                        "lib/assets/images/no_avatar.png",
-                        width: 60,
-                        height: 40,
-                        fit: BoxFit.cover,
+              SizedBox(
+                width: 80,
+                height: 50,
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: user.imageAvatar != null
+                            ? Image(
+                                image: Image.network(
+                                  user.imageAvatar!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      "lib/assets/images/no_avatar.png",
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ).image,
+                                width: 60,
+                                height: 40,
+                                fit: BoxFit.cover,
+                              )
+                            : Image.asset(
+                                "lib/assets/images/no_avatar.png",
+                                width: 60,
+                                height: 40,
+                                fit: BoxFit.cover,
+                              ),
                       ),
+                    )
+                  ],
+                ),
               ),
               const SizedBox(
                 width: 15,

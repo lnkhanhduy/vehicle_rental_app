@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/screens/register_car/image_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';
@@ -11,9 +10,14 @@ class InfoRentalScreen extends StatefulWidget {
   final CarModel? car;
   final bool view;
   final bool isEdit;
+  final bool isToHome;
 
   const InfoRentalScreen(
-      {super.key, this.car, this.view = false, this.isEdit = false});
+      {super.key,
+      this.car,
+      this.view = false,
+      this.isEdit = false,
+      this.isToHome = false});
 
   @override
   State<InfoRentalScreen> createState() => _InfoRentalScreenState();
@@ -124,7 +128,11 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
     Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
-          leading: Container(),
+          leading: widget.isToHome == true || widget.view == true
+              ? IconButton(
+                  onPressed: () => Get.back(),
+                  icon: const Icon(Icons.arrow_back_ios_outlined))
+              : Container(),
           backgroundColor: Colors.white,
           title: const Text(
             "Thông tin",
@@ -133,9 +141,12 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
           centerTitle: true,
           actions: [
             if (widget.view)
-              Text(
-                isHidden ? "ẨN" : "HIỆN",
-                style: const TextStyle(color: Colors.black54, fontSize: 17),
+              Padding(
+                padding: EdgeInsets.only(right: 10),
+                child: Text(
+                  isHidden ? "ẨN" : "HIỆN",
+                  style: const TextStyle(color: Colors.black54, fontSize: 17),
+                ),
               ),
             if (widget.isEdit)
               TextButton(
@@ -151,14 +162,6 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                   style: const TextStyle(color: Colors.black54, fontSize: 17),
                 ),
               ),
-            IconButton(
-              onPressed: () => Get.to(() => const LayoutScreen(
-                    initialIndex: 0,
-                  )),
-              icon: const Icon(
-                Icons.home,
-              ),
-            ),
           ],
         ),
         body: CustomScrollView(
@@ -718,12 +721,15 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                             height: 15,
                           ),
                           TextField(
+                            readOnly: widget.view,
                             controller: description,
                             maxLines: 10,
                             decoration: InputDecoration(
                               labelStyle: const TextStyle(
                                   color: Colors.black, fontSize: 14),
-                              hintText: 'Mô tả về ngắn gọn xe',
+                              hintText: widget.view && description.text == ''
+                                  ? 'Không có mô tả'
+                                  : 'Mô tả về ngắn gọn xe',
                               border: OutlineInputBorder(
                                 borderRadius: BorderRadius.circular(8.0),
                                 borderSide: BorderSide(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
+import 'package:vehicle_rental_app/screens/layout_admin_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/screens/register_car/paper_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
@@ -56,19 +57,31 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: const Text(
           "Hình ảnh",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
         actions: [
-          IconButton(
+          if (widget.view == false)
+            IconButton(
               onPressed: () =>
                   Get.to(() => const LayoutScreen(initialIndex: 0)),
               icon: const Icon(
-                Icons.close,
-              ))
+                Icons.home_outlined,
+              ),
+            ),
+          if (widget.view == true)
+            IconButton(
+              onPressed: () =>
+                  Get.to(() => const LayoutAdminScreen(initialIndex: 0)),
+              icon: const Icon(
+                Icons.home_outlined,
+              ),
+            )
         ],
       ),
       body: CustomScrollView(

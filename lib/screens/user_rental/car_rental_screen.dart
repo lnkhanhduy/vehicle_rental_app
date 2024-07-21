@@ -20,13 +20,14 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 3)),
-            icon: const Icon(Icons.arrow_back)),
+            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 4)),
+            icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: const Text(
-          "Xe đã đăng ký cho thuê",
+          "Xe đã cho thuê",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: FutureBuilder<List<CarModel>?>(
         future: UserController.instance.getCarRentalScreen(),
@@ -36,22 +37,21 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Bạn chưa đăng ký cho thuê xe'));
+            return const Center(child: Text('Bạn chưa cho thuê xe'));
           } else {
             List<CarModel> carList = snapshot.data!;
-            return ListView.builder(
-              itemCount: carList.length,
-              itemBuilder: (context, index) {
-                CarModel car = carList[index];
-                return Column(
-                  children: [
-                    CarCardApprove(car: car, isEdit: true),
-                    const Divider(
-                      height: 1,
-                    )
-                  ],
-                );
-              },
+            return Container(
+              color: Colors.white,
+              child: ListView.builder(
+                itemCount: carList.length,
+                itemBuilder: (context, index) {
+                  CarModel car = carList[index];
+                  return Padding(
+                    padding: EdgeInsets.symmetric(vertical: 6, horizontal: 15),
+                    child: CarCardApprove(car: car, isEdit: true),
+                  );
+                },
+              ),
             );
           }
         },

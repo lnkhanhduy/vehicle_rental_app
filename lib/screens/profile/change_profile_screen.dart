@@ -164,9 +164,8 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
                                       Icon(Icons.person_outline_outlined),
                                   labelText: 'Họ và tên',
                                   border: OutlineInputBorder(),
-                                  labelStyle: TextStyle(
-                                    color: Color(0xff888888),
-                                  )),
+                                  labelStyle:
+                                      TextStyle(color: Color(0xff888888))),
                             ),
                             const SizedBox(height: 20),
                             TextFormField(
@@ -195,7 +194,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
                             const SizedBox(height: 30),
                             SizedBox(
                               width: double.infinity,
-                              height: 50,
+                              height: 48,
                               child: ElevatedButton(
                                 onPressed: () async {
                                   if (email.text.trim().isEmpty ||
@@ -254,7 +253,7 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
                                 child: const Text(
                                   "CẬP NHẬT",
                                   style: TextStyle(
-                                    fontSize: 17,
+                                    fontSize: 16,
                                   ),
                                 ),
                               ),

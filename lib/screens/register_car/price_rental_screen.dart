@@ -6,6 +6,7 @@ import 'package:vehicle_rental_app/controllers/admin_controller.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/admin/approve_car_screen.dart';
+import 'package:vehicle_rental_app/screens/layout_admin_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';
@@ -60,20 +61,31 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
+              onPressed: () => Get.back(),
+              icon: const Icon(Icons.arrow_back_ios_outlined)),
           title: const Text(
             "Giá cho thuê",
             style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
+          backgroundColor: Colors.white,
           actions: [
-            IconButton(
-                onPressed: () => Get.to(() => const LayoutScreen(
-                      initialIndex: 0,
-                    )),
+            if (widget.view == false)
+              IconButton(
+                onPressed: () =>
+                    Get.to(() => const LayoutScreen(initialIndex: 0)),
                 icon: const Icon(
-                  Icons.close,
-                ))
+                  Icons.home_outlined,
+                ),
+              ),
+            if (widget.view == true)
+              IconButton(
+                onPressed: () =>
+                    Get.to(() => const LayoutAdminScreen(initialIndex: 0)),
+                icon: const Icon(
+                  Icons.home_outlined,
+                ),
+              )
           ],
         ),
         body: CustomScrollView(

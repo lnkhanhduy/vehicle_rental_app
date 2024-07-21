@@ -13,8 +13,9 @@ class HistoryScreen extends StatefulWidget {
   State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
+late Future futureGet = UserController.instance.getHistory();
+
 class _HistoryScreenState extends State<HistoryScreen> {
-  late Future futureGet = UserController.instance.getHistory();
   late bool isRental = true;
 
   @override
@@ -116,10 +117,19 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         child: ListView.builder(
                           itemCount: carList.length,
                           itemBuilder: (context, index) {
-                            if (isRental) {
-                              RentalCarModel? rentalCarModel =
-                                  carList[index] as RentalCarModel?;
+                            RentalCarModel? rentalCarModel =
+                                carList[index] as RentalCarModel?;
 
+                            if (isRental) {
+                              return Padding(
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 6, horizontal: 15),
+                                child: CarCardRental(
+                                  rentalCarModel: rentalCarModel!,
+                                  isHistory: true,
+                                ),
+                              );
+                            } else {
                               return Padding(
                                 padding: EdgeInsets.symmetric(
                                     vertical: 6, horizontal: 15),
@@ -130,7 +140,6 @@ class _HistoryScreenState extends State<HistoryScreen> {
                                 ),
                               );
                             }
-                            return null;
                           },
                         ),
                       ),

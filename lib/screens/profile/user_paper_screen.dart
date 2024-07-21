@@ -14,10 +14,15 @@ import 'package:vehicle_rental_app/widgets/image_container.dart';
 class UserPaperScreen extends StatefulWidget {
   final bool view;
   final bool isEdit;
+  final String? title;
   final UserModel user;
 
   const UserPaperScreen(
-      {super.key, required this.user, this.view = false, this.isEdit = false});
+      {super.key,
+      required this.user,
+      this.view = false,
+      this.isEdit = false,
+      this.title});
 
   @override
   State<UserPaperScreen> createState() => _UserPaperScreenState();
@@ -53,18 +58,20 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
-        title: const Text(
-          "Thông tin giấy tờ",
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_ios_outlined)),
+        title: Text(
+          widget.title ?? "Giấy tờ của tôi",
           style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: CustomScrollView(slivers: [
         SliverFillRemaining(
           hasScrollBody: false,
           child: Container(
-            padding: const EdgeInsets.fromLTRB(30, 20, 30, 30),
+            padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
             constraints: const BoxConstraints.expand(),
             color: Colors.white,
             child: Column(children: [
@@ -110,9 +117,23 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
                       style: const TextStyle(color: Colors.red),
                     )
                   ],
+                )
+              else
+                Column(
+                  children: [
+                    const Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(Icons.error_outline, color: Colors.grey),
+                        SizedBox(width: 5),
+                        Text("Chưa cập nhật",
+                            style: TextStyle(color: Colors.grey))
+                      ],
+                    ),
+                  ],
                 ),
               const SizedBox(
-                height: 25,
+                height: 20,
               ),
               const Text("CCCD",
                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),

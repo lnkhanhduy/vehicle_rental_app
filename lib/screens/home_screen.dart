@@ -241,7 +241,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                           SizedBox(
                                             child: ElevatedButton(
                                               onPressed: () {
-                                                Get.to(InfoRentalScreen());
+                                                Get.to(InfoRentalScreen(
+                                                    isToHome: true));
                                               },
                                               style: ElevatedButton.styleFrom(
                                                 backgroundColor:

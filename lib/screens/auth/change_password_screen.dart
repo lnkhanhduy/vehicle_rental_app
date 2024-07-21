@@ -23,16 +23,17 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
     final password = TextEditingController();
     final confirmPassword = TextEditingController();
 
-    Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
-              onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
+              onPressed: () => Get.back(),
+              icon: const Icon(Icons.arrow_back_ios_outlined)),
           title: const Text(
             "Đổi mật khẩu",
             style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
           ),
           centerTitle: true,
+          backgroundColor: Colors.white,
         ),
         body: CustomScrollView(slivers: [
           SliverFillRemaining(
@@ -95,7 +96,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                               ),
                               SizedBox(
                                 width: double.infinity,
-                                height: 50,
+                                height: 48,
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     if (password.text.trim().isNotEmpty &&
@@ -136,7 +137,7 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
                                   child: const Text(
                                     "CẬP NHẬT",
                                     style: TextStyle(
-                                      fontSize: 17,
+                                      fontSize: 16,
                                     ),
                                   ),
                                 ),

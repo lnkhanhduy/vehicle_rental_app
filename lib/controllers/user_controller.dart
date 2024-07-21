@@ -12,6 +12,7 @@ import 'package:vehicle_rental_app/models/rental_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/auth/email_verification_screen.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
+import 'package:vehicle_rental_app/screens/layout_admin_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 
@@ -22,6 +23,7 @@ class UserController extends GetxController {
   final firebaseFirestore = FirebaseFirestore.instance;
 
   late final Rx<User?> firebaseUser;
+  late bool isAdmin = false;
 
   @override
   void onReady() {
@@ -34,6 +36,8 @@ class UserController extends GetxController {
   void setInitialScreen(User? user) {
     if (user == null) {
       Get.offAll(() => const LoginScreen());
+    } else if (isAdmin == true) {
+      Get.offAll(() => const LayoutAdminScreen());
     } else if (user.emailVerified) {
       Get.offAll(() => const LayoutScreen());
     } else {
@@ -132,11 +136,11 @@ class UserController extends GetxController {
         } else {
           final userLogin = await firebaseAuth.signInWithEmailAndPassword(
               email: user.email, password: password);
+          isAdmin = user.isAdmin;
           setInitialScreen(userLogin.user);
         }
       }
     } on FirebaseAuthException catch (e) {
-      print(e);
       Get.closeCurrentSnackbar();
       Get.showSnackbar(GetSnackBar(
         messageText: const Text(
@@ -153,7 +157,6 @@ class UserController extends GetxController {
         },
       ));
     } catch (e) {
-      print(e);
       return;
     }
   }
