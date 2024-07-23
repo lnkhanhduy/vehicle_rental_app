@@ -51,7 +51,7 @@ class _HeaderDetailsCarState extends State<HeaderDetailsCar> {
     return SliverAppBar(
       leading: IconButton(
           onPressed: () => Get.back(),
-          icon: const Icon(Icons.arrow_back, color: Colors.white)),
+          icon: const Icon(Icons.arrow_back_ios_outlined, color: Colors.white)),
       expandedHeight: 240,
       flexibleSpace: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {

@@ -12,11 +12,12 @@ class ForgotPasswordScreen extends StatefulWidget {
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final email = TextEditingController();
+  bool isWaiting = false;
 
   @override
   Widget build(BuildContext context) {
     final controller = Get.put(UserController());
-    Get.closeCurrentSnackbar();
+
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -56,7 +57,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     ),
                     SizedBox(
                       width: double.infinity,
-                      height: 50,
+                      height: 48,
                       child: ElevatedButton(
                         onPressed: () async {
                           if (email.text.trim().isEmpty) {
@@ -76,7 +77,13 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               },
                             ));
                           } else {
+                            setState(() {
+                              isWaiting = true;
+                            });
                             await controller.forgotPassword(email.text.trim());
+                            setState(() {
+                              isWaiting = false;
+                            });
                           }
                         },
                         style: ElevatedButton.styleFrom(
@@ -86,33 +93,36 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             borderRadius: BorderRadius.all(Radius.circular(4)),
                           ),
                         ),
-                        child: const Text(
-                          "TIẾP TỤC",
-                          style: TextStyle(
-                            fontSize: 17,
-                          ),
-                        ),
+                        child: isWaiting
+                            ? const CircularProgressIndicator()
+                            : const Text(
+                                "Gửi",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(
                       height: 40,
                     ),
                     TextButton(
-                        onPressed: () {
-                          Get.to(() => const LoginScreen());
-                        },
-                        child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.arrow_back,
-                                color: Colors.black87,
-                              ),
-                              SizedBox(width: 10),
-                              Text("Đăng nhập",
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.black87))
-                            ]))
+                      onPressed: () {
+                        Get.to(() => const LoginScreen());
+                      },
+                      child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.arrow_back,
+                              color: Colors.black87,
+                            ),
+                            SizedBox(width: 10),
+                            Text("Đăng nhập",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black87))
+                          ]),
+                    )
                   ]),
             ),
           )

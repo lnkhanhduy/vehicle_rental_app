@@ -128,7 +128,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
     Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
-          leading: widget.isToHome == true || widget.view == true
+          leading: widget.isToHome == true ||
+                  widget.view == true ||
+                  widget.isEdit == true
               ? IconButton(
                   onPressed: () => Get.back(),
                   icon: const Icon(Icons.arrow_back_ios_outlined))

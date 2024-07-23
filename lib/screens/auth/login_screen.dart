@@ -26,7 +26,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,

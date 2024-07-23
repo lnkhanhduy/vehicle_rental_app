@@ -22,18 +22,21 @@ class RatingCarScreen extends StatefulWidget {
 class _RatingCarScreenState extends State<RatingCarScreen> {
   final review = TextEditingController();
   int star = 5;
+  bool isWaiting = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: const Text(
           "Đánh giá thuê xe",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
       ),
       body: CustomScrollView(
         slivers: [
@@ -112,12 +115,18 @@ class _RatingCarScreenState extends State<RatingCarScreen> {
                           },
                         ));
                       } else {
+                        setState(() {
+                          isWaiting = true;
+                        });
                         await RentalController.instance.ratingRental(
                             widget.idRental,
                             widget.idUserRental,
                             widget.idCar,
                             star,
                             review.text.trim());
+                        setState(() {
+                          isWaiting = false;
+                        });
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -127,7 +136,9 @@ class _RatingCarScreenState extends State<RatingCarScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
                     ),
-                    child: const Text("Đánh giá"),
+                    child: isWaiting
+                        ? const CircularProgressIndicator()
+                        : const Text("Đánh giá"),
                   ),
                 ],
               ),

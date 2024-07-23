@@ -387,7 +387,6 @@ class CarController extends GetxController {
           carList =
               carList.where((car) => car.transmission == transmission).toList();
         }
-        carList = List.generate(21, (index) => carList[0]);
 
         return carList;
       } catch (e) {

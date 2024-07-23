@@ -28,7 +28,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
     return Scaffold(
       backgroundColor: Colors.white,
       body: CustomScrollView(

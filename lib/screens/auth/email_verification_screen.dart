@@ -70,11 +70,11 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                       onPressed: () {
                         controller.sendVerificationEmail();
                       },
-                      child: Text("Gửi lại mã xác minh",
+                      child: Text("Gửi lại email xác minh",
                           style: TextStyle(fontSize: 17, color: Colors.black))),
                   TextButton(
                     onPressed: () {
-                      UserController.instance..logout();
+                      UserController.instance.logout();
                     },
                     child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,

@@ -140,7 +140,7 @@ class UserController extends GetxController {
           setInitialScreen(userLogin.user);
         }
       }
-    } on FirebaseAuthException catch (e) {
+    } on FirebaseAuthException {
       Get.closeCurrentSnackbar();
       Get.showSnackbar(GetSnackBar(
         messageText: const Text(
@@ -1078,8 +1078,7 @@ class UserController extends GetxController {
       try {
         final querySnapshot = await firebaseFirestore
             .collection("ChatRooms")
-            .where("participants",
-                arrayContainsAny: [emailReceiver, email]).get();
+            .where("participants", arrayContains: [emailReceiver, email]).get();
 
         if (querySnapshot.docs.isNotEmpty) {
           final chatRoomId = querySnapshot.docs.first.id;
@@ -1090,21 +1089,11 @@ class UserController extends GetxController {
               .get();
           return ChatModel.fromSnapshot(chatRoomDoc);
         }
+
+        return null;
       } catch (e) {
         return null;
       }
     }
-    return null;
   }
-
-// Future<bool> sendVerificationEmail() async {
-//   try {
-//     await firebaseAuth.currentUser?.sendEmailVerification();
-//     return true;
-//   } on FirebaseAuthException {
-//     return false;
-//   } catch (e) {
-//     return false;
-//   }
-// }
 }

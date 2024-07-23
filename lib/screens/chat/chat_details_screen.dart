@@ -175,9 +175,11 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
               .collection("ChatRooms")
               .where("participants",
                   arrayContainsAny: [widget.emailReceiver, email]).get();
-          setState(() {
-            chatRoomId = querySnapshot.docs.first.id;
-          });
+          if (querySnapshot.docs.isNotEmpty) {
+            setState(() {
+              chatRoomId = querySnapshot.docs.first.id;
+            });
+          }
         }
       }
     }

@@ -30,24 +30,10 @@ class RentalController extends GetxController {
   //   return rentalList;
   // }
 
-  Future<void> sendRequestRental(RentalModel rentalModel) async {
+  Future<bool> sendRequestRental(RentalModel rentalModel) async {
     final email = userController.firebaseUser.value?.providerData[0].email;
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      return false;
     } else {
       try {
         await firebaseFirestore.collection("Rentals").doc().set({
@@ -59,13 +45,9 @@ class RentalController extends GetxController {
           "message": rentalModel.message,
           "status": "waiting"
         });
-
-        Get.to(() => const SuccessScreen(
-            title: "Gửi yêu cầu thuê xe thành công",
-            content:
-                "Bạn đã gửi yêu cầu thuê xe thành công. Chủ xe sẽ sớm liên hệ với bạn."));
+        return true;
       } catch (e) {
-        return;
+        return false;
       }
     }
   }

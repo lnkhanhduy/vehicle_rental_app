@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/admin_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
@@ -16,8 +15,6 @@ class ApproveCarScreen extends StatefulWidget {
 class _ApproveCarScreenState extends State<ApproveCarScreen> {
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
-
     return Scaffold(
       appBar: AppBar(
         leading: Container(),

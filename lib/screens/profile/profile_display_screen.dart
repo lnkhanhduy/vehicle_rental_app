@@ -24,16 +24,18 @@ class _ProfileDisplayScreenState extends State<ProfileDisplayScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(), icon: const Icon(Icons.arrow_back)),
+            onPressed: () => Get.back(),
+            icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: Text(
           widget.userModel?.name ?? "Tài khoản",
           style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
+        backgroundColor: Colors.white,
         actions: [
           IconButton(
               icon: Icon(
-                Icons.home,
+                Icons.home_outlined,
                 size: 24,
               ),
               onPressed: () {

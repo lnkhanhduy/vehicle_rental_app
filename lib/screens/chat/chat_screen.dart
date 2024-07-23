@@ -58,6 +58,10 @@ class _ChatScreenState extends State<ChatScreen> {
                   List<String> emailReceiver =
                       participants.where((value) => value != email).toList();
 
+                  if (emailReceiver.isEmpty) {
+                    return null;
+                  }
+
                   return Padding(
                     padding: EdgeInsets.symmetric(horizontal: 15, vertical: 5),
                     child: ChatCard(

@@ -45,6 +45,7 @@ class PriceRentalScreen extends StatefulWidget {
 class _PriceRentalScreenState extends State<PriceRentalScreen> {
   TextEditingController price = TextEditingController();
   TextEditingController message = TextEditingController();
+  bool isWaiting = false;
 
   @override
   void initState() {
@@ -308,6 +309,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                           },
                         ));
                       } else {
+                        setState(() {
+                          isWaiting = true;
+                        });
                         await CarController.instance.registerCar(
                             widget.carModel,
                             widget.imageCarMain!,
@@ -319,6 +323,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                             widget.imageRegistrationCertificate!,
                             widget.imageCarInsurance!,
                             price.text.trim());
+                        setState(() {
+                          isWaiting = false;
+                        });
                       }
                     },
                     style: ElevatedButton.styleFrom(
@@ -328,17 +335,21 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
                     ),
-                    child: Text(
-                      widget.isEdit
-                          ? "Cập nhật"
-                          : (widget.view && widget.carModel.isApproved! ||
-                                  (widget.view &&
-                                      widget.carModel.isApproved != true &&
-                                      widget.carModel.message != null &&
-                                      widget.carModel.message!.isNotEmpty))
-                              ? "Đóng"
-                              : "Đăng ký",
-                    ),
+                    child: isWaiting
+                        ? const CircularProgressIndicator()
+                        : Text(
+                            widget.isEdit
+                                ? "Cập nhật"
+                                : (widget.view && widget.carModel.isApproved! ||
+                                        (widget.view &&
+                                            widget.carModel.isApproved !=
+                                                true &&
+                                            widget.carModel.message != null &&
+                                            widget
+                                                .carModel.message!.isNotEmpty))
+                                    ? "Đóng"
+                                    : "Đăng ký",
+                          ),
                   ),
                 ),
               )
@@ -364,6 +375,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
               child: const Text('Cập nhật'),
               onPressed: () async {
                 Navigator.of(context).pop(true);
+                setState(() {
+                  isWaiting = true;
+                });
                 await CarController.instance.updateCar(
                     widget.carModel,
                     widget.imageCarMain,
@@ -375,6 +389,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                     widget.imageRegistrationCertificate,
                     widget.imageCarInsurance,
                     price.text.trim());
+                setState(() {
+                  isWaiting = false;
+                });
               },
             ),
           ],
