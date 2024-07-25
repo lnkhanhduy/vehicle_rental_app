@@ -59,7 +59,7 @@ class CarController extends GetxController {
           "email": email,
           "price": price,
           "isHidden": false,
-          "isRented": false
+          "isRented": false,
         });
 
         await Utils.uploadImage(
@@ -124,12 +124,17 @@ class CarController extends GetxController {
         final car =
             await firebaseFirestore.collection("Cars").doc(carModel.id).get();
 
-        await firebaseFirestore
-            .collection("Cars")
-            .doc(car.id)
-            .update({"price": price, "isApproved": false, "message": ""});
-
         if (car.exists) {
+          await firebaseFirestore
+              .collection("Cars")
+              .doc(car.id)
+              .update(carModel.toJson());
+
+          await firebaseFirestore.collection("Cars").doc(car.id).update({
+            "price": price,
+            "isApproved": false,
+            "message": "",
+          });
           if (imageCarMain != null) {
             await Utils.uploadImage(
                 imageCarMain, "cars", carModel.id, "imageCarMain", "Cars");
@@ -198,6 +203,23 @@ class CarController extends GetxController {
       } catch (e) {
         return;
       }
+    }
+  }
+
+  Future<bool> deleteCar(CarModel carModel) async {
+    try {
+      await Utils.deleteImageIfExists(carModel.imageCarMain!);
+      await Utils.deleteImageIfExists(carModel.imageCarInside!);
+      await Utils.deleteImageIfExists(carModel.imageCarFront!);
+      await Utils.deleteImageIfExists(carModel.imageCarBack!);
+      await Utils.deleteImageIfExists(carModel.imageCarLeft!);
+      await Utils.deleteImageIfExists(carModel.imageCarRight!);
+      await Utils.deleteImageIfExists(carModel.imageRegistrationCertificate!);
+      await Utils.deleteImageIfExists(carModel.imageCarInsurance!);
+      await firebaseFirestore.collection("Cars").doc(carModel.id).delete();
+      return true;
+    } catch (e) {
+      return false;
     }
   }
 

@@ -1,8 +1,13 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/screens/register_car/image_rental_screen.dart';
+import 'package:vehicle_rental_app/screens/user_rental/car_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';
 
@@ -23,8 +28,16 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
 
   TextEditingController licensePlates = TextEditingController();
   TextEditingController carInfoModel = TextEditingController();
-  TextEditingController address = TextEditingController();
   TextEditingController description = TextEditingController();
+  TextEditingController addressRoad = TextEditingController();
+
+  Map<String, dynamic> locations = {};
+  List<String> provinces = [];
+  List<String> districts = [];
+  List<String> wards = [];
+  String? selectedProvince;
+  String? selectedDistrict;
+  String? selectedWard;
 
   late String selectedCarCompany = 'Audi';
   late String selectedYear = '2024';
@@ -42,6 +55,8 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
   late bool selectedTire = false;
   late bool selectedEtc = false;
   late bool isHidden = false;
+
+  bool isLoading = false;
 
   List<String> companyCars = [
     'Audi',
@@ -95,13 +110,17 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
   @override
   void initState() {
     super.initState();
+    loadInitialData().then((_) {
+      if (widget.car?.address != null) {
+        parseInitialAddress(widget.car!.address);
+      }
+    });
 
     if (widget.isEdit || widget.view) {
       isHidden = widget.car?.isHidden ?? false;
       licensePlates.text = widget.car?.licensePlates ?? '';
       selectedCarCompany = widget.car?.carCompany ?? 'Audi';
       carInfoModel.text = widget.car?.carInfoModel ?? '';
-      address.text = widget.car?.address ?? '';
       description.text = widget.car?.description ?? '';
       selectedYear = widget.car?.yearManufacture ?? '2024';
       selectedSeat = widget.car?.carSeat ?? '4';
@@ -120,9 +139,121 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
     }
   }
 
+  Future<void> loadInitialData() async {
+    await loadLocations();
+  }
+
+  Future<void> loadLocations() async {
+    final String response =
+        await rootBundle.loadString('lib/assets/address/locations.json');
+    final data = await json.decode(response);
+    setState(() {
+      locations = data;
+      provinces = locations.keys.toList();
+    });
+  }
+
+  void onProvinceSelected(String? province) {
+    if (province != null) {
+      setState(() {
+        selectedProvince = province;
+        districts = (locations[province]['quan-huyen'] as Map<String, dynamic>)
+            .keys
+            .toList();
+        selectedDistrict = null; // Reset district and ward
+        selectedWard = null;
+        wards = [];
+      });
+    }
+  }
+
+  void onDistrictSelected(String? district) {
+    if (district != null && selectedProvince != null) {
+      setState(() {
+        selectedDistrict = district;
+        wards = (locations[selectedProvince]!['quan-huyen'][district]
+                ['xa-phuong'] as Map<String, dynamic>)
+            .keys
+            .toList();
+        selectedWard = null; // Reset ward
+      });
+    }
+  }
+
+  void onWardSelected(String? ward) {
+    setState(() {
+      selectedWard = ward;
+    });
+  }
+
+  Future<void> parseInitialAddress(String address) async {
+    final parts = address.split(', ');
+
+    if (parts.length >= 4) {
+      final wardName = parts[1];
+      final districtName = parts[2];
+      final provinceName = parts[3];
+
+      final provinceCode = await locations.keys.firstWhere(
+        (key) => locations[key]['name_with_type'].contains(provinceName),
+        orElse: () => '',
+      );
+
+      if (provinceCode.isNotEmpty) {
+        selectedProvince = provinceCode;
+
+        final districtsData =
+            locations[selectedProvince]['quan-huyen'] as Map<String, dynamic>;
+        districts = districtsData.keys
+            .where((key) =>
+                districtsData[key]['name_with_type'].contains(districtName))
+            .toList();
+        if (districts.isNotEmpty) {
+          selectedDistrict = districts.first;
+          final wardsData = districtsData[selectedDistrict]['xa-phuong']
+              as Map<String, dynamic>;
+          wards = wardsData.keys
+              .where(
+                  (key) => wardsData[key]['name_with_type'].contains(wardName))
+              .toList();
+          if (wards.isNotEmpty) {
+            selectedWard = wards.first;
+          }
+        }
+        setState(() {
+          addressRoad.text = parts[0];
+          selectedProvince = provinceCode;
+          selectedDistrict = districts.isNotEmpty ? districts.first : null;
+          selectedWard = wards.isNotEmpty ? wards.first : null;
+        });
+      }
+    }
+  }
+
+  String buildCompleteAddress() {
+    final provinceName = selectedProvince != null
+        ? locations[selectedProvince]!['name_with_type']
+        : '';
+    final districtName = selectedDistrict != null
+        ? locations[selectedProvince]!['quan-huyen'][selectedDistrict]
+            ['name_with_type']
+        : '';
+    final wardName = selectedWard != null
+        ? locations[selectedProvince]!['quan-huyen'][selectedDistrict]
+            ['xa-phuong'][selectedWard]['name_with_type']
+        : '';
+    final completeAddress = [
+      addressRoad.text.trim(),
+      wardName,
+      districtName,
+      provinceName,
+    ].where((element) => element.isNotEmpty).join(', ');
+
+    return completeAddress;
+  }
+
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -145,8 +276,9 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
             ),
           if (widget.isEdit)
             TextButton(
-              onPressed: () {
-                carController.changeStatusCar(widget.car!.id!, isHidden);
+              onPressed: () async {
+                await CarController.instance
+                    .changeStatusCar(widget.car!.id!, !isHidden);
                 setState(() {
                   isHidden = !isHidden;
                 });
@@ -156,96 +288,64 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                 style: const TextStyle(color: Colors.black54, fontSize: 17),
               ),
             ),
+          if (widget.isEdit)
+            IconButton(
+              onPressed: () {
+                showConfirmationDialog();
+              },
+              icon:
+                  const Icon(Icons.delete_forever_outlined, color: Colors.red),
+            ),
         ],
       ),
       body: CustomScrollView(
         slivers: [
           SliverFillRemaining(
             hasScrollBody: false,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-              constraints: const BoxConstraints.expand(),
-              color: Colors.white,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  const HeaderRegisterCar(
-                      imageScreen: false,
-                      paperScreen: false,
-                      priceScreen: false),
-                  const Text(
-                    "Thông tin cơ bản",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+            child: isLoading
+                ? const LoadingScreen()
+                : Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 15),
+                    constraints: const BoxConstraints.expand(),
+                    color: Colors.white,
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text.rich(
-                          TextSpan(
-                            children: [
-                              TextSpan(
-                                text: 'Biển số xe ',
-                              ),
-                              TextSpan(
-                                text: '*',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ],
-                          ),
+                      children: <Widget>[
+                        const HeaderRegisterCar(
+                            imageScreen: false,
+                            paperScreen: false,
+                            priceScreen: false),
+                        const Text(
+                          "Thông tin cơ bản",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                        const SizedBox(height: 5),
-                        TextField(
-                          readOnly: widget.view,
-                          controller: licensePlates,
-                          decoration: InputDecoration(
-                            hintText: 'Nhập biển số xe',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                color: Colors.grey.withOpacity(0.1),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                color: Constants.primaryColor,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 12),
-                          ),
-                          style: const TextStyle(fontSize: 15),
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text.rich(
-                          TextSpan(
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              TextSpan(
-                                text: 'Hãng xe ',
+                              const Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Biển số xe ',
+                                    ),
+                                    TextSpan(
+                                      text: '*',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              TextSpan(
-                                text: '*',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        SizedBox(
-                          child: FormField<String>(
-                            builder: (FormFieldState<String> state) {
-                              return InputDecorator(
+                              const SizedBox(height: 5),
+                              TextField(
+                                readOnly: widget.view,
+                                controller: licensePlates,
                                 decoration: InputDecoration(
+                                  hintText: 'Nhập biển số xe',
                                   border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(8.0),
                                     borderSide: BorderSide(
@@ -259,485 +359,607 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                                     ),
                                   ),
                                   contentPadding: const EdgeInsets.symmetric(
-                                      horizontal: 12),
+                                      vertical: 0, horizontal: 12),
                                 ),
-                                isEmpty: selectedCarCompany == '',
-                                child: DropdownButtonHideUnderline(
-                                  child: DropdownButton<String>(
-                                    value: selectedCarCompany,
-                                    isDense: true,
-                                    onChanged: (newValue) {
-                                      setState(() {
-                                        selectedCarCompany = newValue!;
-                                        state.didChange(newValue);
-                                      });
-                                    },
-                                    items: companyCars.map((String company) {
-                                      return DropdownMenuItem<String>(
-                                        value: company,
-                                        child: Text(company),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              );
-                            },
+                                style: const TextStyle(fontSize: 15),
+                              )
+                            ],
                           ),
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text.rich(
-                          TextSpan(
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              TextSpan(
-                                text: 'Mẫu xe ',
+                              const Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Hãng xe ',
+                                    ),
+                                    TextSpan(
+                                      text: '*',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              TextSpan(
-                                text: '*',
-                                style: TextStyle(color: Colors.red),
+                              const SizedBox(height: 5),
+                              SizedBox(
+                                child: FormField<String>(
+                                  builder: (FormFieldState<String> state) {
+                                    return InputDecorator(
+                                      decoration: InputDecoration(
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.withOpacity(0.1),
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          borderSide: BorderSide(
+                                            color: Constants.primaryColor,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                horizontal: 12),
+                                      ),
+                                      isEmpty: selectedCarCompany == '',
+                                      child: DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          value: selectedCarCompany,
+                                          isDense: true,
+                                          onChanged: (newValue) {
+                                            setState(() {
+                                              selectedCarCompany = newValue!;
+                                              state.didChange(newValue);
+                                            });
+                                          },
+                                          items:
+                                              companyCars.map((String company) {
+                                            return DropdownMenuItem<String>(
+                                              value: company,
+                                              child: Text(company),
+                                            );
+                                          }).toList(),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text.rich(
+                                TextSpan(
+                                  children: [
+                                    TextSpan(
+                                      text: 'Mẫu xe ',
+                                    ),
+                                    TextSpan(
+                                      text: '*',
+                                      style: TextStyle(color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(
+                                height: 5,
+                              ),
+                              TextField(
+                                readOnly: widget.view,
+                                controller: carInfoModel,
+                                decoration: InputDecoration(
+                                  hintText: 'Nhập mẫu xe',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(0.1),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderSide: BorderSide(
+                                      color: Constants.primaryColor,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 0, horizontal: 12),
+                                ),
+                                style: const TextStyle(fontSize: 15),
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'Năm sản xuất ',
+                                        ),
+                                        TextSpan(
+                                          text: '*',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(
+                                    height: 5,
+                                  ),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.42,
+                                    child: FormField<String>(
+                                      builder: (FormFieldState<String> state) {
+                                        return InputDecorator(
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey
+                                                    .withOpacity(0.1),
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: Constants.primaryColor,
+                                              ),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 12),
+                                          ),
+                                          isEmpty: selectedYear == '',
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value: selectedYear,
+                                              isDense: true,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  selectedYear = newValue!;
+                                                  state.didChange(newValue);
+                                                });
+                                              },
+                                              items: years.map((String year) {
+                                                return DropdownMenuItem<String>(
+                                                  value: year,
+                                                  child: Text(year),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'Số ghế ',
+                                        ),
+                                        TextSpan(
+                                          text: '*',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.42,
+                                    child: FormField<String>(
+                                      builder: (FormFieldState<String> state) {
+                                        return InputDecorator(
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey
+                                                    .withOpacity(0.1),
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: Constants.primaryColor,
+                                              ),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 12),
+                                          ),
+                                          isEmpty: selectedSeat == '',
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value: selectedSeat,
+                                              isDense: true,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  selectedSeat = newValue!;
+                                                  state.didChange(newValue);
+                                                });
+                                              },
+                                              items: seats.map((String seat) {
+                                                return DropdownMenuItem<String>(
+                                                  value: seat,
+                                                  child: Text(seat),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'Truyền động ',
+                                        ),
+                                        TextSpan(
+                                          text: '*',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.42,
+                                    child: FormField<String>(
+                                      builder: (FormFieldState<String> state) {
+                                        return InputDecorator(
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey
+                                                    .withOpacity(0.1),
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: Constants.primaryColor,
+                                              ),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 12),
+                                          ),
+                                          isEmpty: selectedTransmission == '',
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value: selectedTransmission,
+                                              isDense: true,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  selectedTransmission =
+                                                      newValue!;
+                                                  state.didChange(newValue);
+                                                });
+                                              },
+                                              items: ['automatic', 'manual']
+                                                  .map((String transmission) {
+                                                return DropdownMenuItem<String>(
+                                                  value: transmission,
+                                                  child: Text(transmission ==
+                                                          'automatic'
+                                                      ? 'Số tự động'
+                                                      : 'Số sàn'),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  )
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'Loại nhiên liệu ',
+                                        ),
+                                        TextSpan(
+                                          text: '*',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 5),
+                                  SizedBox(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.42,
+                                    child: FormField<String>(
+                                      builder: (FormFieldState<String> state) {
+                                        return InputDecorator(
+                                          decoration: InputDecoration(
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey
+                                                    .withOpacity(0.1),
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.0),
+                                              borderSide: BorderSide(
+                                                color: Constants.primaryColor,
+                                              ),
+                                            ),
+                                            contentPadding:
+                                                const EdgeInsets.symmetric(
+                                                    horizontal: 12),
+                                          ),
+                                          isEmpty: selectedFuel == '',
+                                          child: DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value: selectedFuel,
+                                              isDense: true,
+                                              onChanged: (newValue) {
+                                                setState(() {
+                                                  selectedFuel = newValue!;
+                                                  state.didChange(newValue);
+                                                });
+                                              },
+                                              items: [
+                                                'gasoline',
+                                                'diesel',
+                                                'electric'
+                                              ].map((String fuel) {
+                                                return DropdownMenuItem<String>(
+                                                  value: fuel,
+                                                  child: Text(fuel == 'gasoline'
+                                                      ? 'Xăng'
+                                                      : fuel == 'diesel'
+                                                          ? 'Dầu Diesel'
+                                                          : 'Điện'),
+                                                );
+                                              }).toList(),
+                                            ),
+                                          ),
+                                        );
+                                      },
+                                    ),
+                                  )
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        const Divider(height: 1),
+                        const SizedBox(height: 15),
+                        const Text(
+                          "Thông tin bổ sung",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Column(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text.rich(
+                                    TextSpan(
+                                      children: [
+                                        TextSpan(
+                                          text: 'Địa chỉ xe ',
+                                        ),
+                                        TextSpan(
+                                          text: '*',
+                                          style: TextStyle(color: Colors.red),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const SizedBox(height: 10),
+                                  Column(
+                                    children: [
+                                      DropdownButton<String>(
+                                        value: selectedProvince,
+                                        hint: const Text('Chọn Tỉnh/Thành Phố'),
+                                        isExpanded: true,
+                                        items: provinces.map((String key) {
+                                          return DropdownMenuItem<String>(
+                                            value: key,
+                                            child: Text(locations[key]
+                                                ['name_with_type']),
+                                          );
+                                        }).toList(),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            selectedProvince = newValue;
+                                            final districtsData =
+                                                locations[selectedProvince]
+                                                        ['quan-huyen']
+                                                    as Map<String, dynamic>;
+                                            districts =
+                                                districtsData.keys.toList();
+                                            selectedDistrict =
+                                                null; // Reset district and ward
+                                            selectedWard = null;
+                                            wards = [];
+                                          });
+                                        },
+                                      ),
+                                      DropdownButton<String>(
+                                        value: selectedDistrict,
+                                        hint: const Text('Chọn Quận/Huyện'),
+                                        isExpanded: true,
+                                        items: districts.map((String key) {
+                                          return DropdownMenuItem<String>(
+                                            value: key,
+                                            child: Text(
+                                                locations[selectedProvince]
+                                                        ['quan-huyen'][key]
+                                                    ['name_with_type']),
+                                          );
+                                        }).toList(),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            selectedDistrict = newValue;
+                                            final wardsData =
+                                                locations[selectedProvince]
+                                                                ['quan-huyen']
+                                                            [selectedDistrict]
+                                                        ['xa-phuong']
+                                                    as Map<String, dynamic>;
+                                            wards = wardsData.keys.toList();
+                                            selectedWard = null; // Reset ward
+                                          });
+                                        },
+                                      ),
+                                      DropdownButton<String>(
+                                        value: selectedWard,
+                                        hint: const Text('Chọn Xã/Phường'),
+                                        isExpanded: true,
+                                        items: wards.map((String key) {
+                                          return DropdownMenuItem<String>(
+                                            value: key,
+                                            child: Text(
+                                                locations[selectedProvince]
+                                                                ['quan-huyen']
+                                                            [selectedDistrict]
+                                                        ['xa-phuong'][key]
+                                                    ['name_with_type']),
+                                          );
+                                        }).toList(),
+                                        onChanged: (newValue) {
+                                          setState(() {
+                                            selectedWard = newValue;
+                                          });
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                  TextField(
+                                    readOnly: widget.view,
+                                    controller: addressRoad,
+                                    decoration: InputDecoration(
+                                      labelStyle: const TextStyle(
+                                          color: Colors.black, fontSize: 15),
+                                      labelText: 'Số nhà/tên đường',
+                                    ),
+                                    style: const TextStyle(fontSize: 15),
+                                  )
+                                ],
                               ),
                             ],
                           ),
                         ),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        TextField(
-                          readOnly: widget.view,
-                          controller: carInfoModel,
-                          decoration: InputDecoration(
-                            hintText: 'Nhập mẫu xe',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                color: Colors.grey.withOpacity(0.1),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                color: Constants.primaryColor,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                                vertical: 0, horizontal: 12),
-                          ),
-                          style: const TextStyle(fontSize: 15),
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Năm sản xuất ',
-                                  ),
-                                  TextSpan(
-                                    text: '*',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.42,
-                              child: FormField<String>(
-                                builder: (FormFieldState<String> state) {
-                                  return InputDecorator(
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey.withOpacity(0.1),
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        borderSide: BorderSide(
-                                          color: Constants.primaryColor,
-                                        ),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 12),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text("Mô tả"),
+                              const SizedBox(height: 15),
+                              TextField(
+                                readOnly: widget.view,
+                                controller: description,
+                                maxLines: 10,
+                                decoration: InputDecoration(
+                                  labelStyle: const TextStyle(
+                                      color: Colors.black, fontSize: 14),
+                                  hintText:
+                                      widget.view && description.text == ''
+                                          ? 'Không có mô tả'
+                                          : 'Mô tả về ngắn gọn xe',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(0.1),
                                     ),
-                                    isEmpty: selectedYear == '',
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        value: selectedYear,
-                                        isDense: true,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            selectedYear = newValue!;
-                                            state.didChange(newValue);
-                                          });
-                                        },
-                                        items: years.map((String year) {
-                                          return DropdownMenuItem<String>(
-                                            value: year,
-                                            child: Text(year),
-                                          );
-                                        }).toList(),
-                                      ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderSide: BorderSide(
+                                      color: Constants.primaryColor,
                                     ),
-                                  );
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Số ghế ',
                                   ),
-                                  TextSpan(
-                                    text: '*',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.42,
-                              child: FormField<String>(
-                                builder: (FormFieldState<String> state) {
-                                  return InputDecorator(
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey.withOpacity(0.1),
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        borderSide: BorderSide(
-                                          color: Constants.primaryColor,
-                                        ),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12),
-                                    ),
-                                    isEmpty: selectedSeat == '',
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        value: selectedSeat,
-                                        isDense: true,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            selectedSeat = newValue!;
-                                            state.didChange(newValue);
-                                          });
-                                        },
-                                        items: seats.map((String seat) {
-                                          return DropdownMenuItem<String>(
-                                            value: seat,
-                                            child: Text(seat),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Truyền động ',
-                                  ),
-                                  TextSpan(
-                                    text: '*',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.42,
-                              child: FormField<String>(
-                                builder: (FormFieldState<String> state) {
-                                  return InputDecorator(
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey.withOpacity(0.1),
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        borderSide: BorderSide(
-                                          color: Constants.primaryColor,
-                                        ),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12),
-                                    ),
-                                    isEmpty: selectedTransmission == '',
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        value: selectedTransmission,
-                                        isDense: true,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            selectedTransmission = newValue!;
-                                            state.didChange(newValue);
-                                          });
-                                        },
-                                        items: ['automatic', 'manual']
-                                            .map((String transmission) {
-                                          return DropdownMenuItem<String>(
-                                            value: transmission,
-                                            child: Text(
-                                                transmission == 'automatic'
-                                                    ? 'Số tự động'
-                                                    : 'Số sàn'),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            )
-                          ],
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Loại nhiên liệu ',
-                                  ),
-                                  TextSpan(
-                                    text: '*',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: 5),
-                            SizedBox(
-                              width: MediaQuery.of(context).size.width * 0.42,
-                              child: FormField<String>(
-                                builder: (FormFieldState<String> state) {
-                                  return InputDecorator(
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        borderSide: BorderSide(
-                                          color: Colors.grey.withOpacity(0.1),
-                                        ),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius:
-                                            BorderRadius.circular(8.0),
-                                        borderSide: BorderSide(
-                                          color: Constants.primaryColor,
-                                        ),
-                                      ),
-                                      contentPadding:
-                                          const EdgeInsets.symmetric(
-                                              horizontal: 12),
-                                    ),
-                                    isEmpty: selectedFuel == '',
-                                    child: DropdownButtonHideUnderline(
-                                      child: DropdownButton<String>(
-                                        value: selectedFuel,
-                                        isDense: true,
-                                        onChanged: (newValue) {
-                                          setState(() {
-                                            selectedFuel = newValue!;
-                                            state.didChange(newValue);
-                                          });
-                                        },
-                                        items: [
-                                          'gasoline',
-                                          'diesel',
-                                          'electric'
-                                        ].map((String fuel) {
-                                          return DropdownMenuItem<String>(
-                                            value: fuel,
-                                            child: Text(fuel == 'gasoline'
-                                                ? 'Xăng'
-                                                : fuel == 'diesel'
-                                                    ? 'Dầu Diesel'
-                                                    : 'Điện'),
-                                          );
-                                        }).toList(),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            )
-                          ],
-                        )
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  const Divider(height: 1),
-                  const SizedBox(height: 15),
-                  const Text(
-                    "Thông tin bổ sung",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Column(
-                      children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text.rich(
-                              TextSpan(
-                                children: [
-                                  TextSpan(
-                                    text: 'Địa chỉ xe ',
-                                  ),
-                                  TextSpan(
-                                    text: '*',
-                                    style: TextStyle(color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 13,
-                            ),
-                            TextField(
-                              readOnly: widget.view,
-                              controller: address,
-                              decoration: InputDecoration(
-                                labelStyle: const TextStyle(
-                                    color: Colors.black, fontSize: 14),
-                                labelText: 'Nhập địa chỉ',
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: BorderSide(
-                                    color: Colors.grey.withOpacity(0.1),
-                                  ),
+                                  contentPadding: const EdgeInsets.all(15),
                                 ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(8.0),
-                                  borderSide: BorderSide(
-                                    color: Constants.primaryColor,
-                                  ),
-                                ),
-                                contentPadding: const EdgeInsets.symmetric(
-                                    vertical: 0, horizontal: 12),
+                                style: const TextStyle(fontSize: 15),
                               ),
-                              style: const TextStyle(fontSize: 15),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text("Mô tả"),
-                        const SizedBox(height: 15),
-                        TextField(
-                          readOnly: widget.view,
-                          controller: description,
-                          maxLines: 10,
-                          decoration: InputDecoration(
-                            labelStyle: const TextStyle(
-                                color: Colors.black, fontSize: 14),
-                            hintText: widget.view && description.text == ''
-                                ? 'Không có mô tả'
-                                : 'Mô tả về ngắn gọn xe',
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                color: Colors.grey.withOpacity(0.1),
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(8.0),
-                              borderSide: BorderSide(
-                                color: Constants.primaryColor,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.all(15),
+                            ],
                           ),
-                          style: const TextStyle(fontSize: 15),
+                        ),
+                        const SizedBox(height: 12),
+                        const Text("Các tính năng trên xe"),
+                        TextButton(
+                          onPressed: () {
+                            showModalSelectFeature(context);
+                          },
+                          style: TextButton.styleFrom(
+                              padding: const EdgeInsets.all(0)),
+                          child: Text(
+                            'Chọn tính năng >',
+                            style: TextStyle(color: Constants.primaryColor),
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  const Text("Các tính năng trên xe"),
-                  TextButton(
-                    onPressed: () {
-                      showModalSelectFeature(context);
-                    },
-                    style:
-                        TextButton.styleFrom(padding: const EdgeInsets.all(0)),
-                    child: Text(
-                      'Chọn tính năng >',
-                      style: TextStyle(color: Constants.primaryColor),
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),
@@ -756,7 +978,7 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                 carSeat: selectedSeat,
                 transmission: selectedTransmission,
                 fuel: selectedFuel,
-                address: address.text.trim(),
+                address: buildCompleteAddress(),
                 description: description.text.trim(),
                 map: selectedMap,
                 cctv: selectedCctv,
@@ -780,6 +1002,8 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                 price: widget.car?.price,
                 isHidden: widget.car?.isHidden,
                 isApproved: widget.car?.isApproved,
+                isRented: widget.car!.isRented,
+                email: widget.car?.email,
               );
 
               if (widget.view) {
@@ -794,7 +1018,13 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
                     ));
               } else if (licensePlates.text.trim().isEmpty ||
                   carInfoModel.text.trim().isEmpty ||
-                  address.text.trim().isEmpty) {
+                  selectedProvince == null ||
+                  selectedDistrict == null ||
+                  selectedWard == null ||
+                  selectedProvince == null ||
+                  selectedDistrict == null ||
+                  selectedWard == null ||
+                  addressRoad.text.trim().isEmpty) {
                 Get.closeCurrentSnackbar();
                 Get.showSnackbar(GetSnackBar(
                   messageText: const Text(
@@ -1081,6 +1311,76 @@ class _InfoRentalScreenState extends State<InfoRentalScreen> {
               )
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Future<void> showConfirmationDialog() async {
+    await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Xác nhận xóa xe'),
+          content: const Text('Bạn có chắc muốn xóa xe không?'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('Hủy'),
+              onPressed: () {
+                Navigator.of(context).pop(false);
+              },
+            ),
+            TextButton(
+              child: const Text('Xóa'),
+              onPressed: () async {
+                Navigator.of(context).pop(true);
+                if (widget.car!.isRented) {
+                  Get.closeCurrentSnackbar();
+                  Get.showSnackbar(GetSnackBar(
+                    messageText: const Text(
+                      "Xe đang được cho thuê!",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 10),
+                    icon: const Icon(Icons.error, color: Colors.white),
+                    onTap: (_) {
+                      Get.closeCurrentSnackbar();
+                    },
+                  ));
+                } else {
+                  setState(() {
+                    isLoading = true;
+                  });
+                  bool result =
+                      await CarController.instance.deleteCar(widget.car!);
+                  if (result) {
+                    Get.closeCurrentSnackbar();
+                    Get.showSnackbar(GetSnackBar(
+                      messageText: const Text(
+                        "Xóa xe thành công!",
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      backgroundColor: Colors.green,
+                      duration: const Duration(seconds: 10),
+                      icon: const Icon(Icons.check, color: Colors.white),
+                      onTap: (_) {
+                        Get.closeCurrentSnackbar();
+                      },
+                    ));
+                    Get.offAll(() => const CarRentalScreen());
+                  }
+                  setState(() {
+                    isLoading = false;
+                  });
+                }
+              },
+            ),
+          ],
         );
       },
     );

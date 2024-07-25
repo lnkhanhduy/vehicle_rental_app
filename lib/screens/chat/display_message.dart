@@ -19,6 +19,8 @@ class _DisplayMessageState extends State<DisplayMessage> {
   final userController = Get.put(UserController());
   final ScrollController _scrollController = ScrollController();
 
+  final firebaseFirestore = FirebaseFirestore.instance;
+
   int messageLimit = 10;
   final int messageIncrement = 10;
 
@@ -26,16 +28,14 @@ class _DisplayMessageState extends State<DisplayMessage> {
   Widget build(BuildContext context) {
     final email = userController.firebaseUser.value?.providerData[0].email;
 
-    final Stream<QuerySnapshot> messageStream = FirebaseFirestore.instance
-        .collection("ChatRooms")
-        .doc(widget.chatRoomId)
-        .collection("Messages")
-        .orderBy("time", descending: true)
-        .limit(messageLimit)
-        .snapshots();
-
     return StreamBuilder(
-      stream: messageStream,
+      stream: firebaseFirestore
+          .collection("ChatRooms")
+          .doc(widget.chatRoomId)
+          .collection("Messages")
+          .orderBy("time", descending: true)
+          .limit(messageLimit)
+          .snapshots(),
       builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
         if (snapshot.hasError) {
           return const Text("Có lỗi xảy ra. Vui lòng thử lại sau!");

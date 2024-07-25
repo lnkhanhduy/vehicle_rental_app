@@ -47,7 +47,7 @@ dependencies:
   eva_icons_flutter: ^3.1.0
   mailer: ^6.0.0
   shared_preferences: ^2.0.18
-  localstorage: ^4.0.1
+  geocoding: ^2.0.5
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
@@ -102,6 +102,7 @@ flutter:
     - lib/assets/images/help/rating_screen/
     - lib/assets/images/help/profile_screen/
     - lib/assets/images/help/contact_screen/
+    - lib/assets/address/locations.json
       # To add assets to your application, add an assets section, like this:
       # assets:
       #   - images/a_dot_burr.jpeg
@@ -122,11 +123,11 @@ flutter:
       #   - family: Schyler
       #     fonts:
       #       - asset: fonts/Schyler-Regular.ttf
-      #       - asset: fonts/Schyler-Italic.ttf
-      #         style: italic
-      #   - family: Trajan Pro
-      #     fonts:
-      #       - asset: fonts/TrajanPro.ttf
+    #       - asset: fonts/Schyler-Italic.ttf
+    #         style: italic
+    #   - family: Trajan Pro
+    #     fonts:
+    #       - asset: fonts/TrajanPro.ttf
     #       - asset: fonts/TrajanPro_Bold.ttf
     #         weight: 700
     #

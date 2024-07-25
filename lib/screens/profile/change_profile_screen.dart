@@ -1,16 +1,20 @@
-import 'dart:typed_data';
+import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
+import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 
 class ChangeProfileScreen extends StatefulWidget {
-  const ChangeProfileScreen({super.key});
+  final UserModel? userModel;
+
+  const ChangeProfileScreen({super.key, required this.userModel});
 
   @override
   State<ChangeProfileScreen> createState() => _ChangeProfileScreenState();
@@ -19,16 +23,162 @@ class ChangeProfileScreen extends StatefulWidget {
 class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
   final userController = Get.put(UserController());
 
-  Uint8List? imageAvatarEdit;
+  TextEditingController name = TextEditingController();
+  TextEditingController email = TextEditingController();
+  TextEditingController phone = TextEditingController();
+  TextEditingController password = TextEditingController();
+  String imageUrl = '';
+  String selectedInfo = '';
 
+  Uint8List? imageAvatarEdit;
   bool isLoading = false;
+
+  Map<String, dynamic> locations = {};
+  List<String> provinces = [];
+  List<String> districts = [];
+  List<String> wards = [];
+  String? selectedProvince;
+  String? selectedDistrict;
+  String? selectedWard;
+
+  TextEditingController addressRoad = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    loadInitialData().then((_) {
+      if (widget.userModel?.address != null) {
+        parseInitialAddress(widget.userModel!.address!);
+      }
+    });
+
+    name = TextEditingController(text: widget.userModel!.name);
+    email = TextEditingController(text: widget.userModel!.email);
+    phone = TextEditingController(text: widget.userModel!.phone);
+    password = TextEditingController(text: widget.userModel!.password);
+    imageUrl = widget.userModel!.imageAvatar ?? '';
+    selectedInfo = widget.userModel!.isPublic ? 'public' : 'private';
+  }
+
+  Future<void> loadInitialData() async {
+    await loadLocations();
+  }
+
+  Future<void> loadLocations() async {
+    final String response =
+        await rootBundle.loadString('lib/assets/address/locations.json');
+    final data = await json.decode(response);
+    setState(() {
+      locations = data;
+      provinces = locations.keys.toList();
+    });
+  }
+
+  void onProvinceSelected(String? province) {
+    if (province != null) {
+      setState(() {
+        selectedProvince = province;
+        districts = (locations[province]['quan-huyen'] as Map<String, dynamic>)
+            .keys
+            .toList();
+        selectedDistrict = null; // Reset district and ward
+        selectedWard = null;
+        wards = [];
+      });
+    }
+  }
+
+  void onDistrictSelected(String? district) {
+    if (district != null && selectedProvince != null) {
+      setState(() {
+        selectedDistrict = district;
+        wards = (locations[selectedProvince]!['quan-huyen'][district]
+                ['xa-phuong'] as Map<String, dynamic>)
+            .keys
+            .toList();
+        selectedWard = null; // Reset ward
+      });
+    }
+  }
+
+  void onWardSelected(String? ward) {
+    setState(() {
+      selectedWard = ward;
+    });
+  }
+
+  Future<void> parseInitialAddress(String address) async {
+    final parts = address.split(', ');
+
+    if (parts.length >= 4) {
+      final wardName = parts[1];
+      final districtName = parts[2];
+      final provinceName = parts[3];
+
+      final provinceCode = await locations.keys.firstWhere(
+        (key) => locations[key]['name_with_type'].contains(provinceName),
+        orElse: () => '',
+      );
+
+      if (provinceCode.isNotEmpty) {
+        selectedProvince = provinceCode;
+
+        final districtsData =
+            locations[selectedProvince]['quan-huyen'] as Map<String, dynamic>;
+        districts = districtsData.keys
+            .where((key) =>
+                districtsData[key]['name_with_type'].contains(districtName))
+            .toList();
+        if (districts.isNotEmpty) {
+          selectedDistrict = districts.first;
+          final wardsData = districtsData[selectedDistrict]['xa-phuong']
+              as Map<String, dynamic>;
+          wards = wardsData.keys
+              .where(
+                  (key) => wardsData[key]['name_with_type'].contains(wardName))
+              .toList();
+          if (wards.isNotEmpty) {
+            selectedWard = wards.first;
+          }
+        }
+        setState(() {
+          addressRoad.text = parts[0];
+          selectedProvince = provinceCode;
+          selectedDistrict = districts.isNotEmpty ? districts.first : null;
+          selectedWard = wards.isNotEmpty ? wards.first : null;
+        });
+      }
+    }
+  }
+
+  String buildCompleteAddress() {
+    final provinceName = selectedProvince != null
+        ? locations[selectedProvince]!['name_with_type']
+        : '';
+    final districtName = selectedDistrict != null
+        ? locations[selectedProvince]!['quan-huyen'][selectedDistrict]
+            ['name_with_type']
+        : '';
+    final wardName = selectedWard != null
+        ? locations[selectedProvince]!['quan-huyen'][selectedDistrict]
+            ['xa-phuong'][selectedWard]['name_with_type']
+        : '';
+    final completeAddress = [
+      addressRoad.text.trim(),
+      wardName,
+      districtName,
+      provinceName,
+    ].where((element) => element.isNotEmpty).join(', ');
+
+    return completeAddress;
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(),
+            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 4)),
             icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: const Text(
           "Tài khoản của tôi",
@@ -41,337 +191,394 @@ class _ChangeProfileScreenState extends State<ChangeProfileScreen> {
         slivers: [
           SliverFillRemaining(
             hasScrollBody: false,
-            child: isLoading == true
+            child: isLoading
                 ? LoadingScreen()
                 : Container(
                     padding: const EdgeInsets.symmetric(
                         vertical: 15, horizontal: 20),
                     constraints: const BoxConstraints.expand(),
                     color: Colors.white,
-                    child: FutureBuilder(
-                      future: userController.getUserData(),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return LoadingScreen();
-                        }
-                        if (snapshot.connectionState == ConnectionState.done &&
-                            snapshot.hasData) {
-                          UserModel userData = snapshot.data as UserModel;
-                          final name =
-                              TextEditingController(text: userData.name);
-                          final email =
-                              TextEditingController(text: userData.email);
-                          final phone =
-                              TextEditingController(text: userData.phone);
-                          final imageUrl = userData.imageAvatar;
-                          final password =
-                              TextEditingController(text: userData.password);
-                          final address =
-                              TextEditingController(text: userData.address);
-                          final selectedInfo =
-                              userData.isPublic ? 'public' : 'private';
-
-                          return Column(children: [
-                            GestureDetector(
-                              onTap: () async {
-                                Uint8List? imgAvatar =
-                                    await Utils.pickImage(ImageSource.gallery);
-                                if (imgAvatar != null) {
-                                  setState(() {
-                                    isLoading = true;
-                                  });
-                                  if (imageUrl != null) {
-                                    await Utils.deleteImageIfExists(imageUrl);
-                                  }
-                                  await Utils.uploadImage(imgAvatar, 'users',
-                                      email.text, 'imageAvatar', "Users");
-                                  Get.closeCurrentSnackbar();
-                                  Get.showSnackbar(GetSnackBar(
-                                    messageText: const Text(
-                                      "Đổi ảnh đại diện thành công!",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.green,
-                                    duration: const Duration(seconds: 3),
-                                    icon: const Icon(Icons.check_circle,
-                                        color: Colors.white),
-                                    onTap: (_) {
-                                      Get.closeCurrentSnackbar();
-                                    },
-                                  ));
-                                  setState(() {
-                                    isLoading = false;
-                                  });
-                                }
+                    child: Column(children: [
+                      GestureDetector(
+                        onTap: () async {
+                          Uint8List? imgAvatar =
+                              await Utils.pickImage(ImageSource.gallery);
+                          if (imgAvatar != null) {
+                            setState(() {
+                              isLoading = true;
+                            });
+                            if (imageUrl.isNotEmpty) {
+                              await Utils.deleteImageIfExists(imageUrl);
+                            }
+                            await Utils.uploadImage(imgAvatar, 'users',
+                                email.text, 'imageAvatar', "Users");
+                            Get.to(() => const LayoutScreen(initialIndex: 4));
+                            Get.closeCurrentSnackbar();
+                            Get.showSnackbar(GetSnackBar(
+                              messageText: const Text(
+                                "Đổi ảnh đại diện thành công!",
+                                style: TextStyle(
+                                  color: Colors.white,
+                                ),
+                              ),
+                              backgroundColor: Colors.green,
+                              duration: const Duration(seconds: 3),
+                              icon: const Icon(Icons.check_circle,
+                                  color: Colors.white),
+                              onTap: (_) {
+                                Get.closeCurrentSnackbar();
                               },
-                              child: Stack(
-                                children: [
-                                  SizedBox(
-                                    width: 120,
-                                    height: 120,
-                                    child: ClipRRect(
-                                      borderRadius: const BorderRadius.all(
-                                          Radius.circular(100)),
-                                      child: imageAvatarEdit != null
-                                          ? Image(
-                                              image: MemoryImage(
-                                                imageAvatarEdit!,
-                                              ),
-                                            )
-                                          : imageUrl != null
-                                              ? Image.network(
-                                                  imageUrl,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Image.asset(
-                                                      "lib/assets/images/no_avatar.png",
-                                                      fit: BoxFit.cover,
-                                                    );
-                                                  },
-                                                )
-                                              : Image.asset(
-                                                  "lib/assets/images/no_avatar.png",
-                                                  fit: BoxFit.cover,
-                                                ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: Container(
-                                      width: 35,
-                                      height: 35,
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(100),
-                                        color: Constants.primaryColor,
-                                      ),
-                                      child: const Icon(Icons.camera_alt,
-                                          size: 20, color: Colors.white),
-                                    ),
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(vertical: 20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: <Widget>[
-                                  TextFormField(
-                                    readOnly: true,
-                                    controller: email,
-                                    style: const TextStyle(color: Colors.black),
-                                    decoration: const InputDecoration(
-                                      prefixIcon: Icon(Icons.email_outlined),
-                                      labelText: 'Email',
-                                      border: OutlineInputBorder(),
-                                      labelStyle: TextStyle(
-                                        color: Color(0xff888888),
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  TextFormField(
-                                    controller: name,
-                                    style: const TextStyle(color: Colors.black),
-                                    decoration: const InputDecoration(
-                                      prefixIcon:
-                                          Icon(Icons.person_outline_outlined),
-                                      labelText: 'Họ và tên',
-                                      border: OutlineInputBorder(),
-                                      labelStyle:
-                                          TextStyle(color: Color(0xff888888)),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  TextFormField(
-                                    controller: phone,
-                                    style: const TextStyle(color: Colors.black),
-                                    decoration: const InputDecoration(
-                                        prefixIcon: Icon(Icons.phone_outlined),
-                                        labelText: 'Số điện thoại',
-                                        border: OutlineInputBorder(),
-                                        labelStyle: TextStyle(
-                                          color: Color(0xff888888),
-                                        )),
-                                  ),
-                                  const SizedBox(height: 20),
-                                  TextFormField(
-                                    controller: address,
-                                    style: const TextStyle(color: Colors.black),
-                                    decoration: const InputDecoration(
-                                        prefixIcon: Icon(Icons.location_on),
-                                        labelText: 'Địa chỉ',
-                                        border: OutlineInputBorder(),
-                                        labelStyle: TextStyle(
-                                          color: Color(0xff888888),
-                                        )),
-                                  ),
-                                  const SizedBox(height: 15),
-                                  Text(
-                                    "Hiển thị thông tin",
-                                    style: TextStyle(fontSize: 15),
-                                  ),
-                                  const SizedBox(height: 8),
-                                  SizedBox(
-                                    child: FormField<String>(
-                                      builder: (FormFieldState<String> state) {
-                                        return InputDecorator(
-                                          decoration: InputDecoration(
-                                            border: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              borderSide: BorderSide(
-                                                color: Colors.grey
-                                                    .withOpacity(0.1),
-                                              ),
-                                            ),
-                                            focusedBorder: OutlineInputBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.0),
-                                              borderSide: BorderSide(
-                                                color: Constants.primaryColor,
-                                              ),
-                                            ),
-                                            contentPadding:
-                                                const EdgeInsets.symmetric(
-                                                    horizontal: 12),
-                                          ),
-                                          isEmpty: selectedInfo == '',
-                                          child: DropdownButtonHideUnderline(
-                                            child: DropdownButton<String>(
-                                              value: selectedInfo,
-                                              isDense: true,
-                                              onChanged: (newValue) async {
-                                                await userController
-                                                    .changeStatus(newValue!);
-                                                Get.closeCurrentSnackbar();
-                                                Get.showSnackbar(GetSnackBar(
-                                                  messageText: const Text(
-                                                    "Cập nhật hiển thị thông tin thành công!",
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  backgroundColor: Colors.green,
-                                                  duration: const Duration(
-                                                      seconds: 3),
-                                                  icon: const Icon(Icons.check,
-                                                      color: Colors.white),
-                                                  onTap: (_) {
-                                                    Get.closeCurrentSnackbar();
-                                                  },
-                                                ));
-                                                setState(() {});
-                                              },
-                                              items: ['public', 'private']
-                                                  .map((String info) {
-                                                return DropdownMenuItem<String>(
-                                                  value: info,
-                                                  child: Text(info == 'private'
-                                                      ? 'Ẩn'
-                                                      : 'Hiển thị'),
-                                                );
-                                              }).toList(),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                  SizedBox(height: 25),
-                                  SizedBox(
-                                    width: double.infinity,
-                                    height: 48,
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        if (email.text.trim().isEmpty ||
-                                            name.text.trim().isEmpty ||
-                                            phone.text.trim().isEmpty ||
-                                            address.text.trim().isEmpty) {
-                                          Get.closeCurrentSnackbar();
-                                          Get.showSnackbar(GetSnackBar(
-                                            messageText: const Text(
-                                              "Vui lòng điền đầy đủ thông tin!",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            backgroundColor: Colors.red,
-                                            duration:
-                                                const Duration(seconds: 3),
-                                            icon: const Icon(Icons.error,
-                                                color: Colors.white),
-                                            onTap: (_) {
-                                              Get.closeCurrentSnackbar();
+                            ));
+                            setState(() {
+                              isLoading = false;
+                            });
+                          }
+                        },
+                        child: Stack(
+                          children: [
+                            SizedBox(
+                              width: 120,
+                              height: 120,
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.all(
+                                    Radius.circular(100)),
+                                child: imageAvatarEdit != null
+                                    ? Image(
+                                        image: MemoryImage(
+                                          imageAvatarEdit!,
+                                        ),
+                                      )
+                                    : imageUrl.isNotEmpty
+                                        ? Image.network(
+                                            imageUrl,
+                                            fit: BoxFit.cover,
+                                            errorBuilder:
+                                                (context, error, stackTrace) {
+                                              return Image.asset(
+                                                "lib/assets/images/no_avatar.png",
+                                                fit: BoxFit.cover,
+                                              );
                                             },
-                                          ));
-                                        } else {
-                                          final user = UserModel(
-                                            email: email.text.trim(),
-                                            name: name.text.trim(),
-                                            phone: phone.text.trim(),
-                                            password: password.text.trim(),
-                                            address: address.text.trim(),
-                                            provider: userData.provider,
-                                            imageAvatar: userData.imageAvatar,
-                                            imageLicenseFront:
-                                                userData.imageLicenseFront,
-                                            imageLicenseBack:
-                                                userData.imageLicenseBack,
-                                            imageIdCardFront:
-                                                userData.imageIdCardFront,
-                                            imageIdCardBack:
-                                                userData.imageIdCardBack,
-                                            isVerified: userData.isVerified,
-                                            message: userData.message,
-                                            isAdmin: userData.isAdmin,
-                                            isPublic: userData.isPublic,
-                                          );
-
-                                          setState(() {
-                                            isLoading = true;
-                                          });
-                                          await userController.updateUser(user);
-                                          setState(() {
-                                            isLoading = false;
-                                          });
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.black87,
-                                        foregroundColor: Colors.white,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(4)),
-                                        ),
-                                      ),
-                                      child: const Text(
-                                        "CẬP NHẬT",
-                                        style: TextStyle(
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
+                                          )
+                                        : Image.asset(
+                                            "lib/assets/images/no_avatar.png",
+                                            fit: BoxFit.cover,
+                                          ),
                               ),
                             ),
-                          ]);
-                        }
-                        return Container();
-                      },
-                    ),
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                              child: Container(
+                                width: 35,
+                                height: 35,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(100),
+                                  color: Constants.primaryColor,
+                                ),
+                                child: const Icon(Icons.camera_alt,
+                                    size: 20, color: Colors.white),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            TextFormField(
+                              readOnly: true,
+                              controller: email,
+                              style: const TextStyle(color: Colors.black),
+                              decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.email_outlined),
+                                labelText: 'Email',
+                                border: OutlineInputBorder(),
+                                labelStyle: TextStyle(
+                                  color: Color(0xff888888),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            TextFormField(
+                              controller: name,
+                              style: const TextStyle(color: Colors.black),
+                              decoration: const InputDecoration(
+                                prefixIcon: Icon(Icons.person_outline_outlined),
+                                labelText: 'Họ và tên',
+                                border: OutlineInputBorder(),
+                                labelStyle: TextStyle(color: Color(0xff888888)),
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            TextFormField(
+                              controller: phone,
+                              style: const TextStyle(color: Colors.black),
+                              decoration: const InputDecoration(
+                                  prefixIcon: Icon(Icons.phone_outlined),
+                                  labelText: 'Số điện thoại',
+                                  border: OutlineInputBorder(),
+                                  labelStyle: TextStyle(
+                                    color: Color(0xff888888),
+                                  )),
+                            ),
+                            const SizedBox(height: 15),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text.rich(
+                                  TextSpan(
+                                    children: [
+                                      TextSpan(
+                                        text: 'Địa chỉ ',
+                                      ),
+                                      TextSpan(
+                                        text: '*',
+                                        style: TextStyle(color: Colors.red),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 5),
+                                Column(
+                                  children: [
+                                    DropdownButton<String>(
+                                      value: selectedProvince,
+                                      hint: const Text('Chọn Tỉnh/Thành Phố'),
+                                      isExpanded: true,
+                                      items: provinces.map((String key) {
+                                        return DropdownMenuItem<String>(
+                                          value: key,
+                                          child: Text(
+                                              locations[key]['name_with_type']),
+                                        );
+                                      }).toList(),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          selectedProvince = newValue;
+                                          final districtsData =
+                                              locations[selectedProvince]
+                                                      ['quan-huyen']
+                                                  as Map<String, dynamic>;
+                                          districts =
+                                              districtsData.keys.toList();
+                                          selectedDistrict =
+                                              null; // Reset district and ward
+                                          selectedWard = null;
+                                          wards = [];
+                                        });
+                                      },
+                                    ),
+                                    DropdownButton<String>(
+                                      value: selectedDistrict,
+                                      hint: const Text('Chọn Quận/Huyện'),
+                                      isExpanded: true,
+                                      items: districts.map((String key) {
+                                        return DropdownMenuItem<String>(
+                                          value: key,
+                                          child: Text(
+                                              locations[selectedProvince]
+                                                      ['quan-huyen'][key]
+                                                  ['name_with_type']),
+                                        );
+                                      }).toList(),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          selectedDistrict = newValue;
+                                          final wardsData =
+                                              locations[selectedProvince]
+                                                              ['quan-huyen']
+                                                          [selectedDistrict]
+                                                      ['xa-phuong']
+                                                  as Map<String, dynamic>;
+                                          wards = wardsData.keys.toList();
+                                          selectedWard = null; // Reset ward
+                                        });
+                                      },
+                                    ),
+                                    DropdownButton<String>(
+                                      value: selectedWard,
+                                      hint: const Text('Chọn Xã/Phường'),
+                                      isExpanded: true,
+                                      items: wards.map((String key) {
+                                        return DropdownMenuItem<String>(
+                                          value: key,
+                                          child: Text(
+                                              locations[selectedProvince]
+                                                              ['quan-huyen']
+                                                          [selectedDistrict]
+                                                      ['xa-phuong'][key]
+                                                  ['name_with_type']),
+                                        );
+                                      }).toList(),
+                                      onChanged: (newValue) {
+                                        setState(() {
+                                          selectedWard = newValue;
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                ),
+                                TextField(
+                                  controller: addressRoad,
+                                  decoration: const InputDecoration(
+                                    labelStyle: TextStyle(
+                                        color: Colors.black, fontSize: 15),
+                                    labelText: 'Số nhà/tên đường',
+                                  ),
+                                  style: const TextStyle(fontSize: 15),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 15),
+                            const Text(
+                              "Hiển thị thông tin",
+                              style: TextStyle(fontSize: 15),
+                            ),
+                            const SizedBox(height: 8),
+                            SizedBox(
+                              child: FormField<String>(
+                                builder: (FormFieldState<String> state) {
+                                  return InputDecorator(
+                                    decoration: InputDecoration(
+                                      border: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                        borderSide: BorderSide(
+                                          color: Colors.grey.withOpacity(0.1),
+                                        ),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(8.0),
+                                        borderSide: BorderSide(
+                                          color: Constants.primaryColor,
+                                        ),
+                                      ),
+                                      contentPadding:
+                                          const EdgeInsets.symmetric(
+                                              horizontal: 12),
+                                    ),
+                                    isEmpty: selectedInfo == '',
+                                    child: DropdownButtonHideUnderline(
+                                      child: DropdownButton<String>(
+                                        value: selectedInfo.isNotEmpty
+                                            ? selectedInfo
+                                            : null,
+                                        isDense: true,
+                                        onChanged: (newValue) async {
+                                          setState(() {
+                                            selectedInfo = newValue!;
+                                          });
+                                        },
+                                        items: ['public', 'private']
+                                            .map((String info) {
+                                          return DropdownMenuItem<String>(
+                                            value: info,
+                                            child: Text(info == 'private'
+                                                ? 'Ẩn'
+                                                : 'Hiển thị'),
+                                          );
+                                        }).toList(),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 25),
+                            SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: ElevatedButton(
+                                onPressed: () async {
+                                  if (email.text.trim().isEmpty ||
+                                      name.text.trim().isEmpty ||
+                                      phone.text.trim().isEmpty ||
+                                      selectedProvince == null ||
+                                      selectedDistrict == null ||
+                                      selectedWard == null ||
+                                      addressRoad.text.trim().isEmpty) {
+                                    Get.closeCurrentSnackbar();
+                                    Get.showSnackbar(GetSnackBar(
+                                      messageText: const Text(
+                                        "Vui lòng điền đầy đủ thông tin!",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      backgroundColor: Colors.red,
+                                      duration: const Duration(seconds: 3),
+                                      icon: const Icon(Icons.error,
+                                          color: Colors.white),
+                                      onTap: (_) {
+                                        Get.closeCurrentSnackbar();
+                                      },
+                                    ));
+                                  } else {
+                                    final user = UserModel(
+                                      email: email.text.trim(),
+                                      name: name.text.trim(),
+                                      phone: phone.text.trim(),
+                                      password: password.text.trim(),
+                                      address: buildCompleteAddress(),
+                                      provider: widget.userModel!.provider,
+                                      imageAvatar:
+                                          widget.userModel!.imageAvatar,
+                                      imageLicenseFront:
+                                          widget.userModel!.imageLicenseFront,
+                                      imageLicenseBack:
+                                          widget.userModel!.imageLicenseBack,
+                                      imageIdCardFront:
+                                          widget.userModel!.imageIdCardFront,
+                                      imageIdCardBack:
+                                          widget.userModel!.imageIdCardBack,
+                                      isVerified: widget.userModel!.isVerified,
+                                      message: widget.userModel!.message,
+                                      isAdmin: widget.userModel!.isAdmin,
+                                      isPublic: selectedInfo == 'public',
+                                      isRented: widget.userModel!.isRented,
+                                      totalRental:
+                                          widget.userModel!.totalRental,
+                                      star: widget.userModel!.star,
+                                    );
+
+                                    setState(() {
+                                      isLoading = true;
+                                    });
+                                    await userController.updateUser(user);
+                                    setState(() {
+                                      isLoading = false;
+                                    });
+                                  }
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.black87,
+                                  foregroundColor: Colors.white,
+                                  shape: const RoundedRectangleBorder(
+                                    borderRadius:
+                                        BorderRadius.all(Radius.circular(4)),
+                                  ),
+                                ),
+                                child: const Text(
+                                  "CẬP NHẬT",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ]),
                   ),
-          )
+          ),
         ],
       ),
     );

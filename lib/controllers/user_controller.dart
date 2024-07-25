@@ -35,7 +35,7 @@ class UserController extends GetxController {
   }
 
   void setInitialScreen(User? user) async {
-    print(firebaseUser);
+    print(firebaseUser.value?.providerData[0].providerId);
     if (user == null) {
       Get.offAll(() => const LoginScreen());
     } else {
@@ -45,7 +45,8 @@ class UserController extends GetxController {
       if (isAdmin) {
         Get.offAll(() => const LayoutAdminScreen());
       } else if (user.emailVerified ||
-          firebaseUser.value?.emailVerified == true) {
+          firebaseUser.value?.emailVerified == true ||
+          firebaseUser.value?.providerData[0].providerId == "google.com") {
         Get.offAll(() => const LayoutScreen());
       } else {
         Get.offAll(() => const EmailVerificationScreen());
@@ -154,7 +155,6 @@ class UserController extends GetxController {
         }
 
         await firebaseAuth.signInWithCredential(credential);
-        Get.offAll(() => const LayoutScreen());
       }
     } on FirebaseAuthException {
       return;
@@ -335,6 +335,7 @@ class UserController extends GetxController {
             .doc(user.email)
             .update(user.toJson());
 
+        Get.to(() => const LayoutScreen(initialIndex: 4));
         Get.closeCurrentSnackbar();
         Get.showSnackbar(GetSnackBar(
           messageText: const Text(
@@ -356,75 +357,75 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> updateUserWithImage(
-      UserModel user, Uint8List imageAvatar) async {
-    try {
-      String? error = "";
-
-      if (user.name.isEmpty) {
-        error = "Vui lòng nhập tên!";
-      } else if (user.phone.isEmpty) {
-        error = "Vui lòng nh1ập số điện thoại!";
-      } else if (!Utils.isPhoneNumber(user.phone)) {
-        error = "Số điện thoại phải 10 ký tự!";
-      } else if (user.address!.isEmpty) {
-        error = "Vui lòng nhập địa chỉ!";
-      }
-
-      if (user.phone.isNotEmpty) {
-        final UserModel? userModel = await getUserByUsername(user.email);
-        if (await Utils.isExistPhoneNumber(user.phone) &&
-            userModel?.phone != user.phone) {
-          error = "Số điện thoại đã được sử dụng!";
-        }
-      }
-
-      if (error != "") {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            error,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      } else {
-        await firebaseFirestore
-            .collection("Users")
-            .doc(user.email)
-            .update(user.toJson());
-
-        await Utils.deleteImageIfExists(user.imageAvatar!);
-        await Utils.uploadImage(
-            imageAvatar, 'users', user.email, 'imageAvatar', "Users");
-
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Cập nhật thông tin thành công!",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 5),
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
-      }
-    } catch (e) {
-      return;
-    }
-  }
+  // Future<void> updateUserWithImage(
+  //     UserModel user, Uint8List imageAvatar) async {
+  //   try {
+  //     String? error = "";
+  //
+  //     if (user.name.isEmpty) {
+  //       error = "Vui lòng nhập tên!";
+  //     } else if (user.phone.isEmpty) {
+  //       error = "Vui lòng nhập số điện thoại!";
+  //     } else if (!Utils.isPhoneNumber(user.phone)) {
+  //       error = "Số điện thoại phải 10 ký tự!";
+  //     } else if (user.address!.isEmpty) {
+  //       error = "Vui lòng nhập địa chỉ!";
+  //     }
+  //
+  //     if (user.phone.isNotEmpty) {
+  //       final UserModel? userModel = await getUserByUsername(user.email);
+  //       if (await Utils.isExistPhoneNumber(user.phone) &&
+  //           userModel?.phone != user.phone) {
+  //         error = "Số điện thoại đã được sử dụng!";
+  //       }
+  //     }
+  //
+  //     if (error != "") {
+  //       Get.closeCurrentSnackbar();
+  //       Get.showSnackbar(GetSnackBar(
+  //         messageText: Text(
+  //           error,
+  //           style: const TextStyle(
+  //             color: Colors.white,
+  //           ),
+  //         ),
+  //         backgroundColor: Colors.red,
+  //         duration: const Duration(seconds: 3),
+  //         icon: const Icon(Icons.error, color: Colors.white),
+  //         onTap: (_) {
+  //           Get.closeCurrentSnackbar();
+  //         },
+  //       ));
+  //     } else {
+  //       await firebaseFirestore
+  //           .collection("Users")
+  //           .doc(user.email)
+  //           .update(user.toJson());
+  //
+  //       await Utils.deleteImageIfExists(user.imageAvatar!);
+  //       await Utils.uploadImage(
+  //           imageAvatar, 'users', user.email, 'imageAvatar', "Users");
+  //
+  //       Get.closeCurrentSnackbar();
+  //       Get.showSnackbar(GetSnackBar(
+  //         messageText: const Text(
+  //           "Cập nhật thông tin thành công!",
+  //           style: TextStyle(
+  //             color: Colors.white,
+  //           ),
+  //         ),
+  //         backgroundColor: Colors.green,
+  //         duration: const Duration(seconds: 5),
+  //         icon: const Icon(Icons.check, color: Colors.white),
+  //         onTap: (_) {
+  //           Get.closeCurrentSnackbar();
+  //         },
+  //       ));
+  //     }
+  //   } catch (e) {
+  //     return;
+  //   }
+  // }
 
   Future<bool> updatePaper(
       Uint8List? imageIdCardFront,

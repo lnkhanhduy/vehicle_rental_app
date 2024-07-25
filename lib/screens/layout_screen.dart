@@ -1,6 +1,5 @@
 import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:vehicle_rental_app/screens/chat/chat_screen.dart';
 import 'package:vehicle_rental_app/screens/home_screen.dart';
 import 'package:vehicle_rental_app/screens/profile/account_screen.dart';
@@ -43,7 +42,6 @@ class _LayoutScreenState extends State<LayoutScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
     return Scaffold(
       body: PageView(
         controller: _pageController,

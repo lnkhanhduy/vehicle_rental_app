@@ -57,7 +57,6 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

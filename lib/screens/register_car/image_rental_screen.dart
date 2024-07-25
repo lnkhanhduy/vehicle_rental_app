@@ -53,7 +53,6 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(

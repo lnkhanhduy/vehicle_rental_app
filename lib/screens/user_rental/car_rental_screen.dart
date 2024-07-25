@@ -38,7 +38,9 @@ class _CarRentalScreenState extends State<CarRentalScreen> {
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Bạn chưa cho thuê xe'));
+            return Container(
+                color: Colors.white,
+                child: Center(child: Text('Bạn chưa cho thuê xe')));
           } else {
             List<CarModel> carList = snapshot.data!;
             return Container(

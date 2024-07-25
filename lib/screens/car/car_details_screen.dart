@@ -12,6 +12,7 @@ import 'package:vehicle_rental_app/screens/profile/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
 import 'package:vehicle_rental_app/widgets/header_details_car.dart';
+import 'package:vehicle_rental_app/widgets/location_car.dart';
 import 'package:vehicle_rental_app/widgets/rating_rental.dart';
 
 class CarDetailsScreen extends StatefulWidget {
@@ -717,6 +718,9 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                         ),
                         const SizedBox(height: 10),
                         Text(widget.car.address),
+                        const SizedBox(height: 10),
+                        Expanded(
+                            child: LocationCar(address: widget.car.address)),
                         const SizedBox(height: 20),
                         const Divider(height: 1),
                         const SizedBox(height: 20),

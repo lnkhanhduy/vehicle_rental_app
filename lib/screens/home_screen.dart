@@ -5,8 +5,8 @@ import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/more_cars_screen.dart';
+import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/screens/loading_screen.dart';
-import 'package:vehicle_rental_app/screens/profile/change_profile_screen.dart';
 import 'package:vehicle_rental_app/screens/register_car/info_rental_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/car_card.dart';
@@ -68,8 +68,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                   children: [
                                     GestureDetector(
                                       onTap: () {
-                                        Get.to(
-                                            () => const ChangeProfileScreen());
+                                        Get.to(() => const LayoutScreen(
+                                            initialIndex: 4));
                                       },
                                       child: SizedBox(
                                         width: 46,

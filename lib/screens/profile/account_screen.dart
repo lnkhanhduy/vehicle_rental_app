@@ -53,8 +53,6 @@ class _AccountScreenState extends State<AccountScreen> {
                     UserModel? user = snapshot.data as UserModel;
                     final name = user.name;
                     final imageUrl = user.imageAvatar;
-                    final providerId = userController
-                        .firebaseUser.value?.providerData[0].providerId;
                     final provider = user.provider;
                     final isVerified = user.isVerified ?? false;
 
@@ -133,7 +131,8 @@ class _AccountScreenState extends State<AccountScreen> {
                             children: [
                               AccountButton(
                                 onTap: () {
-                                  Get.to(() => ChangeProfileScreen());
+                                  Get.to(() =>
+                                      ChangeProfileScreen(userModel: user));
                                 },
                                 icon: Icons.account_circle_outlined,
                                 title: "Tài khoản của tôi",
@@ -203,18 +202,14 @@ class _AccountScreenState extends State<AccountScreen> {
                           ],
                         ),
                         child: Column(children: [
-                          if (provider == "password" &&
-                                  providerId == "password" ||
-                              (providerId == "google.com" &&
-                                  provider != "password"))
-                            AccountButton(
-                                onTap: () {
-                                  Get.to(() => const ChangePasswordScreen());
-                                },
-                                icon: Icons.lock_reset_outlined,
-                                title: provider == "password"
-                                    ? "Đổi mật khẩu"
-                                    : "Tạo mật khẩu mới")
+                          AccountButton(
+                              onTap: () {
+                                Get.to(() => const ChangePasswordScreen());
+                              },
+                              icon: Icons.lock_reset_outlined,
+                              title: provider == "password"
+                                  ? "Đổi mật khẩu"
+                                  : "Tạo mật khẩu mới"),
                         ]),
                       ),
                       const SizedBox(height: 20),
@@ -237,7 +232,7 @@ class _AccountScreenState extends State<AccountScreen> {
                                 Get.to(() => const HelpScreen());
                               },
                               icon: Icons.help_outline,
-                              title: "Hỗ trợ khách hàng")
+                              title: "Hỗ trợ khách hàng"),
                         ]),
                       ),
                       const SizedBox(

@@ -58,7 +58,10 @@ class _ChatScreenState extends State<ChatScreen> {
             return LoadingScreen();
           }
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(child: Text("Bạn chưa nhắn tin cho ai!"));
+            return Container(
+              color: Colors.white,
+              child: Center(child: Text("Bạn chưa nhắn tin cho ai.")),
+            );
           }
 
           return Container(

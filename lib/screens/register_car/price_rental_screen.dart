@@ -63,7 +63,6 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
 
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
     return Scaffold(
         appBar: AppBar(
           leading: IconButton(
@@ -281,7 +280,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                     onPressed: () async {
                       if (widget.isEdit == true &&
                           widget.carModel.isApproved == true) {
-                        _showConfirmationDialog();
+                        showConfirmationDialog();
                       } else if (widget.isEdit == true &&
                           widget.carModel.isApproved != true) {
                         setState(() {
@@ -367,7 +366,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
             : null);
   }
 
-  Future<void> _showConfirmationDialog() async {
+  Future<void> showConfirmationDialog() async {
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -386,23 +385,41 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
               child: const Text('Cập nhật'),
               onPressed: () async {
                 Navigator.of(context).pop(true);
-                setState(() {
-                  isLoading = true;
-                });
-                await carController.updateCar(
-                    widget.carModel,
-                    widget.imageCarMain,
-                    widget.imageCarInside,
-                    widget.imageCarFront,
-                    widget.imageCarBack,
-                    widget.imageCarLeft,
-                    widget.imageCarRight,
-                    widget.imageRegistrationCertificate,
-                    widget.imageCarInsurance,
-                    price.text.trim());
-                setState(() {
-                  isLoading = false;
-                });
+                if (widget.carModel.isRented) {
+                  Get.closeCurrentSnackbar();
+                  Get.showSnackbar(GetSnackBar(
+                    messageText: const Text(
+                      "Xe đang được cho thuê!",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                    ),
+                    backgroundColor: Colors.red,
+                    duration: const Duration(seconds: 10),
+                    icon: const Icon(Icons.error, color: Colors.white),
+                    onTap: (_) {
+                      Get.closeCurrentSnackbar();
+                    },
+                  ));
+                } else {
+                  setState(() {
+                    isLoading = true;
+                  });
+                  await carController.updateCar(
+                      widget.carModel,
+                      widget.imageCarMain,
+                      widget.imageCarInside,
+                      widget.imageCarFront,
+                      widget.imageCarBack,
+                      widget.imageCarLeft,
+                      widget.imageCarRight,
+                      widget.imageRegistrationCertificate,
+                      widget.imageCarInsurance,
+                      price.text.trim());
+                  setState(() {
+                    isLoading = false;
+                  });
+                }
               },
             ),
           ],
