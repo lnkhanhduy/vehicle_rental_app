@@ -11,24 +11,9 @@ import 'package:vehicle_rental_app/screens/user_rental/request_rental_car_screen
 class RentalController extends GetxController {
   static RentalController get instance => Get.find();
 
-  final userController = UserController.instance;
+  final userController = Get.put(UserController());
 
   final firebaseFirestore = FirebaseFirestore.instance;
-
-  // Future<List<RentalModel>?> getRentalList() async {
-  //   QuerySnapshot querySnapshot = await firebaseFirestore
-  //       .collection("Rentals")
-  //       .where("isApproved", isEqualTo: false)
-  //       .where("isResponsed", isEqualTo: false)
-  //       .where("isCanceled", isEqualTo: false)
-  //       .orderBy("isApproved", descending: false)
-  //       .get();
-  //   List<RentalModel> rentalList = querySnapshot.docs.map((doc) {
-  //     return RentalModel.fromSnapshot(
-  //         doc as DocumentSnapshot<Map<String, dynamic>>);
-  //   }).toList();
-  //   return rentalList;
-  // }
 
   Future<bool> sendRequestRental(RentalModel rentalModel) async {
     final email = userController.firebaseUser.value?.providerData[0].email;

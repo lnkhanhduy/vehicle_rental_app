@@ -13,28 +13,30 @@ class UserCardApprove extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.to(() => UserPaperScreen(
-            user: user, view: true, title: "Xét duyệt giấy tờ"));
+        Get.to(() =>
+            UserPaperScreen(user: user, view: true, title: "Duyệt giấy tờ"));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(10),
-          boxShadow: const [
-            BoxShadow(
-              color: Colors.black26,
-              blurRadius: 10,
-              offset: Offset(0, 5),
-            ),
-          ],
+          border: Border.all(
+            color: (user.isVerified == true &&
+                    (user.message == null && user.message!.isEmpty))
+                ? Colors.green
+                : (user.isVerified != true &&
+                        (user.message != null && user.message!.isNotEmpty))
+                    ? Colors.redAccent
+                    : Colors.grey,
+          ),
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           Row(
             children: [
               SizedBox(
-                width: 80,
-                height: 50,
+                width: 70,
+                height: 70,
                 child: Stack(
                   children: [
                     Positioned.fill(
@@ -67,57 +69,44 @@ class UserCardApprove extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(
-                width: 15,
-              ),
+              const SizedBox(width: 15),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      user.name,
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            user.name,
+                            style: const TextStyle(
+                              fontSize: 17,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            user.email,
+                            style: const TextStyle(
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      user.email,
-                      style: const TextStyle(
-                        fontSize: 15,
-                      ),
-                    ),
+                    SizedBox(width: 4),
                     (user.isVerified == true &&
                             (user.message == null || user.message!.isEmpty))
-                        ? const Text(
-                            'Đã duyệt',
-                            style: TextStyle(fontSize: 14, color: Colors.green),
-                          )
+                        ? Icon(Icons.check, color: Colors.green)
                         : (user.isVerified != true &&
                                 user.message != null &&
                                 user.message!.isNotEmpty)
-                            ? const Text(
-                                'Từ chối',
-                                style:
-                                    TextStyle(fontSize: 14, color: Colors.red),
-                              )
-                            : const Text(
-                                'Chưa duyệt',
-                                style:
-                                    TextStyle(fontSize: 14, color: Colors.red),
-                              ),
-                    user.isVerified != true &&
-                            user.message != null &&
-                            user.message!.isNotEmpty
-                        ? Text(
-                            'Lý do: ${user.message!}',
-                            style: const TextStyle(
-                                fontSize: 14, color: Colors.red),
-                          )
-                        : Container(),
+                            ? Icon(Icons.close, color: Colors.red)
+                            : Icon(Icons.warning_amber, color: Colors.grey)
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ]),

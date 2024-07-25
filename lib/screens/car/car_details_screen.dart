@@ -7,6 +7,7 @@ import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/rental_user_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/confirm_rental_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
@@ -23,12 +24,15 @@ class CarDetailsScreen extends StatefulWidget {
 }
 
 class _CarDetailsScreenState extends State<CarDetailsScreen> {
-  DateTime fromDate = DateTime.now().add(const Duration(days: 1));
-  DateTime toDate = DateTime.now().add(const Duration(days: 2));
-  int days = 1;
+  final userController = Get.put(UserController());
+  final rentalController = Get.put(RentalController());
 
   late UserModel userModel;
   List<Map<String, dynamic>> amenities = [];
+
+  DateTime fromDate = DateTime.now().add(const Duration(days: 1));
+  DateTime toDate = DateTime.now().add(const Duration(days: 2));
+  int days = 1;
 
   bool isExpanded = false;
 
@@ -101,896 +105,798 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: CustomScrollView(slivers: [
-          HeaderDetailsCar(car: widget.car),
-          SliverFillRemaining(
-              hasScrollBody: false,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                constraints: const BoxConstraints.expand(),
-                color: Colors.white,
-                child: FutureBuilder(
-                    future: Future.wait([
-                      UserController.instance
-                          .getUserByUsername(widget.car.email!),
-                      RentalController.instance
-                          .getListRentalModelByCar(widget.car.id!)
-                    ]),
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done &&
-                          snapshot.hasData) {
-                        UserModel userDetail = snapshot.data![0] as UserModel;
-                        List<RentalUserModel>? listRentalUser =
-                            snapshot.data![1] as List<RentalUserModel>?;
-                        userModel = userDetail;
-                        return Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+      body: CustomScrollView(slivers: [
+        HeaderDetailsCar(car: widget.car),
+        SliverFillRemaining(
+          hasScrollBody: false,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+            constraints: const BoxConstraints.expand(),
+            color: Colors.white,
+            child: FutureBuilder(
+                future: Future.wait([
+                  userController.getUserByUsername(widget.car.email!),
+                  rentalController.getListRentalModelByCar(widget.car.id!)
+                ]),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return LoadingScreen();
+                  } else if (snapshot.hasError) {
+                    return Text('Error: ${snapshot.error}');
+                  } else if (snapshot.connectionState == ConnectionState.done &&
+                      snapshot.hasData) {
+                    UserModel userDetail = snapshot.data![0] as UserModel;
+                    List<RentalUserModel>? listRentalUser =
+                        snapshot.data![1] as List<RentalUserModel>?;
+                    userModel = userDetail;
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.car.carInfoModel,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Row(
                           children: [
-                            Text(
-                              widget.car.carInfoModel,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
+                            SizedBox(
+                              width: 13,
+                              height: 13,
+                              child: Image.asset(
+                                "lib/assets/icons/star.png",
                               ),
                             ),
-                            const SizedBox(
-                              height: 4,
+                            const SizedBox(width: 3),
+                            Text(widget.car.star != 0 &&
+                                    widget.car.totalRental != 0
+                                ? (widget.car.star / widget.car.totalRental)
+                                    .toStringAsFixed(1)
+                                : "0"),
+                            SizedBox(
+                              width: 17,
+                              height: 17,
+                              child: Image.asset(
+                                "lib/assets/icons/dot_full.png",
+                              ),
                             ),
-                            Row(
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: Image.asset(
+                                "lib/assets/icons/road_trip.png",
+                                color: Constants.primaryColor,
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text('${widget.car.totalRental} chuyến'),
+                          ],
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 15),
+                          decoration: BoxDecoration(
+                            color: Colors.grey.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  "Thời gian thuê xe",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  width: double.infinity,
+                                  padding:
+                                      const EdgeInsets.fromLTRB(15, 10, 15, 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.grey.withOpacity(0.5),
+                                    ),
+                                    color: Colors.white,
+                                  ),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text("Nhận xe"),
+                                              TextButton(
+                                                style: TextButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.all(0),
+                                                ),
+                                                onPressed: () async {
+                                                  final result =
+                                                      await showBoardDateTimePicker(
+                                                          context: context,
+                                                          pickerType:
+                                                              DateTimePickerType
+                                                                  .datetime,
+                                                          options:
+                                                              const BoardDateTimeOptions(
+                                                                  languages:
+                                                                      BoardPickerLanguages(
+                                                            locale: 'vi',
+                                                            today: 'Hôm nay',
+                                                            tomorrow:
+                                                                'Ngày mai',
+                                                          )));
+                                                  if (result != null) {
+                                                    if (result.isBefore(
+                                                        DateTime.now())) {
+                                                      Get.closeCurrentSnackbar();
+                                                      Get.showSnackbar(
+                                                          GetSnackBar(
+                                                        messageText: const Text(
+                                                          "Thời gian nhận xe phải lớn hơn hôm nay!",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                        duration:
+                                                            const Duration(
+                                                                seconds: 3),
+                                                        icon: const Icon(
+                                                            Icons.error,
+                                                            color:
+                                                                Colors.white),
+                                                        onTap: (_) {
+                                                          Get.closeCurrentSnackbar();
+                                                        },
+                                                      ));
+                                                    } else if (result
+                                                        .isAfter(toDate)) {
+                                                      Get.closeCurrentSnackbar();
+                                                      Get.showSnackbar(
+                                                          GetSnackBar(
+                                                        messageText: const Text(
+                                                          "Thời gian nhận xe phải nhỏ hơn thời gian trả xe!",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                        duration:
+                                                            const Duration(
+                                                                seconds: 3),
+                                                        icon: const Icon(
+                                                            Icons.error,
+                                                            color:
+                                                                Colors.white),
+                                                        onTap: (_) {
+                                                          Get.closeCurrentSnackbar();
+                                                        },
+                                                      ));
+                                                    } else {
+                                                      setState(() {
+                                                        fromDate = result;
+                                                        Duration difference =
+                                                            toDate.difference(
+                                                                fromDate);
+                                                        if (difference.inHours %
+                                                                    24 ==
+                                                                0 &&
+                                                            difference
+                                                                    .inMinutes ==
+                                                                0) {
+                                                          days = toDate
+                                                              .difference(
+                                                                  fromDate)
+                                                              .inDays;
+                                                          1;
+                                                        } else {
+                                                          days = toDate
+                                                                  .difference(
+                                                                      fromDate)
+                                                                  .inDays +
+                                                              1;
+                                                        }
+                                                      });
+                                                    }
+                                                  }
+                                                },
+                                                child: Text(
+                                                  BoardDateFormat(
+                                                          'HH:mm dd/MM/yyyy')
+                                                      .format(fromDate),
+                                                  style: const TextStyle(
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          Column(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.start,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text("Trả xe"),
+                                              TextButton(
+                                                style: TextButton.styleFrom(
+                                                  padding:
+                                                      const EdgeInsets.all(0),
+                                                ),
+                                                onPressed: () async {
+                                                  final result =
+                                                      await showBoardDateTimePicker(
+                                                          context: context,
+                                                          pickerType:
+                                                              DateTimePickerType
+                                                                  .datetime,
+                                                          options:
+                                                              const BoardDateTimeOptions(
+                                                                  languages:
+                                                                      BoardPickerLanguages(
+                                                            locale: 'vi',
+                                                            today: 'Hôm nay',
+                                                            tomorrow:
+                                                                'Ngày mai',
+                                                          )));
+                                                  if (result != null) {
+                                                    if (result
+                                                        .isBefore(fromDate)) {
+                                                      Get.closeCurrentSnackbar();
+                                                      Get.showSnackbar(
+                                                          GetSnackBar(
+                                                        messageText: const Text(
+                                                          "Thời gian trả xe phải lớn hơn thời gian nhận xe!",
+                                                          style: TextStyle(
+                                                            color: Colors.white,
+                                                          ),
+                                                        ),
+                                                        backgroundColor:
+                                                            Colors.red,
+                                                        duration:
+                                                            const Duration(
+                                                                seconds: 10),
+                                                        icon: const Icon(
+                                                            Icons.error,
+                                                            color:
+                                                                Colors.white),
+                                                        onTap: (_) {
+                                                          Get.closeCurrentSnackbar();
+                                                        },
+                                                      ));
+                                                    } else {
+                                                      setState(() {
+                                                        toDate = result;
+                                                        Duration difference =
+                                                            toDate.difference(
+                                                                fromDate);
+                                                        if (difference.inHours %
+                                                                    24 ==
+                                                                0 &&
+                                                            difference
+                                                                    .inMinutes ==
+                                                                0) {
+                                                          days = toDate
+                                                              .difference(
+                                                                  fromDate)
+                                                              .inDays;
+                                                        } else {
+                                                          days = toDate
+                                                                  .difference(
+                                                                      fromDate)
+                                                                  .inDays +
+                                                              1;
+                                                        }
+                                                      });
+                                                    }
+                                                  }
+                                                },
+                                                child: Text(
+                                                  BoardDateFormat(
+                                                          'HH:mm dd/MM/yyyy')
+                                                      .format(toDate),
+                                                  style: const TextStyle(
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                              ),
+                                            ],
+                                          )
+                                        ],
+                                      ),
+                                      Text("Số ngày: $days ngày"),
+                                    ],
+                                  ),
+                                ),
+                                const SizedBox(height: 15),
+                                const Text(
+                                  "Địa điểm giao nhận xe",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16),
+                                ),
+                                const SizedBox(height: 10),
+                                Container(
+                                  width: double.infinity,
+                                  padding:
+                                      const EdgeInsets.fromLTRB(0, 10, 15, 10),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8),
+                                    border: Border.all(
+                                      color: Colors.grey.withOpacity(0.5),
+                                    ),
+                                    color: Colors.white,
+                                  ),
+                                  child: Stack(children: [
+                                    Row(
+                                      children: [
+                                        Radio(
+                                          value: null,
+                                          groupValue: null,
+                                          onChanged: (value) {},
+                                        ),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              const Text(
+                                                "Tôi tự đến lấy xe",
+                                                style: TextStyle(fontSize: 14),
+                                              ),
+                                              const SizedBox(height: 3),
+                                              Text(
+                                                widget.car.address,
+                                                style: const TextStyle(
+                                                    fontSize: 14,
+                                                    fontWeight:
+                                                        FontWeight.bold),
+                                                maxLines: null,
+                                                overflow: TextOverflow.visible,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Positioned(
+                                      top: 0,
+                                      right: 0,
+                                      child: Text(
+                                        "Miễn phí",
+                                        style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                            color: Constants.primaryColor),
+                                      ),
+                                    )
+                                  ]),
+                                ),
+                              ]),
+                        ),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Đặc điểm",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 15),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            Column(
                               children: [
                                 SizedBox(
-                                  width: 13,
-                                  height: 13,
+                                  width: 30,
+                                  height: 30,
                                   child: Image.asset(
-                                    "lib/assets/icons/star.png",
+                                    "lib/assets/icons/gear_shift.png",
+                                    color: Constants.primaryColor,
                                   ),
                                 ),
-                                const SizedBox(
-                                  width: 3,
+                                const SizedBox(height: 10),
+                                const Text(
+                                  "Truyền động",
+                                  style: TextStyle(fontSize: 12),
                                 ),
-                                Text(widget.car.star != 0 &&
-                                        widget.car.totalRental != 0
-                                    ? (widget.car.star / widget.car.totalRental)
-                                        .toStringAsFixed(1)
-                                    : "0"),
+                                const SizedBox(height: 2),
+                                Text(
+                                    widget.car.transmission == 'automatic'
+                                        ? 'Số tự động'
+                                        : 'Số sàn',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                            Column(
+                              children: [
                                 SizedBox(
-                                  width: 17,
-                                  height: 17,
+                                  width: 30,
+                                  height: 30,
                                   child: Image.asset(
-                                    "lib/assets/icons/dot_full.png",
+                                    "lib/assets/icons/car_seat.png",
+                                    color: Constants.primaryColor,
                                   ),
                                 ),
+                                const SizedBox(height: 10),
+                                const Text(
+                                  "Số ghế",
+                                  style: TextStyle(fontSize: 12),
+                                ),
+                                const SizedBox(height: 2),
+                                Text('${widget.car.carSeat} ghế',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold))
+                              ],
+                            ),
+                            Column(
+                              children: [
                                 SizedBox(
-                                  width: 20,
-                                  height: 20,
+                                  width: 30,
+                                  height: 30,
                                   child: Image.asset(
-                                    "lib/assets/icons/road_trip.png",
+                                    "lib/assets/icons/fuel.png",
                                     color: Constants.primaryColor,
                                   ),
                                 ),
                                 const SizedBox(
-                                  width: 6,
+                                  height: 10,
                                 ),
-                                Text('${widget.car.totalRental} chuyến'),
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 20, vertical: 15),
-                              decoration: BoxDecoration(
-                                color: Colors.grey.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      "Thời gian thuê xe",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.fromLTRB(
-                                          15, 10, 15, 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Colors.grey.withOpacity(0.5),
-                                        ),
-                                        color: Colors.white,
-                                      ),
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.start,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceBetween,
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Nhận xe",
-                                                  ),
-                                                  TextButton(
-                                                    style: TextButton.styleFrom(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              0),
-                                                    ),
-                                                    onPressed: () async {
-                                                      final result =
-                                                          await showBoardDateTimePicker(
-                                                              context: context,
-                                                              pickerType:
-                                                                  DateTimePickerType
-                                                                      .datetime,
-                                                              options:
-                                                                  const BoardDateTimeOptions(
-                                                                      languages:
-                                                                          BoardPickerLanguages(
-                                                                locale: 'vi',
-                                                                today:
-                                                                    'Hôm nay',
-                                                                tomorrow:
-                                                                    'Ngày mai',
-                                                              )));
-                                                      if (result != null) {
-                                                        if (result.isBefore(
-                                                            DateTime.now())) {
-                                                          Get.closeCurrentSnackbar();
-                                                          Get.showSnackbar(
-                                                              GetSnackBar(
-                                                            messageText:
-                                                                const Text(
-                                                              "Thời gian nhận xe phải lớn hơn hôm nay!",
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                              ),
-                                                            ),
-                                                            backgroundColor:
-                                                                Colors.red,
-                                                            duration:
-                                                                const Duration(
-                                                                    seconds:
-                                                                        10),
-                                                            icon: const Icon(
-                                                                Icons.error,
-                                                                color: Colors
-                                                                    .white),
-                                                            onTap: (_) {
-                                                              Get.closeCurrentSnackbar();
-                                                            },
-                                                          ));
-                                                        } else if (result
-                                                            .isAfter(toDate)) {
-                                                          Get.closeCurrentSnackbar();
-                                                          Get.showSnackbar(
-                                                              GetSnackBar(
-                                                            messageText:
-                                                                const Text(
-                                                              "Thời gian nhận xe phải nhỏ hơn thời gian trả xe!",
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                              ),
-                                                            ),
-                                                            backgroundColor:
-                                                                Colors.red,
-                                                            duration:
-                                                                const Duration(
-                                                                    seconds:
-                                                                        10),
-                                                            icon: const Icon(
-                                                                Icons.error,
-                                                                color: Colors
-                                                                    .white),
-                                                            onTap: (_) {
-                                                              Get.closeCurrentSnackbar();
-                                                            },
-                                                          ));
-                                                        } else {
-                                                          setState(() {
-                                                            fromDate = result;
-                                                            Duration
-                                                                difference =
-                                                                toDate.difference(
-                                                                    fromDate);
-                                                            if (difference.inHours %
-                                                                        24 ==
-                                                                    0 &&
-                                                                difference
-                                                                        .inMinutes ==
-                                                                    0) {
-                                                              days = toDate
-                                                                  .difference(
-                                                                      fromDate)
-                                                                  .inDays;
-                                                              1;
-                                                            } else {
-                                                              days = toDate
-                                                                      .difference(
-                                                                          fromDate)
-                                                                      .inDays +
-                                                                  1;
-                                                            }
-                                                          });
-                                                        }
-                                                      }
-                                                    },
-                                                    child: Text(
-                                                      BoardDateFormat(
-                                                              'HH:mm dd/MM/yyyy')
-                                                          .format(fromDate),
-                                                      style: const TextStyle(
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                              Column(
-                                                mainAxisAlignment:
-                                                    MainAxisAlignment.start,
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Trả xe",
-                                                  ),
-                                                  TextButton(
-                                                    style: TextButton.styleFrom(
-                                                      padding:
-                                                          const EdgeInsets.all(
-                                                              0),
-                                                    ),
-                                                    onPressed: () async {
-                                                      final result =
-                                                          await showBoardDateTimePicker(
-                                                              context: context,
-                                                              pickerType:
-                                                                  DateTimePickerType
-                                                                      .datetime,
-                                                              options:
-                                                                  const BoardDateTimeOptions(
-                                                                      languages:
-                                                                          BoardPickerLanguages(
-                                                                locale: 'vi',
-                                                                today:
-                                                                    'Hôm nay',
-                                                                tomorrow:
-                                                                    'Ngày mai',
-                                                              )));
-                                                      if (result != null) {
-                                                        if (result.isBefore(
-                                                            fromDate)) {
-                                                          Get.closeCurrentSnackbar();
-                                                          Get.showSnackbar(
-                                                              GetSnackBar(
-                                                            messageText:
-                                                                const Text(
-                                                              "Thời gian trả xe phải lớn hơn thời gian nhận xe!",
-                                                              style: TextStyle(
-                                                                color: Colors
-                                                                    .white,
-                                                              ),
-                                                            ),
-                                                            backgroundColor:
-                                                                Colors.red,
-                                                            duration:
-                                                                const Duration(
-                                                                    seconds:
-                                                                        10),
-                                                            icon: const Icon(
-                                                                Icons.error,
-                                                                color: Colors
-                                                                    .white),
-                                                            onTap: (_) {
-                                                              Get.closeCurrentSnackbar();
-                                                            },
-                                                          ));
-                                                        } else {
-                                                          setState(() {
-                                                            toDate = result;
-                                                            Duration
-                                                                difference =
-                                                                toDate.difference(
-                                                                    fromDate);
-                                                            if (difference.inHours %
-                                                                        24 ==
-                                                                    0 &&
-                                                                difference
-                                                                        .inMinutes ==
-                                                                    0) {
-                                                              days = toDate
-                                                                  .difference(
-                                                                      fromDate)
-                                                                  .inDays;
-                                                            } else {
-                                                              days = toDate
-                                                                      .difference(
-                                                                          fromDate)
-                                                                      .inDays +
-                                                                  1;
-                                                            }
-                                                          });
-                                                        }
-                                                      }
-                                                    },
-                                                    child: Text(
-                                                      BoardDateFormat(
-                                                              'HH:mm dd/MM/yyyy')
-                                                          .format(toDate),
-                                                      style: const TextStyle(
-                                                        color: Colors.black,
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              )
-                                            ],
-                                          ),
-                                          Text("Số ngày: $days ngày")
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 15,
-                                    ),
-                                    const Text(
-                                      "Địa điểm giao nhận xe",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    Container(
-                                      width: double.infinity,
-                                      padding: const EdgeInsets.fromLTRB(
-                                          0, 10, 15, 10),
-                                      decoration: BoxDecoration(
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Colors.grey.withOpacity(0.5),
-                                        ),
-                                        color: Colors.white,
-                                      ),
-                                      child: Stack(children: [
-                                        Row(
-                                          children: [
-                                            Radio(
-                                              value: null,
-                                              groupValue: null,
-                                              onChanged: (value) {},
-                                            ),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  const Text(
-                                                    "Tôi tự đến lấy xe",
-                                                    style:
-                                                        TextStyle(fontSize: 14),
-                                                  ),
-                                                  const SizedBox(height: 3),
-                                                  Text(
-                                                    widget.car.address,
-                                                    style: const TextStyle(
-                                                        fontSize: 14,
-                                                        fontWeight:
-                                                            FontWeight.bold),
-                                                    maxLines: null,
-                                                    overflow:
-                                                        TextOverflow.visible,
-                                                  )
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                        Positioned(
-                                          top: 0,
-                                          right: 0,
-                                          child: Text(
-                                            "Miễn phí",
-                                            style: TextStyle(
-                                                fontSize: 14,
-                                                fontWeight: FontWeight.bold,
-                                                color: Constants.primaryColor),
-                                          ),
-                                        )
-                                      ]),
-                                    ),
-                                  ]),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Divider(
-                              height: 1,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Text(
-                              "Đặc điểm",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: Image.asset(
-                                        "lib/assets/icons/gear_shift.png",
-                                        color: Constants.primaryColor,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    const Text(
-                                      "Truyền động",
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    const SizedBox(
-                                      height: 2,
-                                    ),
-                                    Text(
-                                        widget.car.transmission == 'automatic'
-                                            ? 'Số tự động'
-                                            : 'Số sàn',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold))
-                                  ],
+                                const Text(
+                                  "Nhiên liệu",
+                                  style: TextStyle(fontSize: 12),
                                 ),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: Image.asset(
-                                        "lib/assets/icons/car_seat.png",
-                                        color: Constants.primaryColor,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    const Text(
-                                      "Số ghế",
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    const SizedBox(
-                                      height: 2,
-                                    ),
-                                    Text('${widget.car.carSeat} ghế',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold))
-                                  ],
+                                const SizedBox(
+                                  height: 2,
                                 ),
-                                Column(
-                                  children: [
-                                    SizedBox(
-                                      width: 30,
-                                      height: 30,
-                                      child: Image.asset(
-                                        "lib/assets/icons/fuel.png",
-                                        color: Constants.primaryColor,
-                                      ),
-                                    ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
-                                    const Text(
-                                      "Nhiên liệu",
-                                      style: TextStyle(fontSize: 12),
-                                    ),
-                                    const SizedBox(
-                                      height: 2,
-                                    ),
-                                    Text(
-                                        widget.car.fuel == "gasoline"
-                                            ? 'Xăng'
-                                            : widget.car.fuel == 'diesel'
-                                                ? 'Dầu Diesel'
-                                                : 'Điện',
-                                        style: const TextStyle(
-                                            fontWeight: FontWeight.bold))
-                                  ],
-                                )
-                              ],
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Divider(
-                              height: 1,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Text(
-                              "Mô tả",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(
-                              height: 5,
-                            ),
-                            Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
                                 Text(
-                                  widget.car.description != null &&
-                                          widget.car.description != ""
-                                      ? widget.car.description!
-                                      : "Không có mô tả",
-                                  maxLines: isExpanded ? null : 4,
-                                  overflow: isExpanded
-                                      ? TextOverflow.visible
-                                      : TextOverflow.ellipsis,
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                                const SizedBox(height: 5),
-                                GestureDetector(
-                                  onTap: _toggleExpanded,
-                                  child: Text(
-                                    isExpanded ? 'Thu gọn' : 'Xem thêm',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: Constants.primaryColor,
-                                    ),
-                                  ),
-                                ),
+                                    widget.car.fuel == "gasoline"
+                                        ? 'Xăng'
+                                        : widget.car.fuel == 'diesel'
+                                            ? 'Dầu Diesel'
+                                            : 'Điện',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold))
                               ],
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Divider(
-                              height: 1,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Text(
-                              "Các tiện nghi trên xe",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 15),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      for (int i = 0;
-                                          i < amenities.length ~/ 2;
-                                          i++)
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.symmetric(vertical: 6),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Image.asset(
-                                                  amenities[i]['iconPath'],
-                                                  color: Constants.primaryColor,
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                width: 8,
-                                              ),
-                                              Text(amenities[i]['name']),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      for (int i = amenities.length ~/ 2;
-                                          i < amenities.length;
-                                          i++)
-                                        Padding(
-                                          padding:
-                                              EdgeInsets.symmetric(vertical: 6),
-                                          child: Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Image.asset(
-                                                  amenities[i]['iconPath'],
-                                                  color: Constants.primaryColor,
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                width: 8,
-                                              ),
-                                              Text(amenities[i]['name']),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                    ],
-                                  )
-                                ],
-                              ),
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Divider(
-                              height: 1,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Text(
-                              "Vị trí xe",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Text(widget.car.address),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Divider(
-                              height: 1,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Text(
-                              "Chủ xe",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(
-                              height: 10,
-                            ),
-                            Container(
-                                width: double.infinity,
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(8),
-                                  border: Border.all(
-                                    color: Colors.grey.withOpacity(0.5),
-                                  ),
-                                  color: Colors.white,
-                                ),
-                                child: InkWell(
-                                  onTap: () {
-                                    Get.to(
-                                      () => ProfileDisplayScreen(
-                                        userModel: userDetail,
-                                      ),
-                                    );
-                                  },
-                                  child: Row(
-                                    children: [
-                                      SizedBox(
-                                        width: 60,
-                                        height: 60,
-                                        child: ClipRRect(
-                                          borderRadius: const BorderRadius.all(
-                                              Radius.circular(100)),
-                                          child: userDetail.imageAvatar !=
-                                                      null &&
-                                                  userDetail
-                                                      .imageAvatar!.isNotEmpty
-                                              ? Image.network(
-                                                  userDetail.imageAvatar!,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Image.asset(
-                                                      "lib/assets/images/no_image.png",
-                                                      fit: BoxFit.cover,
-                                                    );
-                                                  },
-                                                )
-                                              : Image.asset(
-                                                  "lib/assets/images/no_avatar.png"),
-                                        ),
-                                      ),
-                                      const SizedBox(
-                                        width: 10,
-                                      ),
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            userDetail.name,
-                                            style: const TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                fontSize: 16),
-                                          ),
-                                          Row(
-                                            children: [
-                                              SizedBox(
-                                                width: 13,
-                                                height: 13,
-                                                child: Image.asset(
-                                                  "lib/assets/icons/star.png",
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                width: 3,
-                                              ),
-                                              Text(userDetail.star != 0 &&
-                                                      userDetail.totalRental !=
-                                                          0
-                                                  ? (userDetail.star /
-                                                          userDetail
-                                                              .totalRental)
-                                                      .toStringAsFixed(1)
-                                                  : "0"),
-                                              SizedBox(
-                                                width: 17,
-                                                height: 17,
-                                                child: Image.asset(
-                                                  "lib/assets/icons/dot_full.png",
-                                                ),
-                                              ),
-                                              SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Image.asset(
-                                                  "lib/assets/icons/road_trip.png",
-                                                  color: Constants.primaryColor,
-                                                ),
-                                              ),
-                                              const SizedBox(
-                                                width: 6,
-                                              ),
-                                              Text(
-                                                  "${userDetail.totalRental} chuyến"),
-                                            ],
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                )),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Divider(
-                              height: 1,
-                            ),
-                            const SizedBox(
-                              height: 20,
-                            ),
-                            const Text(
-                              "Đánh giá từ khách thuê",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 16),
-                            ),
-                            const SizedBox(
-                              height: 15,
-                            ),
-                            Column(
-                              children: listRentalUser!.map((rentalUser) {
-                                return Column(
-                                  children: [
-                                    RatingRental(rentalUserModel: rentalUser),
-                                    const SizedBox(
-                                      height: 15,
-                                    ),
-                                  ],
-                                );
-                              }).toList(),
                             )
                           ],
-                        );
-                      } else {
-                        return const Center(child: CircularProgressIndicator());
-                      }
-                    }),
-              ))
-        ]),
-        bottomNavigationBar: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
-          color: Constants.primaryColor.withOpacity(0.05),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Text(Utils.formatNumber(int.parse(widget.car.price!)),
-                      style: TextStyle(
-                          color: Constants.primaryColor,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18)),
-                  const Text(" / ngày")
-                ],
-              ),
-              SizedBox(
-                child: ElevatedButton(
-                  onPressed: () {
-                    Get.to(() => ConfirmRentalScreen(
-                        car: widget.car,
-                        userModel: userModel,
-                        fromDate: fromDate,
-                        toDate: toDate,
-                        days: days));
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Constants.primaryColor,
-                    foregroundColor: Colors.white,
-                    shape: const RoundedRectangleBorder(
-                      borderRadius: BorderRadius.all(Radius.circular(8)),
-                    ),
-                  ),
-                  child: const Text(
-                    "Thuê xe",
+                        ),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Mô tả",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 5),
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              widget.car.description != null &&
+                                      widget.car.description != ""
+                                  ? widget.car.description!
+                                  : "Không có mô tả",
+                              maxLines: isExpanded ? null : 4,
+                              overflow: isExpanded
+                                  ? TextOverflow.visible
+                                  : TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 14),
+                            ),
+                            const SizedBox(height: 5),
+                            GestureDetector(
+                              onTap: _toggleExpanded,
+                              child: Text(
+                                isExpanded ? 'Thu gọn' : 'Xem thêm',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: Constants.primaryColor,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Các tiện nghi trên xe",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 15),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  for (int i = 0;
+                                      i < amenities.length ~/ 2;
+                                      i++)
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 6),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: Image.asset(
+                                              amenities[i]['iconPath'],
+                                              color: Constants.primaryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text(amenities[i]['name']),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  for (int i = amenities.length ~/ 2;
+                                      i < amenities.length;
+                                      i++)
+                                    Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 6),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.end,
+                                        children: [
+                                          SizedBox(
+                                            width: 20,
+                                            height: 20,
+                                            child: Image.asset(
+                                              amenities[i]['iconPath'],
+                                              color: Constants.primaryColor,
+                                            ),
+                                          ),
+                                          const SizedBox(
+                                            width: 8,
+                                          ),
+                                          Text(amenities[i]['name']),
+                                          const SizedBox(
+                                            height: 10,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                ],
+                              )
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Vị trí xe",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        Text(widget.car.address),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Chủ xe",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.5),
+                              ),
+                              color: Colors.white,
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                Get.to(
+                                  () => ProfileDisplayScreen(
+                                    userModel: userDetail,
+                                  ),
+                                );
+                              },
+                              child: Row(
+                                children: [
+                                  SizedBox(
+                                    width: 60,
+                                    height: 60,
+                                    child: ClipRRect(
+                                      borderRadius: const BorderRadius.all(
+                                          Radius.circular(100)),
+                                      child: userDetail.imageAvatar != null &&
+                                              userDetail.imageAvatar!.isNotEmpty
+                                          ? Image.network(
+                                              userDetail.imageAvatar!,
+                                              fit: BoxFit.cover,
+                                              errorBuilder:
+                                                  (context, error, stackTrace) {
+                                                return Image.asset(
+                                                  "lib/assets/images/no_image.png",
+                                                  fit: BoxFit.cover,
+                                                );
+                                              },
+                                            )
+                                          : Image.asset(
+                                              "lib/assets/images/no_avatar.png",
+                                              fit: BoxFit.cover,
+                                            ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          userDetail.name,
+                                          style: const TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 16),
+                                        ),
+                                        Row(
+                                          children: [
+                                            SizedBox(
+                                              width: 13,
+                                              height: 13,
+                                              child: Image.asset(
+                                                "lib/assets/icons/star.png",
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              width: 3,
+                                            ),
+                                            Text(userDetail.star != 0 &&
+                                                    userDetail.totalRental != 0
+                                                ? (userDetail.star /
+                                                        userDetail.totalRental)
+                                                    .toStringAsFixed(1)
+                                                : "0"),
+                                            SizedBox(
+                                              width: 17,
+                                              height: 17,
+                                              child: Image.asset(
+                                                "lib/assets/icons/dot_full.png",
+                                              ),
+                                            ),
+                                            SizedBox(
+                                              width: 20,
+                                              height: 20,
+                                              child: Image.asset(
+                                                "lib/assets/icons/road_trip.png",
+                                                color: Constants.primaryColor,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 6),
+                                            Text(
+                                                "${userDetail.totalRental} chuyến"),
+                                          ],
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
+                        const Text(
+                          "Đánh giá từ khách thuê",
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold, fontSize: 16),
+                        ),
+                        const SizedBox(height: 15),
+                        Column(
+                          children: listRentalUser!.map((rentalUser) {
+                            return Column(
+                              children: [
+                                RatingRental(rentalUserModel: rentalUser),
+                                const SizedBox(
+                                  height: 15,
+                                ),
+                              ],
+                            );
+                          }).toList(),
+                        )
+                      ],
+                    );
+                  }
+                  return Container();
+                }),
+          ),
+        )
+      ]),
+      bottomNavigationBar: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+        color: Constants.primaryColor.withOpacity(0.05),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Row(
+              children: [
+                Text(Utils.formatNumber(int.parse(widget.car.price!)),
+                    style: TextStyle(
+                        color: Constants.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18)),
+                const Text(" / ngày")
+              ],
+            ),
+            SizedBox(
+              child: ElevatedButton(
+                onPressed: () {
+                  Get.to(() => ConfirmRentalScreen(
+                      car: widget.car,
+                      userModel: userModel,
+                      fromDate: fromDate,
+                      toDate: toDate,
+                      days: days));
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Constants.primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(8)),
                   ),
                 ),
+                child: const Text(
+                  "Thuê xe",
+                ),
               ),
-            ],
-          ),
-        ));
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

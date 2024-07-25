@@ -14,8 +14,10 @@ class HeaderDetailsCar extends StatefulWidget {
 }
 
 class _HeaderDetailsCarState extends State<HeaderDetailsCar> {
-  bool isFavoriteCar = false;
+  final userController = Get.put(UserController());
   final PageController imageController = PageController();
+
+  bool isFavoriteCar = false;
   int currentImage = 1;
   List<String> imageNames = [];
 
@@ -133,7 +135,7 @@ class _HeaderDetailsCarState extends State<HeaderDetailsCar> {
           ),
           onPressed: () async {
             Get.closeCurrentSnackbar();
-            await UserController.instance.addFavorite(widget.car.id!);
+            await userController.addFavorite(widget.car.id!);
 
             setState(() {
               isFavoriteCar = !isFavoriteCar;

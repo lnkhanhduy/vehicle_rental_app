@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/admin_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/screens/flash_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/widgets/user_card_approve.dart';
 
 class ApproveUserPaperScreen extends StatefulWidget {
@@ -13,34 +14,42 @@ class ApproveUserPaperScreen extends StatefulWidget {
 }
 
 class _ApproveUserPaperScreenState extends State<ApproveUserPaperScreen> {
+  final adminController = Get.put(AdminController());
+  final userController = Get.put(UserController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: Container(),
         title: const Text(
-          "Xét duyệt giấy tờ",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          "Duyệt giấy tờ",
+          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         actions: [
           IconButton(
-              onPressed: () {
-                UserController.instance.logout();
-              },
-              icon: Icon(Icons.logout_outlined, color: Colors.red))
+            onPressed: () {
+              userController.logout();
+            },
+            icon: Icon(Icons.logout_outlined, color: Colors.red),
+          )
         ],
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
       body: FutureBuilder<List<UserModel>?>(
-        future: AdminController.instance.getUserApproveScreen(),
+        future: adminController.getUserApproveScreen(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return FlashScreen();
+            return LoadingScreen();
           } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
+            return Container(
+                color: Colors.white,
+                child: Center(child: Text('Error: ${snapshot.error}')));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Không có giấy tờ cần duyệt'));
+            return Container(
+                color: Colors.white,
+                child: Center(child: Text('Không có giấy tờ cần duyệt')));
           } else {
             List<UserModel> userList = snapshot.data!;
             return Container(

@@ -4,8 +4,8 @@ import 'package:get/get.dart';
 import 'package:vehicle_rental_app/screens/chat/chat_screen.dart';
 import 'package:vehicle_rental_app/screens/home_screen.dart';
 import 'package:vehicle_rental_app/screens/profile/account_screen.dart';
-import 'package:vehicle_rental_app/screens/register_car/info_rental_screen.dart';
 import 'package:vehicle_rental_app/screens/user/favorite_screen.dart';
+import 'package:vehicle_rental_app/screens/user/history_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 
 class LayoutScreen extends StatefulWidget {
@@ -55,8 +55,8 @@ class _LayoutScreenState extends State<LayoutScreen> {
         children: const [
           HomeScreen(),
           FavoriteScreen(),
-          InfoRentalScreen(),
           ChatScreen(),
+          HistoryScreen(),
           AccountScreen(),
         ],
       ),
@@ -78,9 +78,9 @@ class _LayoutScreenState extends State<LayoutScreen> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.favorite), label: "Yêu thích"),
             BottomNavigationBarItem(
-                icon: Icon(Icons.car_rental), label: "Cho thuê"),
-            BottomNavigationBarItem(
                 icon: Icon(EvaIcons.messageSquare), label: "Tin nhắn"),
+            BottomNavigationBarItem(
+                icon: Icon(Icons.history_outlined), label: "Lịch sử"),
             BottomNavigationBarItem(
                 icon: Icon(Icons.person_2), label: "Tài khoản"),
           ],

@@ -77,13 +77,14 @@ class ImageContainer extends StatelessWidget {
                   border: Border.all(color: Colors.grey[400]!),
                 ),
                 child: Center(
-                    child: SizedBox(
-                  width: 100,
-                  height: 100,
-                  child: Image.asset(
-                    imageAsset,
+                  child: SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Image.asset(
+                      imageAsset,
+                    ),
                   ),
-                )),
+                ),
               ),
       ],
     );

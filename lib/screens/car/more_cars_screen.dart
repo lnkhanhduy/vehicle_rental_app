@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/car_card.dart';
 
@@ -16,6 +17,8 @@ class MoreCarsScreen extends StatefulWidget {
 }
 
 class _MoreCarsScreenState extends State<MoreCarsScreen> {
+  final carController = Get.put(CarController());
+
   TextEditingController keyword = TextEditingController();
   TextEditingController priceFrom = TextEditingController();
   TextEditingController priceTo = TextEditingController();
@@ -41,6 +44,12 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
     'Toyota',
     'VinFast',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    keyword.text = widget.keyword;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -348,22 +357,23 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
                 ],
               ),
               Positioned(
-                  top: -15,
-                  right: -15,
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ))
+                top: -15,
+                right: -15,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              )
             ],
           ),
         ),
       ),
       body: FutureBuilder<List<CarModel>?>(
-        future: CarController.instance.getMoreCar(
+        future: carController.getMoreCar(
             keyword.text.trim(),
             priceFrom.text.trim(),
             priceTo.text.trim(),
@@ -371,11 +381,13 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
             selectedTransmission),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return LoadingScreen();
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(child: Text('Không tìm thấy xe có thể thuê.'));
+            return Container(
+                color: Colors.white,
+                child: Center(child: Text('Không tìm thấy xe có thể thuê.')));
           } else {
             List<CarModel> listCar = snapshot.data!;
             return Container(
@@ -494,16 +506,17 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
                 ],
               ),
               Positioned(
-                  top: -15,
-                  right: -15,
-                  child: IconButton(
-                    icon: const Icon(Icons.close),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ))
+                top: -15,
+                right: -15,
+                child: IconButton(
+                  icon: const Icon(Icons.close),
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              )
             ],
           ),
         );

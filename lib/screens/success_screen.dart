@@ -32,48 +32,45 @@ class _SuccessScreenState extends State<SuccessScreen> {
                   Icon(
                     Icons.check_circle,
                     color: Constants.primaryColor,
-                    size: 70,
+                    size: 65,
                   ),
-                  const SizedBox(
-                    height: 5,
-                  ),
+                  const SizedBox(height: 5),
                   Text(
                     widget.title,
                     style: const TextStyle(
-                        fontWeight: FontWeight.bold, fontSize: 32),
+                        fontWeight: FontWeight.bold, fontSize: 24),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 20),
                   Text(
                     widget.content,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 15,
                       fontWeight: FontWeight.normal,
                       color: Colors.black,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(
-                    height: 50,
-                  ),
+                  const SizedBox(height: 50),
                   TextButton(
-                      onPressed: () {
-                        Get.to(() => const LayoutScreen(
-                              initialIndex: 0,
-                            ));
-                      },
-                      child: const Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.arrow_back,
-                              color: Colors.black,
-                            ),
-                            SizedBox(width: 5),
-                            Text("Trở về trang chủ",
-                                style: TextStyle(
-                                    fontSize: 17, color: Colors.black))
-                          ]))
+                    onPressed: () {
+                      Get.to(() => const LayoutScreen(
+                            initialIndex: 0,
+                          ));
+                    },
+                    child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.arrow_back,
+                            color: Colors.black,
+                          ),
+                          SizedBox(width: 5),
+                          Text("Trở về trang chủ",
+                              style:
+                                  TextStyle(fontSize: 16, color: Colors.black))
+                        ]),
+                  )
                 ],
               ),
             ),

@@ -6,6 +6,7 @@ import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/rental_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_display_screen.dart';
 import 'package:vehicle_rental_app/screens/success_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
@@ -31,8 +32,12 @@ class ConfirmRentalScreen extends StatefulWidget {
 }
 
 class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
+  final userController = Get.put(UserController());
+  final rentalController = Get.put(RentalController());
+
   final message = TextEditingController();
-  bool isWaiting = false;
+
+  bool isLoading = false;
 
   @override
   Widget build(BuildContext context) {
@@ -52,11 +57,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
         slivers: [
           SliverFillRemaining(
             hasScrollBody: false,
-            child: isWaiting
-                ? Container(
-                    color: Colors.white,
-                    child: Center(child: CircularProgressIndicator()),
-                  )
+            child: isLoading
+                ? LoadingScreen()
                 : Container(
                     padding: const EdgeInsets.symmetric(
                         horizontal: 20, vertical: 15),
@@ -99,9 +101,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                 ),
                               ]),
                             ),
-                            const SizedBox(
-                              width: 15,
-                            ),
+                            const SizedBox(width: 15),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
@@ -111,9 +111,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                       fontSize: 20,
                                       fontWeight: FontWeight.bold),
                                 ),
-                                const SizedBox(
-                                  height: 3,
-                                ),
+                                const SizedBox(height: 3),
                                 Row(
                                   children: [
                                     SizedBox(
@@ -123,9 +121,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                         "lib/assets/icons/star.png",
                                       ),
                                     ),
-                                    const SizedBox(
-                                      width: 3,
-                                    ),
+                                    const SizedBox(width: 3),
                                     Text(widget.car.star != 0 &&
                                             widget.car.totalRental != 0
                                         ? (widget.car.star /
@@ -147,9 +143,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                         color: Constants.primaryColor,
                                       ),
                                     ),
-                                    const SizedBox(
-                                      width: 6,
-                                    ),
+                                    const SizedBox(width: 6),
                                     Text('${widget.car.totalRental} chuyến'),
                                   ],
                                 ),
@@ -157,23 +151,15 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                             )
                           ],
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        const Divider(
-                          height: 1,
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
                         const Text(
                           "Chi tiết thuê xe",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                        const SizedBox(
-                          height: 12,
-                        ),
+                        const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -189,18 +175,14 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                       size: 18,
                                       color: Colors.grey,
                                     ),
-                                    SizedBox(
-                                      width: 3,
-                                    ),
+                                    SizedBox(width: 3),
                                     Text(
                                       "Nhận xe",
                                       style: TextStyle(color: Colors.grey),
                                     ),
                                   ],
                                 ),
-                                const SizedBox(
-                                  height: 8,
-                                ),
+                                const SizedBox(height: 8),
                                 Text(
                                   BoardDateFormat('HH:mm dd/MM/yyyy')
                                       .format(widget.fromDate),
@@ -222,16 +204,12 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                       size: 18,
                                       color: Colors.grey,
                                     ),
-                                    SizedBox(
-                                      width: 3,
-                                    ),
+                                    SizedBox(width: 3),
                                     Text("Trả xe",
                                         style: TextStyle(color: Colors.grey)),
                                   ],
                                 ),
-                                const SizedBox(
-                                  height: 8,
-                                ),
+                                const SizedBox(height: 8),
                                 Text(
                                   BoardDateFormat('HH:mm dd/MM/yyyy')
                                       .format(widget.toDate),
@@ -254,22 +232,16 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                               size: 18,
                               color: Colors.grey,
                             ),
-                            SizedBox(
-                              width: 3,
-                            ),
+                            SizedBox(width: 3),
                             Text("Nhận xe tại",
                                 style: TextStyle(color: Colors.grey)),
                           ],
                         ),
-                        const SizedBox(
-                          height: 6,
-                        ),
+                        const SizedBox(height: 6),
                         Text(widget.car.address,
                             style:
                                 const TextStyle(fontWeight: FontWeight.bold)),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         const Row(
                           children: [
                             Icon(
@@ -297,54 +269,50 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(
-                                color: Colors.grey.withOpacity(0.5),
-                              ),
-                              color: Colors.white,
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(
+                              color: Colors.grey.withOpacity(0.5),
                             ),
-                            child: InkWell(
-                              onTap: () {
-                                Get.to(
-                                  () => ProfileDisplayScreen(
-                                    userModel: widget.userModel,
-                                  ),
-                                );
-                              },
-                              child: Row(
-                                children: [
-                                  SizedBox(
-                                    width: 70,
-                                    height: 70,
-                                    child: widget.userModel.imageAvatar !=
-                                                null &&
-                                            widget.userModel.imageAvatar!
-                                                .isNotEmpty
-                                        ? Image.network(
-                                            widget.userModel.imageAvatar!,
-                                            fit: BoxFit.cover,
-                                            errorBuilder:
-                                                (context, error, stackTrace) {
-                                              return Image.asset(
-                                                "lib/assets/images/no_avatar.png",
-                                                fit: BoxFit.cover,
-                                              );
-                                            },
-                                          )
-                                        : Image.asset(
-                                            "lib/assets/images/no_avatar.png"),
-                                  ),
-                                  const SizedBox(
-                                    width: 5,
-                                  ),
-                                  Column(
+                            color: Colors.white,
+                          ),
+                          child: InkWell(
+                            onTap: () {
+                              Get.to(
+                                () => ProfileDisplayScreen(
+                                  userModel: widget.userModel,
+                                ),
+                              );
+                            },
+                            child: Row(
+                              children: [
+                                SizedBox(
+                                  width: 70,
+                                  height: 70,
+                                  child: widget.userModel.imageAvatar != null &&
+                                          widget
+                                              .userModel.imageAvatar!.isNotEmpty
+                                      ? Image.network(
+                                          widget.userModel.imageAvatar!,
+                                          fit: BoxFit.cover,
+                                          errorBuilder:
+                                              (context, error, stackTrace) {
+                                            return Image.asset(
+                                              "lib/assets/images/no_avatar.png",
+                                              fit: BoxFit.cover,
+                                            );
+                                          },
+                                        )
+                                      : Image.asset(
+                                          "lib/assets/images/no_avatar.png"),
+                                ),
+                                const SizedBox(width: 5),
+                                Expanded(
+                                  child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
@@ -398,27 +366,21 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                         ],
                                       ),
                                     ],
-                                  )
-                                ],
-                              ),
-                            )),
-                        const SizedBox(
-                          height: 20,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                        const Divider(
-                          height: 1,
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
                         const Text(
                           "Nhập lời nhắn cho chủ xe",
                           style: TextStyle(
                               fontWeight: FontWeight.bold, fontSize: 16),
                         ),
-                        const SizedBox(
-                          height: 10,
-                        ),
+                        const SizedBox(height: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 15, vertical: 10),
@@ -440,43 +402,38 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                             ),
                           ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
-                        const Divider(
-                          height: 1,
-                        ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 20),
+                        const Divider(height: 1),
+                        const SizedBox(height: 20),
                         Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 10),
-                            decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(
-                                  color: Colors.grey.withOpacity(0.5),
-                                )),
-                            child: Column(children: [
-                              Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    const Text(
-                                      "Tổng tiền",
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15),
-                                    ),
-                                    Text(
-                                      '${Utils.formatNumber(int.parse(widget.car.price!) * widget.days)} VND',
-                                      style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15),
-                                    ),
-                                  ]),
-                            ]))
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 15, vertical: 10),
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: Colors.grey.withOpacity(0.5),
+                              )),
+                          child: Column(children: [
+                            Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  const Text(
+                                    "Tổng tiền",
+                                    style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
+                                  ),
+                                  Text(
+                                    '${Utils.formatNumber(int.parse(widget.car.price!) * widget.days)} VND',
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 15),
+                                  ),
+                                ]),
+                          ]),
+                        )
                       ],
                     ),
                   ),
@@ -490,7 +447,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
           child: ElevatedButton(
             onPressed: () async {
               setState(() {
-                isWaiting = true;
+                isLoading = true;
               });
               RentalModel rentalModel = RentalModel(
                 idCar: widget.car.id!,
@@ -499,8 +456,8 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                 message: message.text.trim(),
                 idOwner: widget.userModel.email,
               );
-              bool result = await RentalController.instance
-                  .sendRequestRental(rentalModel);
+              bool result =
+                  await rentalController.sendRequestRental(rentalModel);
               if (result == true) {
                 final fromString =
                     '${widget.fromDate.hour}:${widget.fromDate.minute} ${widget.fromDate.day}-${widget.fromDate.month >= 10 ? widget.fromDate.month : '0${widget.fromDate.month}'}-${widget.fromDate.year}';
@@ -516,12 +473,11 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                       Utils.formatNumber(
                               int.parse(widget.car.price!) * widget.days)
                           .toString()),
-                  UserController
-                          .instance.firebaseUser.value!.providerData[0].email ??
+                  userController.firebaseUser.value!.providerData[0].email ??
                       '',
                 );
                 setState(() {
-                  isWaiting = false;
+                  isLoading = false;
                 });
                 Get.to(() => const SuccessScreen(
                     title: "Gửi yêu cầu thuê xe thành công",

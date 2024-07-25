@@ -6,16 +6,16 @@ import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/controllers/rental_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/firebase_options.dart';
-import 'package:vehicle_rental_app/screens/flash_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  Get.put(UserController());
-  Get.put(CarController());
-  Get.put(AdminController());
-  Get.put(RentalController());
+  await Get.put(UserController());
+  await Get.put(CarController());
+  await Get.put(AdminController());
+  await Get.put(RentalController());
 
   runApp(const MyApp());
 }
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const GetMaterialApp(
       debugShowCheckedModeBanner: false,
-      home: FlashScreen(),
+      home: LoadingScreen(),
     );
   }
 }

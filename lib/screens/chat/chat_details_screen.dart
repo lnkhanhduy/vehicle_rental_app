@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -8,22 +9,22 @@ import 'package:image_picker/image_picker.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/chat_model.dart';
+import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/chat/display_message.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
-  final String name;
-  final String emailReceiver;
-  final String? phone;
+  final UserModel user;
 
-  const ChatDetailsScreen(
-      {super.key, required this.emailReceiver, required this.name, this.phone});
+  const ChatDetailsScreen({super.key, required this.user});
 
   @override
   State<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
 }
 
 class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
+  final userController = Get.put(UserController());
+
   final message = TextEditingController();
   late String? chatRoomId = null;
 
@@ -35,20 +36,20 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
             onPressed: () => Get.back(),
             icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: Text(
-          widget.name,
+          widget.user.name,
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         actions: [
-          widget.phone != null && widget.phone!.isNotEmpty
+          widget.user.isPublic && widget.user.phone.isNotEmpty
               ? IconButton(
                   icon: Icon(
-                    Icons.call_outlined,
+                    EvaIcons.phoneCallOutline,
                     size: 24,
                   ),
                   onPressed: () async {
                     final Uri url = Uri(
                       scheme: 'tel',
-                      path: widget.phone!,
+                      path: widget.user.phone,
                     );
                     if (await canLaunchUrl(url)) {
                       await launchUrl(url);
@@ -61,12 +62,12 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       ),
       body: SingleChildScrollView(
         child: FutureBuilder<ChatModel?>(
-            future: UserController.instance.getChatRoom(widget.emailReceiver),
+            future: userController.getChatRoom(widget.user.email),
             builder: (context, snapshot) {
               if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
+                return Container(
+                    color: Colors.white,
+                    child: Center(child: CircularProgressIndicator()));
               }
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.hasData) {
@@ -81,7 +82,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
                       SizedBox(
                         height: MediaQuery.of(context).size.height * 0.8,
                         child: DisplayMessage(
-                          emailReceiver: widget.emailReceiver,
+                          emailReceiver: widget.user.email,
                           chatRoomId: chatRoomId,
                         ),
                       ),
@@ -161,20 +162,20 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
   Future<void> sendMessage() async {
     if (message.text.trim().isNotEmpty) {
-      bool result = await UserController.instance
-          .sendMessage(message.text.trim(), widget.emailReceiver);
+      bool result = await userController.sendMessage(
+          message.text.trim(), widget.user.email);
 
       if (result) {
         message.clear();
 
         if (chatRoomId == null) {
           final email =
-              UserController.instance.firebaseUser.value?.providerData[0].email;
+              userController.firebaseUser.value?.providerData[0].email;
 
           final querySnapshot = await FirebaseFirestore.instance
               .collection("ChatRooms")
               .where("participants",
-                  arrayContainsAny: [widget.emailReceiver, email]).get();
+                  arrayContainsAny: [widget.user.email, email]).get();
           if (querySnapshot.docs.isNotEmpty) {
             setState(() {
               chatRoomId = querySnapshot.docs.first.id;
@@ -187,16 +188,15 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
   Future<void> uploadImage(image) async {
     if (image != null) {
-      final email =
-          UserController.instance.firebaseUser.value?.providerData[0].email;
+      final email = userController.firebaseUser.value?.providerData[0].email;
 
       if (chatRoomId == null) {
-        await UserController.instance.sendMessage("", widget.emailReceiver);
+        await userController.sendMessage("", widget.user.email);
 
         final querySnapshot = await FirebaseFirestore.instance
             .collection("ChatRooms")
             .where("participants",
-                arrayContainsAny: [widget.emailReceiver, email]).get();
+                arrayContainsAny: [widget.user.email, email]).get();
         setState(() {
           chatRoomId = querySnapshot.docs.first.id;
         });
@@ -222,7 +222,7 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
           .add({
         "message": imageUrl,
         "emailSender": email,
-        "emailReceiver": widget.emailReceiver,
+        "emailReceiver": widget.user.email,
         "time": DateTime.now(),
       });
     }

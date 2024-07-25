@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
+import 'package:vehicle_rental_app/screens/auth/email_verification_screen.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -12,13 +14,16 @@ class RegisterScreen extends StatefulWidget {
 }
 
 class _RegisterScreenState extends State<RegisterScreen> {
-  bool obscureText = true;
+  final userController = Get.put(UserController());
+
   final name = TextEditingController();
   final email = TextEditingController();
   final phone = TextEditingController();
   final password = TextEditingController();
-  bool isWaitingGoogle = false;
-  bool isWaiting = false;
+
+  bool obscureText = true;
+  bool isLoadingGoogle = false;
+  bool isLoading = false;
 
   void togglePasswordStatus() {
     setState(() {
@@ -34,14 +39,15 @@ class _RegisterScreenState extends State<RegisterScreen> {
         slivers: [
           SliverFillRemaining(
             hasScrollBody: false,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-              color: Colors.white,
-              child: isWaiting
-                  ? const Center(child: CircularProgressIndicator())
-                  : Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
+            child: isLoading
+                ? LoadingScreen()
+                : Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 20),
+                    color: Colors.white,
+                    child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
                           const Text(
                             "ĐĂNG KÝ",
                             style: TextStyle(
@@ -130,12 +136,35 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                           );
 
                                           setState(() {
-                                            isWaiting = true;
+                                            isLoading = true;
                                           });
-                                          await UserController.instance
+                                          String? result = await userController
                                               .createUser(user);
+
+                                          if (result != null) {
+                                            Get.closeCurrentSnackbar();
+                                            Get.showSnackbar(GetSnackBar(
+                                              messageText: Text(
+                                                result,
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                              backgroundColor: Colors.red,
+                                              duration:
+                                                  const Duration(seconds: 3),
+                                              icon: const Icon(Icons.error,
+                                                  color: Colors.white),
+                                              onTap: (_) {
+                                                Get.closeCurrentSnackbar();
+                                              },
+                                            ));
+                                          } else {
+                                            Get.to(() =>
+                                                const EmailVerificationScreen());
+                                          }
                                           setState(() {
-                                            isWaiting = false;
+                                            isLoading = false;
                                           });
                                         } else {
                                           Get.showSnackbar(GetSnackBar(
@@ -195,21 +224,22 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     borderRadius: BorderRadius.circular(4),
                                   ),
                                 ),
-                                icon: isWaitingGoogle
+                                icon: isLoadingGoogle
                                     ? const CircularProgressIndicator(
-                                        color: Colors.black87, strokeWidth: 1.5)
+                                        color: Colors.black87,
+                                        strokeWidth: 2,
+                                      )
                                     : Image.asset(
                                         "lib/assets/images/logo_google.png",
                                         width: 30,
                                       ),
                                 onPressed: () async {
                                   setState(() {
-                                    isWaitingGoogle = true;
+                                    isLoadingGoogle = true;
                                   });
-                                  await UserController.instance
-                                      .signInWithGoogle();
+                                  await userController.signInWithGoogle();
                                   setState(() {
-                                    isWaitingGoogle = false;
+                                    isLoadingGoogle = false;
                                   });
                                 },
                                 label: const Text(
@@ -226,24 +256,26 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             onPressed: () {
                               Get.to(() => const LoginScreen());
                             },
-                            child: const Text.rich(TextSpan(
-                                text: "Bạn đã có tài khoản? ",
-                                style: TextStyle(
-                                    color: Color(0xff888888),
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold),
-                                children: [
-                                  TextSpan(
-                                    text: "Đăng nhập",
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                ])),
+                            child: const Text.rich(
+                              TextSpan(
+                                  text: "Bạn đã có tài khoản? ",
+                                  style: TextStyle(
+                                      color: Color(0xff888888),
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                  children: [
+                                    TextSpan(
+                                      text: "Đăng nhập",
+                                      style: TextStyle(
+                                          color: Colors.blue,
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold),
+                                    )
+                                  ]),
+                            ),
                           )
                         ]),
-            ),
+                  ),
           )
         ],
       ),

@@ -13,7 +13,7 @@ import 'package:vehicle_rental_app/utils/utils.dart';
 class CarController extends GetxController {
   static CarController get instance => Get.find();
 
-  final userController = UserController.instance;
+  final userController = Get.put(UserController());
 
   final firebaseAuth = FirebaseAuth.instance;
   final firebaseFirestore = FirebaseFirestore.instance;
@@ -221,8 +221,7 @@ class CarController extends GetxController {
       ));
     } else {
       try {
-        UserModel? userModel =
-            await UserController.instance.getUserByUsername(email);
+        UserModel? userModel = await userController.getUserByUsername(email);
 
         QuerySnapshot querySnapshot = await firebaseFirestore
             .collection("Cars")
@@ -351,15 +350,18 @@ class CarController extends GetxController {
         }).toList();
 
         if (keyword != null && keyword.isNotEmpty) {
-          carList = carList
-              .where((car) =>
-                  car.carCompany.contains(keyword) ||
-                  car.carInfoModel.contains(keyword) ||
-                  car.address.contains(keyword) ||
-                  keyword.contains(car.carCompany) ||
-                  keyword.contains(car.address) ||
-                  keyword.contains(car.carInfoModel))
-              .toList();
+          String lowerKeyword = keyword.toLowerCase();
+          carList = carList.where((car) {
+            String carCompanyLower = car.carCompany.toLowerCase();
+            String carInfoModelLower = car.carInfoModel.toLowerCase();
+            String addressLower = car.address.toLowerCase();
+            return carCompanyLower.contains(lowerKeyword) ||
+                carInfoModelLower.contains(lowerKeyword) ||
+                addressLower.contains(lowerKeyword) ||
+                lowerKeyword.contains(carCompanyLower) ||
+                lowerKeyword.contains(carInfoModelLower) ||
+                lowerKeyword.contains(addressLower);
+          }).toList();
         }
 
         if (priceFrom != null &&
@@ -416,9 +418,6 @@ class CarController extends GetxController {
       ));
     } else {
       try {
-        // UserModel? userModel =
-        //     await UserController.instance.getUserByUsername(email);
-
         QuerySnapshot querySnapshot = await firebaseFirestore
             .collection("Cars")
             .where("isApproved", isEqualTo: true)

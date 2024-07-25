@@ -11,13 +11,13 @@ class ForgotPasswordScreen extends StatefulWidget {
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
+  final userController = Get.put(UserController());
+
   final email = TextEditingController();
   bool isWaiting = false;
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.put(UserController());
-
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -32,17 +32,17 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                     const Text(
                       "QUÊN MẬT KHẨU",
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 12),
                     const Text(
                       "Vui lòng nhập email của bạn để đặt lại mật khẩu.",
                       style: TextStyle(fontSize: 15),
                       textAlign: TextAlign.center,
                     ),
-                    const SizedBox(height: 25),
+                    const SizedBox(height: 15),
                     TextField(
                       controller: email,
                       style: const TextStyle(color: Colors.black),
@@ -52,9 +52,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                           border: OutlineInputBorder(),
                           labelStyle: TextStyle(color: Color(0xff888888))),
                     ),
-                    const SizedBox(
-                      height: 25,
-                    ),
+                    const SizedBox(height: 15),
                     SizedBox(
                       width: double.infinity,
                       height: 48,
@@ -80,7 +78,8 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                             setState(() {
                               isWaiting = true;
                             });
-                            await controller.forgotPassword(email.text.trim());
+                            await userController
+                                .forgotPassword(email.text.trim());
                             setState(() {
                               isWaiting = false;
                             });
@@ -103,9 +102,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                               ),
                       ),
                     ),
-                    const SizedBox(
-                      height: 40,
-                    ),
+                    const SizedBox(height: 30),
                     TextButton(
                       onPressed: () {
                         Get.to(() => const LoginScreen());

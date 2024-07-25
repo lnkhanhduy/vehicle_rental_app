@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/widgets/car_card.dart';
 
 class FavoriteScreen extends StatefulWidget {
@@ -11,6 +13,8 @@ class FavoriteScreen extends StatefulWidget {
 }
 
 class _FavoriteScreenState extends State<FavoriteScreen> {
+  final userController = Get.put(UserController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,15 +28,17 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
         backgroundColor: Colors.white,
       ),
       body: FutureBuilder<List<CarModel>?>(
-        future: UserController.instance.getFavorite(),
+        future: userController.getFavorite(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return LoadingScreen();
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-            return const Center(
-                child: Text('Bạn chưa thêm xe nào vào yêu thích.'));
+            return Container(
+              color: Colors.white,
+              child: Center(child: Text('Bạn chưa thêm xe nào vào yêu thích.')),
+            );
           } else {
             List<CarModel> carList = snapshot.data!;
 

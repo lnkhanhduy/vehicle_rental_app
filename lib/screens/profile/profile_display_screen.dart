@@ -6,6 +6,7 @@ import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/chat/chat_details_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/car_card.dart';
 
@@ -19,6 +20,8 @@ class ProfileDisplayScreen extends StatefulWidget {
 }
 
 class _ProfileDisplayScreenState extends State<ProfileDisplayScreen> {
+  final carController = Get.put(CarController());
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -52,13 +55,11 @@ class _ProfileDisplayScreenState extends State<ProfileDisplayScreen> {
               constraints: const BoxConstraints.expand(),
               color: Colors.white,
               child: FutureBuilder<List<CarModel>?>(
-                  future: CarController.instance
+                  future: carController
                       .getCarProfileScreen(widget.userModel?.email ?? ""),
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return LoadingScreen();
                     }
                     if (snapshot.hasError) {
                       return Center(
@@ -152,11 +153,7 @@ class _ProfileDisplayScreenState extends State<ProfileDisplayScreen> {
                                   InkWell(
                                     onTap: () {
                                       Get.to(() => ChatDetailsScreen(
-                                            emailReceiver:
-                                                widget.userModel!.email,
-                                            name: widget.userModel!.name,
-                                            phone: widget.userModel!.phone,
-                                          ));
+                                          user: widget.userModel!));
                                     },
                                     child: Container(
                                       padding: const EdgeInsets.all(10),

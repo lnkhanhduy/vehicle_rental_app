@@ -1,7 +1,9 @@
+import 'package:eva_icons_flutter/eva_icons_flutter.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/screens/admin/approve_car_screen.dart';
 import 'package:vehicle_rental_app/screens/admin/approve_user_paper_screen.dart';
+import 'package:vehicle_rental_app/screens/chat/chat_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 
 class LayoutAdminScreen extends StatefulWidget {
@@ -51,6 +53,7 @@ class _LayoutAdminScreenState extends State<LayoutAdminScreen> {
         children: const [
           ApproveCarScreen(),
           ApproveUserPaperScreen(),
+          ChatScreen(isAdmin: true),
         ],
       ),
       bottomNavigationBar: Container(
@@ -72,6 +75,8 @@ class _LayoutAdminScreenState extends State<LayoutAdminScreen> {
             BottomNavigationBarItem(
                 icon: Icon(Icons.manage_accounts_outlined),
                 label: "Duyệt giấy tờ"),
+            BottomNavigationBarItem(
+                icon: Icon(EvaIcons.messageSquare), label: "Nhắn tin"),
           ],
           selectedItemColor: Constants.primaryColor,
           unselectedItemColor: Colors.black54,

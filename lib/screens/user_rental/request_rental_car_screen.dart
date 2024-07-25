@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/widgets/car_card_rental.dart';
 
 class RequestRentalCarScreen extends StatefulWidget {
@@ -13,10 +14,10 @@ class RequestRentalCarScreen extends StatefulWidget {
 }
 
 class _RequestRentalCarScreenState extends State<RequestRentalCarScreen> {
+  final userController = Get.put(UserController());
+
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -30,10 +31,10 @@ class _RequestRentalCarScreenState extends State<RequestRentalCarScreen> {
         backgroundColor: Colors.white,
       ),
       body: FutureBuilder<List<RentalCarModel>?>(
-        future: UserController.instance.getRequestCarRentalScreen(),
+        future: userController.getRequestCarRentalScreen(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return LoadingScreen();
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

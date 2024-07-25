@@ -4,12 +4,14 @@ class AccountButton extends StatelessWidget {
   final Function() onTap;
   final IconData icon;
   final String title;
+  final bool isVerified;
 
   const AccountButton({
     super.key,
     required this.onTap,
     required this.icon,
     required this.title,
+    this.isVerified = true,
   });
 
   @override
@@ -35,7 +37,10 @@ class AccountButton extends StatelessWidget {
                 ),
               ],
             ),
-            Icon(Icons.chevron_right, size: 24, color: Colors.black),
+            if (isVerified == true)
+              Icon(Icons.chevron_right, size: 24, color: Colors.black),
+            if (isVerified == false)
+              Icon(Icons.error_outline_outlined, size: 24, color: Colors.red),
           ],
         ),
       ),

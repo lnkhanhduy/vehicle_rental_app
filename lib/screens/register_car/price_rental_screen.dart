@@ -8,6 +8,7 @@ import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/admin/approve_car_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_admin_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';
 
@@ -43,9 +44,13 @@ class PriceRentalScreen extends StatefulWidget {
 }
 
 class _PriceRentalScreenState extends State<PriceRentalScreen> {
+  final carController = Get.put(CarController());
+  final adminController = Get.put(AdminController());
+
   TextEditingController price = TextEditingController();
   TextEditingController message = TextEditingController();
-  bool isWaiting = false;
+
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -93,166 +98,170 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
           slivers: [
             SliverFillRemaining(
               hasScrollBody: false,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-                constraints: const BoxConstraints.expand(),
-                color: Colors.white,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: <Widget>[
-                    const HeaderRegisterCar(
-                        imageScreen: true,
-                        paperScreen: true,
-                        priceScreen: true),
-                    const Text.rich(
-                      TextSpan(
-                        children: [
-                          TextSpan(
-                            text: 'Giá cho thuê /ngày',
+              child: isLoading
+                  ? LoadingScreen()
+                  : Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 20, vertical: 15),
+                      constraints: const BoxConstraints.expand(),
+                      color: Colors.white,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          const HeaderRegisterCar(
+                              imageScreen: true,
+                              paperScreen: true,
+                              priceScreen: true),
+                          const Text.rich(
+                            TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: 'Giá cho thuê /ngày',
+                                ),
+                                TextSpan(
+                                  text: '*',
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                              ],
+                            ),
                           ),
-                          TextSpan(
-                            text: '*',
-                            style: TextStyle(color: Colors.red),
+                          const SizedBox(height: 5),
+                          TextField(
+                            readOnly: widget.view,
+                            controller: price,
+                            decoration: InputDecoration(
+                              hintText: 'Nhập giá cho thuê /ngày',
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.withOpacity(0.1),
+                                ),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8.0),
+                                borderSide: BorderSide(
+                                  color: Constants.primaryColor,
+                                ),
+                              ),
+                              contentPadding: const EdgeInsets.symmetric(
+                                  vertical: 0, horizontal: 12),
+                            ),
+                            style: const TextStyle(fontSize: 15),
                           ),
+                          (widget.view &&
+                                  widget.carModel.isApproved != true &&
+                                  (widget.carModel.message == null ||
+                                      widget.carModel.message!.isEmpty))
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const SizedBox(
+                                      height: 20,
+                                    ),
+                                    const Text(
+                                        "Nhập lý do không duyệt (Nếu chọn từ chối)"),
+                                    const SizedBox(
+                                      height: 5,
+                                    ),
+                                    TextField(
+                                      controller: message,
+                                      maxLines: 4,
+                                      decoration: InputDecoration(
+                                        hintText: 'Nhập lý do không duyệt',
+                                        border: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          borderSide: BorderSide(
+                                            color: Colors.grey.withOpacity(0.1),
+                                          ),
+                                        ),
+                                        focusedBorder: OutlineInputBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(8.0),
+                                          borderSide: BorderSide(
+                                            color: Constants.primaryColor,
+                                          ),
+                                        ),
+                                        contentPadding:
+                                            const EdgeInsets.symmetric(
+                                                vertical: 10, horizontal: 12),
+                                      ),
+                                      style: const TextStyle(fontSize: 15),
+                                    ),
+                                    const SizedBox(
+                                      height: 10,
+                                    ),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        SizedBox(
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              if (message.text.trim().isEmpty) {
+                                                Get.closeCurrentSnackbar();
+                                                Get.showSnackbar(GetSnackBar(
+                                                  messageText: const Text(
+                                                    "Vui lòng nhập lý do từ chối!",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                    ),
+                                                  ),
+                                                  backgroundColor: Colors.red,
+                                                  duration: const Duration(
+                                                      seconds: 10),
+                                                  icon: const Icon(Icons.error,
+                                                      color: Colors.white),
+                                                  onTap: (_) {
+                                                    Get.closeCurrentSnackbar();
+                                                  },
+                                                ));
+                                              } else {
+                                                await adminController.cancelCar(
+                                                    widget.carModel.id!,
+                                                    message.text.trim());
+                                              }
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: Colors.red,
+                                              foregroundColor: Colors.white,
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8)),
+                                              ),
+                                            ),
+                                            child: const Text("Từ chối"),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 10),
+                                        SizedBox(
+                                          child: ElevatedButton(
+                                            onPressed: () async {
+                                              await adminController.approveCar(
+                                                  widget.carModel.id!);
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor:
+                                                  Constants.primaryColor,
+                                              foregroundColor: Colors.white,
+                                              shape:
+                                                  const RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.all(
+                                                    Radius.circular(8)),
+                                              ),
+                                            ),
+                                            child: const Text("Duyệt"),
+                                          ),
+                                        ),
+                                      ],
+                                    )
+                                  ],
+                                )
+                              : Container()
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      height: 5,
-                    ),
-                    TextField(
-                      readOnly: widget.view,
-                      controller: price,
-                      decoration: InputDecoration(
-                        hintText: 'Nhập giá cho thuê /ngày',
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide(
-                            color: Colors.grey.withOpacity(0.1),
-                          ),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8.0),
-                          borderSide: BorderSide(
-                            color: Constants.primaryColor,
-                          ),
-                        ),
-                        contentPadding: const EdgeInsets.symmetric(
-                            vertical: 0, horizontal: 12),
-                      ),
-                      style: const TextStyle(fontSize: 15),
-                    ),
-                    (widget.view &&
-                            widget.carModel.isApproved != true &&
-                            (widget.carModel.message == null ||
-                                widget.carModel.message!.isEmpty))
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Text(
-                                  "Nhập lý do không duyệt (Nếu chọn từ chối)"),
-                              const SizedBox(
-                                height: 5,
-                              ),
-                              TextField(
-                                controller: message,
-                                maxLines: 4,
-                                decoration: InputDecoration(
-                                  hintText: 'Nhập lý do không duyệt',
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: BorderSide(
-                                      color: Colors.grey.withOpacity(0.1),
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    borderSide: BorderSide(
-                                      color: Constants.primaryColor,
-                                    ),
-                                  ),
-                                  contentPadding: const EdgeInsets.symmetric(
-                                      vertical: 10, horizontal: 12),
-                                ),
-                                style: const TextStyle(fontSize: 15),
-                              ),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  SizedBox(
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        if (message.text.trim().isEmpty) {
-                                          Get.closeCurrentSnackbar();
-                                          Get.showSnackbar(GetSnackBar(
-                                            messageText: const Text(
-                                              "Vui lòng nhập lý do từ chối!",
-                                              style: TextStyle(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            backgroundColor: Colors.red,
-                                            duration:
-                                                const Duration(seconds: 10),
-                                            icon: const Icon(Icons.error,
-                                                color: Colors.white),
-                                            onTap: (_) {
-                                              Get.closeCurrentSnackbar();
-                                            },
-                                          ));
-                                        } else {
-                                          await AdminController.instance
-                                              .cancelCar(widget.carModel.id!,
-                                                  message.text.trim());
-                                        }
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Colors.red,
-                                        foregroundColor: Colors.white,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8)),
-                                        ),
-                                      ),
-                                      child: const Text("Từ chối"),
-                                    ),
-                                  ),
-                                  const SizedBox(
-                                    width: 10,
-                                  ),
-                                  SizedBox(
-                                    child: ElevatedButton(
-                                      onPressed: () async {
-                                        await AdminController.instance
-                                            .approveCar(widget.carModel.id!);
-                                      },
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: Constants.primaryColor,
-                                        foregroundColor: Colors.white,
-                                        shape: const RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.all(
-                                              Radius.circular(8)),
-                                        ),
-                                      ),
-                                      child: const Text("Duyệt"),
-                                    ),
-                                  ),
-                                ],
-                              )
-                            ],
-                          )
-                        : Container()
-                  ],
-                ),
-              ),
             ),
           ],
         ),
@@ -275,7 +284,10 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                         _showConfirmationDialog();
                       } else if (widget.isEdit == true &&
                           widget.carModel.isApproved != true) {
-                        await CarController.instance.updateCar(
+                        setState(() {
+                          isLoading = true;
+                        });
+                        await carController.updateCar(
                             widget.carModel,
                             widget.imageCarMain,
                             widget.imageCarInside,
@@ -286,6 +298,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                             widget.imageRegistrationCertificate,
                             widget.imageCarInsurance,
                             price.text.trim());
+                        setState(() {
+                          isLoading = false;
+                        });
                       } else if ((widget.view && widget.carModel.isApproved!) ||
                           (widget.view &&
                               widget.carModel.isApproved != true &&
@@ -310,9 +325,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                         ));
                       } else {
                         setState(() {
-                          isWaiting = true;
+                          isLoading = true;
                         });
-                        await CarController.instance.registerCar(
+                        await carController.registerCar(
                             widget.carModel,
                             widget.imageCarMain!,
                             widget.imageCarInside!,
@@ -324,7 +339,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                             widget.imageCarInsurance!,
                             price.text.trim());
                         setState(() {
-                          isWaiting = false;
+                          isLoading = false;
                         });
                       }
                     },
@@ -335,21 +350,17 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                       ),
                     ),
-                    child: isWaiting
-                        ? const CircularProgressIndicator()
-                        : Text(
-                            widget.isEdit
-                                ? "Cập nhật"
-                                : (widget.view && widget.carModel.isApproved! ||
-                                        (widget.view &&
-                                            widget.carModel.isApproved !=
-                                                true &&
-                                            widget.carModel.message != null &&
-                                            widget
-                                                .carModel.message!.isNotEmpty))
-                                    ? "Đóng"
-                                    : "Đăng ký",
-                          ),
+                    child: Text(
+                      widget.isEdit
+                          ? "Cập nhật"
+                          : (widget.view && widget.carModel.isApproved! ||
+                                  (widget.view &&
+                                      widget.carModel.isApproved != true &&
+                                      widget.carModel.message != null &&
+                                      widget.carModel.message!.isNotEmpty))
+                              ? "Đóng"
+                              : "Đăng ký",
+                    ),
                   ),
                 ),
               )
@@ -376,9 +387,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
               onPressed: () async {
                 Navigator.of(context).pop(true);
                 setState(() {
-                  isWaiting = true;
+                  isLoading = true;
                 });
-                await CarController.instance.updateCar(
+                await carController.updateCar(
                     widget.carModel,
                     widget.imageCarMain,
                     widget.imageCarInside,
@@ -390,7 +401,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                     widget.imageCarInsurance,
                     price.text.trim());
                 setState(() {
-                  isWaiting = false;
+                  isLoading = false;
                 });
               },
             ),

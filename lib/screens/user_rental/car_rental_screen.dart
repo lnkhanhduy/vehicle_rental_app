@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/widgets/car_card_approve.dart';
 
 class CarRentalScreen extends StatefulWidget {
@@ -13,27 +14,27 @@ class CarRentalScreen extends StatefulWidget {
 }
 
 class _CarRentalScreenState extends State<CarRentalScreen> {
+  final userController = Get.put(UserController());
+
   @override
   Widget build(BuildContext context) {
-    Get.closeCurrentSnackbar();
-
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
             onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 4)),
             icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: const Text(
-          "Xe đã cho thuê",
+          "Xe đã đăng ký cho thuê",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
       body: FutureBuilder<List<CarModel>?>(
-        future: UserController.instance.getCarRentalScreen(),
+        future: userController.getCarRentalScreen(),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return LoadingScreen();
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else if (!snapshot.hasData || snapshot.data!.isEmpty) {

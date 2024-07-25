@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
 import 'package:vehicle_rental_app/models/chat_model.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
@@ -33,15 +34,22 @@ class UserController extends GetxController {
     ever(firebaseUser, setInitialScreen);
   }
 
-  void setInitialScreen(User? user) {
+  void setInitialScreen(User? user) async {
+    print(firebaseUser);
     if (user == null) {
       Get.offAll(() => const LoginScreen());
-    } else if (isAdmin == true) {
-      Get.offAll(() => const LayoutAdminScreen());
-    } else if (user.emailVerified) {
-      Get.offAll(() => const LayoutScreen());
     } else {
-      Get.offAll(() => const EmailVerificationScreen());
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      isAdmin = prefs.getBool('isAdmin') ?? false;
+
+      if (isAdmin) {
+        Get.offAll(() => const LayoutAdminScreen());
+      } else if (user.emailVerified ||
+          firebaseUser.value?.emailVerified == true) {
+        Get.offAll(() => const LayoutScreen());
+      } else {
+        Get.offAll(() => const EmailVerificationScreen());
+      }
     }
   }
 
@@ -89,75 +97,28 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> login(String username, String password) async {
+  Future<bool> login(String username, String password) async {
     try {
-      String error = "";
-      if (username.isEmpty || password.isEmpty) {
-        error = "Vui lòng điền đầy đủ thông tin!";
-      } else if (password.length < 6) {
-        error = "Mật khẩu ít nhất 6 ký tự!";
+      if (username.isEmpty || password.isEmpty || password.length < 6) {
+        return false;
       }
 
-      if (error != "") {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            error,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 10),
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
+      UserModel? user = await getUserByUsername(username);
+      if (user == null) {
+        return false;
       } else {
-        UserModel? user = await getUserByUsername(username);
-
-        if (user == null) {
-          Get.closeCurrentSnackbar();
-          Get.showSnackbar(GetSnackBar(
-            messageText: const Text(
-              "Tài khoản hoặc mật khẩu không chính xác!",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 10),
-            icon: const Icon(Icons.error, color: Colors.white),
-            onTap: (_) {
-              Get.closeCurrentSnackbar();
-            },
-          ));
-        } else {
-          final userLogin = await firebaseAuth.signInWithEmailAndPassword(
-              email: user.email, password: password);
-          isAdmin = user.isAdmin;
-          setInitialScreen(userLogin.user);
-        }
+        final userLogin = await firebaseAuth.signInWithEmailAndPassword(
+            email: user.email, password: password);
+        isAdmin = user.isAdmin;
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isAdmin', isAdmin);
+        setInitialScreen(userLogin.user);
+        return true;
       }
     } on FirebaseAuthException {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Tài khoản hoặc mật khẩu không chính xác!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      return false;
     } catch (e) {
-      return;
+      return false;
     }
   }
 
@@ -277,7 +238,7 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> createUser(UserModel user) async {
+  Future<String?> createUser(UserModel user) async {
     String error = "";
     if (user.name.isEmpty ||
         user.email.isEmpty ||
@@ -295,57 +256,15 @@ class UserController extends GetxController {
     }
 
     if (error != "") {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: Text(
-          error,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      return error;
     } else {
       try {
         UserModel? userModel = await getUserByUsername(user.email);
         if (userModel != null) {
           if (userModel.provider == "password") {
-            Get.closeCurrentSnackbar();
-            Get.showSnackbar(GetSnackBar(
-              messageText: const Text(
-                "Email đã được sử dụng!",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 10),
-              icon: const Icon(Icons.error, color: Colors.white),
-              onTap: (_) {
-                Get.closeCurrentSnackbar();
-              },
-            ));
+            return "Email đã được sử dụng!";
           } else {
-            Get.closeCurrentSnackbar();
-            Get.showSnackbar(GetSnackBar(
-              messageText: const Text(
-                "Email đã được sử dụng và bạn đã đăng nhập bằng Google!",
-                style: TextStyle(
-                  color: Colors.white,
-                ),
-              ),
-              backgroundColor: Colors.red,
-              duration: const Duration(seconds: 10),
-              icon: const Icon(Icons.error, color: Colors.white),
-              onTap: (_) {
-                Get.closeCurrentSnackbar();
-              },
-            ));
+            return "Email đã được sử dụng và bạn đã đăng nhập bằng Google!";
           }
         } else {
           UserCredential userCredential =
@@ -358,40 +277,18 @@ class UserController extends GetxController {
                 .doc(user.email)
                 .set(user.toJson());
 
-            Get.snackbar(
-              "Chúc mừng",
-              "Bạn đã tạo tài khoản thành công!",
-              backgroundColor: Colors.green.withOpacity(0.1),
-              colorText: Colors.green,
-              snackPosition: SnackPosition.TOP,
-              icon: const Icon(Icons.check, color: Colors.green),
-              duration: const Duration(seconds: 3),
-            );
-            Get.offAll(() => const LayoutScreen());
+            return null;
           }
         }
       } on FirebaseAuthException catch (e) {
         if (e.code == "email-already-in-use") {
-          Get.closeCurrentSnackbar();
-          Get.showSnackbar(GetSnackBar(
-            messageText: const Text(
-              "Email đã được sử dụng!",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 10),
-            icon: const Icon(Icons.error, color: Colors.white),
-            onTap: (_) {
-              Get.closeCurrentSnackbar();
-            },
-          ));
+          return "Email đã được sử dụng!";
         }
       } catch (e) {
-        return;
+        return e.toString();
       }
     }
+    return null;
   }
 
   Future<void> updateUser(UserModel user) async {
@@ -401,7 +298,7 @@ class UserController extends GetxController {
       if (user.name.isEmpty) {
         error = "Vui lòng nhập tên!";
       } else if (user.phone.isEmpty) {
-        error = "Vui lòng nh1ập số điện thoại!";
+        error = "Vui lòng nhập số điện thoại!";
       } else if (!Utils.isPhoneNumber(user.phone)) {
         error = "Số điện thoại phải 10 ký tự!";
       } else if (user.address!.isEmpty) {
@@ -529,28 +426,14 @@ class UserController extends GetxController {
     }
   }
 
-  Future<void> updatePaper(
+  Future<bool> updatePaper(
       Uint8List? imageIdCardFront,
       Uint8List? imageIdCardBack,
       Uint8List? imageLicenseFront,
       Uint8List? imageLicenseBack) async {
     final email = firebaseUser.value?.providerData[0].email;
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      return false;
     } else {
       try {
         UserModel? userModel = await getUserByUsername(email);
@@ -593,63 +476,28 @@ class UserController extends GetxController {
               .doc(email)
               .update({"message": "", "isVerified": false});
 
-          Get.closeCurrentSnackbar();
-          Get.showSnackbar(GetSnackBar(
-            messageText: const Text(
-              "Cập nhật giấy tờ thành công!",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Colors.green,
-            duration: const Duration(seconds: 3),
-            icon: const Icon(Icons.check, color: Colors.white),
-            onTap: (_) {
-              Get.closeCurrentSnackbar();
-            },
-          ));
+          return true;
         }
       } catch (e) {
-        return;
+        return true;
       }
+
+      return true;
     }
   }
 
-  Future<void> changePassword(String password, String confirmPassword) async {
+  Future<String?> changePassword(
+      String password, String confirmPassword) async {
     final email = firebaseUser.value?.providerData[0].email;
 
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      return "Có lỗi xảy ra. Vui lòng thử lại sau!";
+    } else if (password.isEmpty || confirmPassword.isEmpty) {
+      return "Vui lòng điền đầy đủ thông tin!";
+    } else if (password.length < 6 || confirmPassword.length < 6) {
+      return "Mật ít nhất 6 ký tự!";
     } else if (password != confirmPassword) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Mật khẩu không trùng khớp!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      return "Mật khẩu không trùng khớp!";
     } else {
       try {
         UserModel? userModel = await getUserByUsername(email);
@@ -671,26 +519,9 @@ class UserController extends GetxController {
             await userDoc.reference.update({"provider": "password"});
           }
         }
-
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            userModel?.provider == "password"
-                ? "Mật khẩu đã được thay đổi thành công!"
-                : "Tạo mật khẩu mới thành công!",
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 3),
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
+        return null;
       } catch (e) {
-        return;
+        return e.toString();
       }
     }
   }
@@ -1016,7 +847,6 @@ class UserController extends GetxController {
             .collection("ChatRooms")
             .where("participants",
                 arrayContainsAny: [emailReceiver, email]).get();
-        UserModel? userModel = await getUserByUsername(emailReceiver);
 
         if (querySnapshot.docs.isNotEmpty) {
           final chatRoomId = querySnapshot.docs.first.id;
@@ -1037,18 +867,12 @@ class UserController extends GetxController {
               .doc(chatRoomId)
               .update({
             "lastMessage": message,
-            "name": userModel!.name,
-            "avatar": userModel.imageAvatar ?? null,
-            "phone": userModel.phone,
           });
         } else {
           final newChatRoomRef =
               firebaseFirestore.collection("ChatRooms").doc();
           await newChatRoomRef.set({
             "participants": [emailReceiver, email],
-            "name": userModel!.name,
-            "avatar": userModel.imageAvatar ?? null,
-            "phone": userModel.phone,
           });
           await newChatRoomRef.collection("Messages").add({
             "message": message,
@@ -1070,29 +894,54 @@ class UserController extends GetxController {
   }
 
   Future<ChatModel?> getChatRoom(String emailReceiver) async {
-    final email = firebaseUser.value?.providerData[0].email;
+    final email = FirebaseAuth.instance.currentUser?.email;
 
     if (email == null) {
       return null;
     } else {
       try {
-        final querySnapshot = await firebaseFirestore
+        final querySnapshot = await FirebaseFirestore.instance
             .collection("ChatRooms")
-            .where("participants", arrayContains: [emailReceiver, email]).get();
+            .where("participants",
+                arrayContainsAny: [emailReceiver, email]).get();
 
         if (querySnapshot.docs.isNotEmpty) {
           final chatRoomId = querySnapshot.docs.first.id;
 
-          final chatRoomDoc = await firebaseFirestore
+          final chatRoomDoc = await FirebaseFirestore.instance
               .collection("ChatRooms")
               .doc(chatRoomId)
               .get();
-          return ChatModel.fromSnapshot(chatRoomDoc);
+
+          UserModel? user = await getUserByUsername(emailReceiver);
+
+          if (user != null) {
+            return ChatModel.fromFirestore(chatRoomDoc, user);
+          }
         }
 
         return null;
       } catch (e) {
+        print(e); // Log the error for debugging
         return null;
+      }
+    }
+  }
+
+  Future<bool> changeStatus(String status) async {
+    final email = firebaseUser.value?.providerData[0].email;
+
+    if (email == null) {
+      return false;
+    } else {
+      try {
+        await firebaseFirestore
+            .collection("Users")
+            .doc(email)
+            .update({"isPublic": status == "public" ? true : false});
+        return true;
+      } catch (e) {
+        return false;
       }
     }
   }

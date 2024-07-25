@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
-import 'package:vehicle_rental_app/screens/layout_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/widgets/car_card_rental.dart';
 
@@ -13,18 +13,17 @@ class HistoryScreen extends StatefulWidget {
   State<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-late Future futureGet = UserController.instance.getHistory();
-
 class _HistoryScreenState extends State<HistoryScreen> {
+  final userController = Get.put(UserController());
+
+  late Future futureGet = userController.getHistory();
   late bool isRental = true;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton(
-            onPressed: () => Get.to(() => const LayoutScreen(initialIndex: 4)),
-            icon: const Icon(Icons.arrow_back_ios_outlined)),
+        leading: Container(),
         title: const Text(
           "Lịch sử",
           style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
@@ -36,7 +35,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
         future: futureGet,
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(child: CircularProgressIndicator());
+            return LoadingScreen();
           } else if (snapshot.hasError) {
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
@@ -57,7 +56,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           onPressed: () async {
                             setState(() {
                               isRental = !isRental;
-                              futureGet = UserController.instance.getHistory();
+                              futureGet = userController.getHistory();
                             });
                           },
                           style: ElevatedButton.styleFrom(
@@ -85,8 +84,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                           onPressed: () async {
                             setState(() {
                               isRental = !isRental;
-                              futureGet =
-                                  UserController.instance.getHistoryRental();
+                              futureGet = userController.getHistoryRental();
                             });
                           },
                           style: ElevatedButton.styleFrom(

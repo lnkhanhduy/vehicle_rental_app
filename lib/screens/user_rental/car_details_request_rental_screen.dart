@@ -6,6 +6,7 @@ import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/rental_car_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/car/rating_car_screen.dart';
+import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/screens/profile/profile_display_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
@@ -29,6 +30,9 @@ class CarDetailsRequestRentalScreen extends StatefulWidget {
 
 class _CarDetailsRequestRentalScreenState
     extends State<CarDetailsRequestRentalScreen> {
+  final userController = Get.put(UserController());
+  final rentalController = Get.put(RentalController());
+
   DateTime fromDate = DateTime.now();
   DateTime toDate = DateTime.now().add(const Duration(days: 1));
   int days = 1;
@@ -36,6 +40,7 @@ class _CarDetailsRequestRentalScreenState
   List<Map<String, dynamic>> amenities = [];
 
   bool isExpanded = false;
+  bool isLoading = false;
 
   @override
   void initState() {
@@ -112,8 +117,6 @@ class _CarDetailsRequestRentalScreenState
     });
   }
 
-  bool isWaiting = false;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -121,24 +124,25 @@ class _CarDetailsRequestRentalScreenState
         HeaderDetailsCar(car: widget.rentalCarModel.carModel),
         SliverFillRemaining(
           hasScrollBody: false,
-          child: isWaiting == true
-              ? Container(
-                  color: Colors.white,
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ))
+          child: isLoading == true
+              ? LoadingScreen()
               : Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   constraints: const BoxConstraints.expand(),
                   color: Colors.white,
                   child: FutureBuilder(
-                      future: UserController.instance.getUserByUsername(
-                          widget.isOwner
-                              ? widget.rentalCarModel.rentalModel.email!
-                              : widget.rentalCarModel.rentalModel.idOwner!),
+                      future: userController.getUserByUsername(widget.isOwner
+                          ? widget.rentalCarModel.rentalModel.email!
+                          : widget.rentalCarModel.rentalModel.idOwner!),
                       builder: (context, snapshot) {
-                        if (snapshot.connectionState == ConnectionState.done &&
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return LoadingScreen();
+                        } else if (snapshot.hasError) {
+                          return Text("Error: ${snapshot.error}");
+                        } else if (snapshot.connectionState ==
+                                ConnectionState.done &&
                             snapshot.hasData) {
                           UserModel userDetail = snapshot.data!;
 
@@ -323,15 +327,9 @@ class _CarDetailsRequestRentalScreenState
                                       ),
                                     ]),
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               const Text(
                                 "Tổng tiền",
                                 style: TextStyle(
@@ -363,15 +361,9 @@ class _CarDetailsRequestRentalScreenState
                               const Text("Thanh toán khi nhận xe",
                                   style:
                                       TextStyle(fontWeight: FontWeight.bold)),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               const Text(
                                 "Đặc điểm",
                                 style: TextStyle(
@@ -394,16 +386,12 @@ class _CarDetailsRequestRentalScreenState
                                           color: Constants.primaryColor,
                                         ),
                                       ),
-                                      const SizedBox(
-                                        height: 10,
-                                      ),
+                                      const SizedBox(height: 10),
                                       const Text(
                                         "Truyền động",
                                         style: TextStyle(fontSize: 12),
                                       ),
-                                      const SizedBox(
-                                        height: 2,
-                                      ),
+                                      const SizedBox(height: 2),
                                       Text(
                                           widget.rentalCarModel.carModel
                                                       .transmission ==
@@ -475,23 +463,15 @@ class _CarDetailsRequestRentalScreenState
                                   )
                                 ],
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               const Text(
                                 "Mô tả",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                              const SizedBox(
-                                height: 5,
-                              ),
+                              const SizedBox(height: 5),
                               Column(
                                 mainAxisAlignment: MainAxisAlignment.start,
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -526,23 +506,15 @@ class _CarDetailsRequestRentalScreenState
                                   ),
                                 ],
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               const Text(
                                 "Các tiện nghi trên xe",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                              const SizedBox(
-                                height: 10,
-                              ),
+                              const SizedBox(height: 10),
                               Container(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 15),
@@ -558,26 +530,31 @@ class _CarDetailsRequestRentalScreenState
                                         for (int i = 0;
                                             i < amenities.length ~/ 2;
                                             i++)
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Image.asset(
-                                                  amenities[i]['iconPath'],
-                                                  color: Constants.primaryColor,
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 6),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child: Image.asset(
+                                                    amenities[i]['iconPath'],
+                                                    color:
+                                                        Constants.primaryColor,
+                                                  ),
                                                 ),
-                                              ),
-                                              const SizedBox(
-                                                width: 8,
-                                              ),
-                                              Text(amenities[i]['name']),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                            ],
+                                                const SizedBox(
+                                                  width: 8,
+                                                ),
+                                                Text(amenities[i]['name']),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                       ],
                                     ),
@@ -588,59 +565,50 @@ class _CarDetailsRequestRentalScreenState
                                         for (int i = amenities.length ~/ 2;
                                             i < amenities.length;
                                             i++)
-                                          Row(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.end,
-                                            children: [
-                                              SizedBox(
-                                                width: 20,
-                                                height: 20,
-                                                child: Image.asset(
-                                                  amenities[i]['iconPath'],
-                                                  color: Constants.primaryColor,
+                                          Padding(
+                                            padding: EdgeInsets.symmetric(
+                                                vertical: 6),
+                                            child: Row(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.end,
+                                              children: [
+                                                SizedBox(
+                                                  width: 20,
+                                                  height: 20,
+                                                  child: Image.asset(
+                                                    amenities[i]['iconPath'],
+                                                    color:
+                                                        Constants.primaryColor,
+                                                  ),
                                                 ),
-                                              ),
-                                              const SizedBox(
-                                                width: 8,
-                                              ),
-                                              Text(amenities[i]['name']),
-                                              const SizedBox(
-                                                height: 10,
-                                              ),
-                                            ],
+                                                const SizedBox(
+                                                  width: 8,
+                                                ),
+                                                Text(amenities[i]['name']),
+                                                const SizedBox(
+                                                  height: 10,
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                       ],
                                     )
                                   ],
                                 ),
                               ),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               const Text(
                                 "Vị trí xe",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                              const SizedBox(
-                                height: 10,
-                              ),
+                              const SizedBox(height: 10),
                               Text(widget.rentalCarModel.carModel.address),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               if (widget.isOwner)
                                 const Text(
                                   "Người thuê",
@@ -649,60 +617,56 @@ class _CarDetailsRequestRentalScreenState
                                       fontSize: 16),
                                 ),
                               if (!widget.isOwner)
-                                const Text(
+                                Text(
                                   "Chủ xe",
                                   style: TextStyle(
                                       fontWeight: FontWeight.bold,
                                       fontSize: 16),
                                 ),
-                              const SizedBox(
-                                height: 10,
-                              ),
+                              const SizedBox(height: 10),
                               Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.all(10),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8),
-                                    border: Border.all(
-                                      color: Colors.grey.withOpacity(0.5),
-                                    ),
-                                    color: Colors.white,
+                                width: double.infinity,
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(8),
+                                  border: Border.all(
+                                    color: Colors.grey.withOpacity(0.5),
                                   ),
-                                  child: InkWell(
-                                    onTap: () {
-                                      Get.to(
-                                        () => ProfileDisplayScreen(
-                                          userModel: userDetail,
-                                        ),
-                                      );
-                                    },
-                                    child: Row(
-                                      children: [
-                                        SizedBox(
-                                          width: 70,
-                                          height: 70,
-                                          child: userDetail.imageAvatar !=
-                                                      null &&
-                                                  userDetail
-                                                      .imageAvatar!.isNotEmpty
-                                              ? Image.network(
-                                                  userDetail.imageAvatar!,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder: (context, error,
-                                                      stackTrace) {
-                                                    return Image.asset(
-                                                      "lib/assets/images/no_image.png",
-                                                      fit: BoxFit.cover,
-                                                    );
-                                                  },
-                                                )
-                                              : Image.asset(
-                                                  "lib/assets/images/no_avatar.png"),
-                                        ),
-                                        const SizedBox(
-                                          width: 5,
-                                        ),
-                                        Column(
+                                  color: Colors.white,
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    Get.to(
+                                      () => ProfileDisplayScreen(
+                                        userModel: userDetail,
+                                      ),
+                                    );
+                                  },
+                                  child: Row(
+                                    children: [
+                                      SizedBox(
+                                        width: 70,
+                                        height: 70,
+                                        child: userDetail.imageAvatar != null &&
+                                                userDetail
+                                                    .imageAvatar!.isNotEmpty
+                                            ? Image.network(
+                                                userDetail.imageAvatar!,
+                                                fit: BoxFit.cover,
+                                                errorBuilder: (context, error,
+                                                    stackTrace) {
+                                                  return Image.asset(
+                                                    "lib/assets/images/no_image.png",
+                                                    fit: BoxFit.cover,
+                                                  );
+                                                },
+                                              )
+                                            : Image.asset(
+                                                "lib/assets/images/no_avatar.png"),
+                                      ),
+                                      const SizedBox(width: 5),
+                                      Expanded(
+                                        child: Column(
                                           crossAxisAlignment:
                                               CrossAxisAlignment.start,
                                           children: [
@@ -734,9 +698,7 @@ class _CarDetailsRequestRentalScreenState
                                                         "lib/assets/icons/star.png",
                                                       ),
                                                     ),
-                                                    const SizedBox(
-                                                      width: 3,
-                                                    ),
+                                                    const SizedBox(width: 3),
                                                     Text(userDetail.star != 0 &&
                                                             userDetail
                                                                     .totalRental !=
@@ -772,40 +734,28 @@ class _CarDetailsRequestRentalScreenState
                                               ],
                                             ),
                                           ],
-                                        )
-                                      ],
-                                    ),
-                                  )),
-                              const SizedBox(
-                                height: 20,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               const Text(
                                 "Lời nhắn",
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 16),
                               ),
-                              const SizedBox(
-                                height: 15,
-                              ),
+                              const SizedBox(height: 15),
                               Text(widget.rentalCarModel.rentalModel.message!
                                       .isNotEmpty
                                   ? widget.rentalCarModel.rentalModel.message!
                                   : "Không có lời nhắn"),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               if (widget.rentalCarModel.rentalModel.status ==
                                       "approved" &&
                                   DateTime.parse(widget
@@ -904,24 +854,16 @@ class _CarDetailsRequestRentalScreenState
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
-                                      const Divider(
-                                        height: 1,
-                                      ),
-                                      const SizedBox(
-                                        height: 20,
-                                      ),
+                                      const SizedBox(height: 20),
+                                      const Divider(height: 1),
+                                      const SizedBox(height: 20),
                                       const Text(
                                         "Đánh giá",
                                         style: TextStyle(
                                             fontWeight: FontWeight.bold,
                                             fontSize: 16),
                                       ),
-                                      const SizedBox(
-                                        height: 5,
-                                      ),
+                                      const SizedBox(height: 5),
                                       Row(
                                         children: [
                                           SizedBox(
@@ -945,15 +887,9 @@ class _CarDetailsRequestRentalScreenState
                                       Text(
                                           'Nhận xét: ${widget.rentalCarModel.rentalModel.review!}'),
                                     ]),
-                              const SizedBox(
-                                height: 20,
-                              ),
-                              const Divider(
-                                height: 1,
-                              ),
-                              const SizedBox(
-                                height: 20,
-                              ),
+                              const SizedBox(height: 20),
+                              const Divider(height: 1),
+                              const SizedBox(height: 20),
                               if (widget.isOwner == true &&
                                   widget.rentalCarModel.rentalModel.status ==
                                       "waiting" &&
@@ -983,9 +919,7 @@ class _CarDetailsRequestRentalScreenState
                                         child: const Text("Từ chối"),
                                       ),
                                     ),
-                                    const SizedBox(
-                                      width: 20,
-                                    ),
+                                    const SizedBox(width: 20),
                                     SizedBox(
                                       child: ElevatedButton(
                                         onPressed: () async {
@@ -1146,7 +1080,7 @@ class _CarDetailsRequestRentalScreenState
                                       SizedBox(
                                         child: ElevatedButton(
                                           onPressed: () {
-                                            RentalController.instance
+                                            rentalController
                                                 .cancelRequestByUser(
                                                     widget.rentalCarModel
                                                         .rentalModel.id!,
@@ -1169,10 +1103,8 @@ class _CarDetailsRequestRentalScreenState
                                     ]),
                             ],
                           );
-                        } else {
-                          return const Center(
-                              child: CircularProgressIndicator());
                         }
+                        return Container();
                       }),
                 ),
         )
@@ -1199,11 +1131,11 @@ class _CarDetailsRequestRentalScreenState
               child: const Text('Cho thuê'),
               onPressed: () async {
                 setState(() {
-                  isWaiting = true;
+                  isLoading = true;
                 });
                 Navigator.of(context).pop(true);
-                await RentalController.instance
-                    .approveRequest(idRental, idUserRental, idCar);
+                await rentalController.approveRequest(
+                    idRental, idUserRental, idCar);
                 await Utils.sendEmailNotification(
                   "Thông báo đặt xe thành công",
                   Utils.templateApproveOrderCar(
@@ -1218,7 +1150,7 @@ class _CarDetailsRequestRentalScreenState
                   widget.rentalCarModel.rentalModel.email!,
                 );
                 setState(() {
-                  isWaiting = false;
+                  isLoading = false;
                 });
               },
             ),
@@ -1246,10 +1178,10 @@ class _CarDetailsRequestRentalScreenState
               child: const Text('Từ chối'),
               onPressed: () async {
                 setState(() {
-                  isWaiting = true;
+                  isLoading = true;
                 });
                 Navigator.of(context).pop(true);
-                await RentalController.instance.cancelRequest(idRental);
+                await rentalController.cancelRequest(idRental);
                 await Utils.sendEmailNotification(
                   "Thông báo đặt xe thất bại",
                   Utils.templateRejectOrderCar(
@@ -1257,7 +1189,7 @@ class _CarDetailsRequestRentalScreenState
                   widget.rentalCarModel.rentalModel.email!,
                 );
                 setState(() {
-                  isWaiting = false;
+                  isLoading = false;
                 });
               },
             ),

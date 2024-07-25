@@ -1,41 +1,23 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:vehicle_rental_app/models/user_model.dart';
 
 class ChatModel {
   final String? id;
-  final String? avatar;
   final String? lastMessage;
-  final String? name;
-  final String? phone;
+  UserModel? user;
 
-  const ChatModel({
+  ChatModel({
     this.id,
-    this.avatar,
     this.lastMessage,
-    this.name,
-    this.phone,
+    required this.user,
   });
 
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'avatar': avatar,
-      'lastMessage': lastMessage,
-      'name': name,
-      'phone': phone,
-    };
-  }
-
-  factory ChatModel.fromSnapshot(
-      DocumentSnapshot<Map<String, dynamic>> snapshot) {
-    final data = snapshot.data()!;
-    {
-      return ChatModel(
-        id: snapshot.id,
-        avatar: data['avatar'],
-        lastMessage: data['lastMessage'],
-        name: data['name'],
-        phone: data['phone'],
-      );
-    }
+  factory ChatModel.fromFirestore(DocumentSnapshot doc, UserModel user) {
+    final data = doc.data() as Map<String, dynamic>;
+    return ChatModel(
+      id: doc.id,
+      lastMessage: data['lastMessage'] as String?,
+      user: user,
+    );
   }
 }

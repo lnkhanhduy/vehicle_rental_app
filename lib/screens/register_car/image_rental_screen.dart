@@ -142,29 +142,28 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                   ),
                                 )),
                             IconButton(
-                                onPressed: () async {
-                                  Uint8List? imgGallery = await Utils.pickImage(
-                                      ImageSource.gallery);
+                              onPressed: () async {
+                                Uint8List? imgGallery =
+                                    await Utils.pickImage(ImageSource.gallery);
 
-                                  if (imgGallery != null) {
-                                    setState(() {
-                                      imageMain = imgGallery;
-                                      imageMainUrl = null;
-                                    });
-                                  }
-                                },
-                                icon: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: Image.asset(
-                                    "lib/assets/icons/image_gallery.png",
-                                  ),
-                                )),
+                                if (imgGallery != null) {
+                                  setState(() {
+                                    imageMain = imgGallery;
+                                    imageMainUrl = null;
+                                  });
+                                }
+                              },
+                              icon: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: Image.asset(
+                                  "lib/assets/icons/image_gallery.png",
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   ImageContainer(
                       title: "Ảnh bên trong xe",
                       image: imageInside != null || imageInsideUrl != null,
@@ -180,23 +179,24 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             IconButton(
-                                onPressed: () async {
-                                  Uint8List? imgCamera =
-                                      await Utils.pickImage(ImageSource.camera);
-                                  if (imgCamera != null) {
-                                    setState(() {
-                                      imageInside = imgCamera;
-                                      imageInsideUrl = null;
-                                    });
-                                  }
-                                },
-                                icon: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: Image.asset(
-                                    "lib/assets/icons/camera_upload.png",
-                                  ),
-                                )),
+                              onPressed: () async {
+                                Uint8List? imgCamera =
+                                    await Utils.pickImage(ImageSource.camera);
+                                if (imgCamera != null) {
+                                  setState(() {
+                                    imageInside = imgCamera;
+                                    imageInsideUrl = null;
+                                  });
+                                }
+                              },
+                              icon: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: Image.asset(
+                                  "lib/assets/icons/camera_upload.png",
+                                ),
+                              ),
+                            ),
                             SizedBox(
                                 width: 20,
                                 height: 24,
@@ -228,9 +228,7 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                 )),
                           ],
                         ),
-                  const SizedBox(
-                    height: 20,
-                  ),
+                  const SizedBox(height: 20),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -280,30 +278,29 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                           ),
                                         )),
                                     IconButton(
-                                        onPressed: () async {
-                                          Uint8List? imgGallery =
-                                              await Utils.pickImage(
-                                                  ImageSource.gallery);
+                                      onPressed: () async {
+                                        Uint8List? imgGallery =
+                                            await Utils.pickImage(
+                                                ImageSource.gallery);
 
-                                          if (imgGallery != null) {
-                                            setState(() {
-                                              imageFront = imgGallery;
-                                              imageFrontUrl = null;
-                                            });
-                                          }
-                                        },
-                                        icon: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: Image.asset(
-                                            "lib/assets/icons/image_gallery.png",
-                                          ),
-                                        )),
+                                        if (imgGallery != null) {
+                                          setState(() {
+                                            imageFront = imgGallery;
+                                            imageFrontUrl = null;
+                                          });
+                                        }
+                                      },
+                                      icon: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: Image.asset(
+                                          "lib/assets/icons/image_gallery.png",
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
-                          const SizedBox(
-                            height: 15,
-                          ),
+                          const SizedBox(height: 15),
                           ImageContainer(
                               title: "Ảnh trái",
                               image: imageLeft != null || imageLeftUrl != null,
@@ -348,25 +345,26 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                           ),
                                         )),
                                     IconButton(
-                                        onPressed: () async {
-                                          Uint8List? imgGallery =
-                                              await Utils.pickImage(
-                                                  ImageSource.gallery);
+                                      onPressed: () async {
+                                        Uint8List? imgGallery =
+                                            await Utils.pickImage(
+                                                ImageSource.gallery);
 
-                                          if (imgGallery != null) {
-                                            setState(() {
-                                              imageLeft = imgGallery;
-                                              imageLeftUrl = null;
-                                            });
-                                          }
-                                        },
-                                        icon: SizedBox(
-                                          width: 20,
-                                          height: 20,
-                                          child: Image.asset(
-                                            "lib/assets/icons/image_gallery.png",
-                                          ),
-                                        )),
+                                        if (imgGallery != null) {
+                                          setState(() {
+                                            imageLeft = imgGallery;
+                                            imageLeftUrl = null;
+                                          });
+                                        }
+                                      },
+                                      icon: SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: Image.asset(
+                                          "lib/assets/icons/image_gallery.png",
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                         ]),
@@ -418,30 +416,29 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                             ),
                                           )),
                                       IconButton(
-                                          onPressed: () async {
-                                            Uint8List? imgGallery =
-                                                await Utils.pickImage(
-                                                    ImageSource.gallery);
+                                        onPressed: () async {
+                                          Uint8List? imgGallery =
+                                              await Utils.pickImage(
+                                                  ImageSource.gallery);
 
-                                            if (imgGallery != null) {
-                                              setState(() {
-                                                imageBack = imgGallery;
-                                                imageBackUrl = null;
-                                              });
-                                            }
-                                          },
-                                          icon: SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: Image.asset(
-                                              "lib/assets/icons/image_gallery.png",
-                                            ),
-                                          )),
+                                          if (imgGallery != null) {
+                                            setState(() {
+                                              imageBack = imgGallery;
+                                              imageBackUrl = null;
+                                            });
+                                          }
+                                        },
+                                        icon: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: Image.asset(
+                                            "lib/assets/icons/image_gallery.png",
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
-                            const SizedBox(
-                              height: 15,
-                            ),
+                            const SizedBox(height: 15),
                             ImageContainer(
                                 title: "Ảnh phải",
                                 image:
@@ -488,25 +485,26 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                             ),
                                           )),
                                       IconButton(
-                                          onPressed: () async {
-                                            Uint8List? imgGallery =
-                                                await Utils.pickImage(
-                                                    ImageSource.gallery);
+                                        onPressed: () async {
+                                          Uint8List? imgGallery =
+                                              await Utils.pickImage(
+                                                  ImageSource.gallery);
 
-                                            if (imgGallery != null) {
-                                              setState(() {
-                                                imageRight = imgGallery;
-                                                imageRightUrl = null;
-                                              });
-                                            }
-                                          },
-                                          icon: SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: Image.asset(
-                                              "lib/assets/icons/image_gallery.png",
-                                            ),
-                                          )),
+                                          if (imgGallery != null) {
+                                            setState(() {
+                                              imageRight = imgGallery;
+                                              imageRightUrl = null;
+                                            });
+                                          }
+                                        },
+                                        icon: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: Image.asset(
+                                            "lib/assets/icons/image_gallery.png",
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                           ],
