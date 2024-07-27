@@ -43,56 +43,58 @@ class _DisplayMessageState extends State<DisplayMessage> {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return LoadingScreen();
         }
-        return Column(children: [
-          Expanded(
-            child: ListView.builder(
-              reverse: true,
-              controller: _scrollController,
-              itemCount: snapshot.data!.docs.length + 1,
-              itemBuilder: (context, index) {
-                if (index == snapshot.data!.docs.length) {
-                  if (snapshot.data!.docs.length >= messageLimit) {
-                    return TextButton(
-                      onPressed: () {
-                        setState(() {
-                          messageLimit += messageIncrement;
-                        });
-                        WidgetsBinding.instance.addPostFrameCallback((_) {
-                          if (_scrollController.hasClients) {
-                            _scrollController.animateTo(
-                              _scrollController.position.minScrollExtent,
-                              duration: Duration(milliseconds: 500),
-                              curve: Curves.easeInOut,
-                            );
-                          }
-                        });
-                      },
-                      child: Text("Xem thêm"),
-                    );
-                  } else {
-                    return SizedBox.shrink();
+        return Column(
+          children: [
+            Expanded(
+              child: ListView.builder(
+                reverse: true,
+                controller: _scrollController,
+                itemCount: snapshot.data!.docs.length + 1,
+                itemBuilder: (context, index) {
+                  if (index == snapshot.data!.docs.length) {
+                    if (snapshot.data!.docs.length >= messageLimit) {
+                      return TextButton(
+                        onPressed: () {
+                          setState(() {
+                            messageLimit += messageIncrement;
+                          });
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                            if (_scrollController.hasClients) {
+                              _scrollController.animateTo(
+                                _scrollController.position.minScrollExtent,
+                                duration: Duration(milliseconds: 500),
+                                curve: Curves.easeInOut,
+                              );
+                            }
+                          });
+                        },
+                        child: Text("Xem thêm"),
+                      );
+                    } else {
+                      return SizedBox.shrink();
+                    }
                   }
-                }
-                QueryDocumentSnapshot documentSnapshot =
-                    snapshot.data!.docs[index];
-                DateTime dateTime = documentSnapshot['time'].toDate();
+                  QueryDocumentSnapshot documentSnapshot =
+                      snapshot.data!.docs[index];
+                  DateTime dateTime = documentSnapshot['time'].toDate();
 
-                return Column(
-                  crossAxisAlignment: email == documentSnapshot['emailSender']
-                      ? CrossAxisAlignment.end
-                      : CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      constraints: BoxConstraints(maxWidth: 250),
-                      margin: EdgeInsets.symmetric(vertical: 5, horizontal: 12),
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: email == documentSnapshot['emailSender']
-                            ? Colors.blueAccent
-                            : Colors.grey.shade300,
-                        borderRadius: BorderRadius.circular(5),
-                      ),
-                      child: Column(
+                  return Column(
+                    crossAxisAlignment: email == documentSnapshot['emailSender']
+                        ? CrossAxisAlignment.end
+                        : CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        constraints: BoxConstraints(maxWidth: 250),
+                        margin:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 12),
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: email == documentSnapshot['emailSender']
+                              ? Colors.blueAccent
+                              : Colors.grey.shade300,
+                          borderRadius: BorderRadius.circular(5),
+                        ),
+                        child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             documentSnapshot["message"].startsWith(
@@ -126,14 +128,16 @@ class _DisplayMessageState extends State<DisplayMessage> {
                                 ),
                               ),
                             )
-                          ]),
-                    ),
-                  ],
-                );
-              },
-            ),
-          )
-        ]);
+                          ],
+                        ),
+                      ),
+                    ],
+                  );
+                },
+              ),
+            )
+          ],
+        );
       },
     );
   }

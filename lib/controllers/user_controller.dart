@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,6 +14,7 @@ import 'package:vehicle_rental_app/models/rental_model.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
 import 'package:vehicle_rental_app/screens/auth/email_verification_screen.dart';
 import 'package:vehicle_rental_app/screens/auth/login_screen.dart';
+import 'package:vehicle_rental_app/screens/auth/otp_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_admin_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
@@ -51,6 +53,50 @@ class UserController extends GetxController {
       } else {
         Get.offAll(() => const EmailVerificationScreen());
       }
+    }
+  }
+
+  Future<String?> sendOTP(String phone) async {
+    String? codeId = "";
+
+    try {
+      if (phone.startsWith("0")) {
+        phone = "+84${phone.substring(1)}";
+      } else if (phone.startsWith("84")) {
+        phone = "+${phone}";
+      } else if (!phone.startsWith("+")) {
+        phone = "+84$phone";
+      }
+
+      await FirebaseAuth.instance.verifyPhoneNumber(
+        phoneNumber: phone,
+        verificationCompleted: (PhoneAuthCredential credential) async {},
+        verificationFailed: (FirebaseAuthException e) {},
+        codeSent: (String verificationId, int? resendToken) async {
+          codeId = verificationId;
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          codeId = verificationId;
+        },
+      );
+
+      return codeId;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> checkOTP(String verificationId, String otp) async {
+    try {
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: verificationId,
+        smsCode: otp,
+      );
+
+      final result = await firebaseAuth.signInWithCredential(credential);
+      return result.user != null ? true : false;
+    } catch (e) {
+      return false;
     }
   }
 
@@ -167,6 +213,8 @@ class UserController extends GetxController {
     try {
       await firebaseAuth.signOut();
       await GoogleSignIn().signOut();
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isAdmin', false);
       Get.offAll(() => const LoginScreen());
     } catch (e) {
       return;
@@ -178,59 +226,29 @@ class UserController extends GetxController {
     if (email.isEmpty) {
       error = "Vui lòng nhập email!";
     } else if (!Utils.isValidEmail(email)) {
-      error = "Vui lòng nhập đúng định dạng email!";
+      error = "Email không hợp lệ!";
     }
 
     if (error != "") {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: Text(
-          error,
-          style: const TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(error, Colors.red, Icons.error);
     } else {
       try {
         UserModel? userModel = await getUserByUsername(email);
 
         if (userModel != null && userModel.provider != "password") {
-          Get.closeCurrentSnackbar();
-          Get.showSnackbar(GetSnackBar(
-            messageText: const Text(
-              "Email được đăng ký bằng tài khoản Google, vui lòng đăng nhập với Google!",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Colors.red,
-            icon: const Icon(Icons.error, color: Colors.white),
-            onTap: (_) {
-              Get.closeCurrentSnackbar();
-            },
-          ));
+          Utils.showSnackBar(
+            "Email được đăng ký bằng tài khoản Google, vui lòng đăng nhập với Google!",
+            Colors.amber,
+            Icons.warning_amber,
+          );
         } else {
           await firebaseAuth.sendPasswordResetEmail(email: email);
-          Get.closeCurrentSnackbar();
-          Get.showSnackbar(GetSnackBar(
-            messageText: const Text(
-              "Vui lòng kiểm tra email của bạn để đặt lại mật khẩu!",
-              style: TextStyle(
-                color: Colors.white,
-              ),
-            ),
-            backgroundColor: Colors.green,
-            icon: const Icon(Icons.check, color: Colors.white),
-            onTap: (_) {
-              Get.closeCurrentSnackbar();
-            },
-          ));
+
+          Utils.showSnackBar(
+            "Vui lòng kiểm tra email để đặt lại mật khẩu.",
+            Colors.green,
+            Icons.check,
+          );
         }
       } catch (e) {
         return;
@@ -291,7 +309,25 @@ class UserController extends GetxController {
     return null;
   }
 
-  Future<void> updateUser(UserModel user) async {
+  Future<bool> updatePhone(String phone) async {
+    final email = firebaseUser.value?.providerData[0].email;
+
+    if (email == null) {
+      return false;
+    } else {
+      try {
+        await firebaseFirestore
+            .collection("Users")
+            .doc(email)
+            .update({"phone": phone});
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+  }
+
+  Future<bool> updateUser(UserModel user) async {
     try {
       String? error = "";
 
@@ -314,118 +350,35 @@ class UserController extends GetxController {
       }
 
       if (error != "") {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: Text(
-            error,
-            style: const TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.red,
-          duration: const Duration(seconds: 3),
-          icon: const Icon(Icons.error, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
+        Utils.showSnackBar(error, Colors.red, Icons.error);
+        return false;
       } else {
-        await firebaseFirestore
-            .collection("Users")
-            .doc(user.email)
-            .update(user.toJson());
+        UserModel? userModel = await getUserByUsername(user.email);
 
-        Get.to(() => const LayoutScreen(initialIndex: 4));
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Cập nhật thông tin thành công!",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 5),
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
+        if (userModel != null) {
+          await firebaseFirestore
+              .collection("Users")
+              .doc(user.email)
+              .update(user.toJson());
+
+          if (userModel.phone != user.phone) {
+            await firebaseFirestore
+                .collection("Users")
+                .doc(user.email)
+                .update({"phone": userModel.phone});
+            Get.to(() => OtpScreen(phone: user.phone));
+          } else {
+            return true;
+          }
+        } else {
+          return false;
+        }
       }
+      return false;
     } catch (e) {
-      return;
+      return false;
     }
   }
-
-  // Future<void> updateUserWithImage(
-  //     UserModel user, Uint8List imageAvatar) async {
-  //   try {
-  //     String? error = "";
-  //
-  //     if (user.name.isEmpty) {
-  //       error = "Vui lòng nhập tên!";
-  //     } else if (user.phone.isEmpty) {
-  //       error = "Vui lòng nhập số điện thoại!";
-  //     } else if (!Utils.isPhoneNumber(user.phone)) {
-  //       error = "Số điện thoại phải 10 ký tự!";
-  //     } else if (user.address!.isEmpty) {
-  //       error = "Vui lòng nhập địa chỉ!";
-  //     }
-  //
-  //     if (user.phone.isNotEmpty) {
-  //       final UserModel? userModel = await getUserByUsername(user.email);
-  //       if (await Utils.isExistPhoneNumber(user.phone) &&
-  //           userModel?.phone != user.phone) {
-  //         error = "Số điện thoại đã được sử dụng!";
-  //       }
-  //     }
-  //
-  //     if (error != "") {
-  //       Get.closeCurrentSnackbar();
-  //       Get.showSnackbar(GetSnackBar(
-  //         messageText: Text(
-  //           error,
-  //           style: const TextStyle(
-  //             color: Colors.white,
-  //           ),
-  //         ),
-  //         backgroundColor: Colors.red,
-  //         duration: const Duration(seconds: 3),
-  //         icon: const Icon(Icons.error, color: Colors.white),
-  //         onTap: (_) {
-  //           Get.closeCurrentSnackbar();
-  //         },
-  //       ));
-  //     } else {
-  //       await firebaseFirestore
-  //           .collection("Users")
-  //           .doc(user.email)
-  //           .update(user.toJson());
-  //
-  //       await Utils.deleteImageIfExists(user.imageAvatar!);
-  //       await Utils.uploadImage(
-  //           imageAvatar, 'users', user.email, 'imageAvatar', "Users");
-  //
-  //       Get.closeCurrentSnackbar();
-  //       Get.showSnackbar(GetSnackBar(
-  //         messageText: const Text(
-  //           "Cập nhật thông tin thành công!",
-  //           style: TextStyle(
-  //             color: Colors.white,
-  //           ),
-  //         ),
-  //         backgroundColor: Colors.green,
-  //         duration: const Duration(seconds: 5),
-  //         icon: const Icon(Icons.check, color: Colors.white),
-  //         onTap: (_) {
-  //           Get.closeCurrentSnackbar();
-  //         },
-  //       ));
-  //     }
-  //   } catch (e) {
-  //     return;
-  //   }
-  // }
 
   Future<bool> updatePaper(
       Uint8List? imageIdCardFront,
@@ -530,21 +483,11 @@ class UserController extends GetxController {
   Future<void> addFavorite(String id) async {
     final email = firebaseUser.value?.providerData[0].email;
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         final listFavorite =
@@ -579,21 +522,11 @@ class UserController extends GetxController {
     final email = firebaseUser.value?.providerData[0].email;
 
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         final listFavorite =
@@ -629,21 +562,11 @@ class UserController extends GetxController {
     final email = firebaseUser.value?.providerData[0].email;
 
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         QuerySnapshot querySnapshot = await firebaseFirestore
@@ -668,21 +591,11 @@ class UserController extends GetxController {
   Future<List<RentalCarModel>?> getRequestCarRentalScreen() async {
     final email = firebaseUser.value?.providerData[0].email;
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         QuerySnapshot querySnapshot = await firebaseFirestore
@@ -727,21 +640,11 @@ class UserController extends GetxController {
     final email = firebaseUser.value?.providerData[0].email;
 
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         QuerySnapshot querySnapshot = await firebaseFirestore
@@ -784,21 +687,11 @@ class UserController extends GetxController {
     final email = firebaseUser.value?.providerData[0].email;
 
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         QuerySnapshot querySnapshot = await firebaseFirestore
@@ -923,26 +816,8 @@ class UserController extends GetxController {
 
         return null;
       } catch (e) {
-        print(e); // Log the error for debugging
+        print(e);
         return null;
-      }
-    }
-  }
-
-  Future<bool> changeStatus(String status) async {
-    final email = firebaseUser.value?.providerData[0].email;
-
-    if (email == null) {
-      return false;
-    } else {
-      try {
-        await firebaseFirestore
-            .collection("Users")
-            .doc(email)
-            .update({"isPublic": status == "public" ? true : false});
-        return true;
-      } catch (e) {
-        return false;
       }
     }
   }

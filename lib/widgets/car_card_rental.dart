@@ -39,147 +39,142 @@ class CarCardRental extends StatelessWidget {
             ),
           ],
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 80,
-                height: 50,
-                child: Stack(children: [
-                  Positioned.fill(
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
-                      child: rentalCarModel.carModel.imageCarMain != null
-                          ? Image(
-                              image: Image.network(
-                                rentalCarModel.carModel.imageCarMain!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                SizedBox(
+                  width: 80,
+                  height: 50,
+                  child: Stack(children: [
+                    Positioned.fill(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(4),
+                        child: rentalCarModel.carModel.imageCarMain != null
+                            ? Image(
+                                image: Image.network(
+                                  rentalCarModel.carModel.imageCarMain!,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Image.asset(
+                                      "lib/assets/images/no_image.png",
+                                      fit: BoxFit.cover,
+                                    );
+                                  },
+                                ).image,
                                 fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) {
-                                  return Image.asset(
-                                    "lib/assets/images/no_image.png",
-                                    fit: BoxFit.cover,
-                                  );
-                                },
-                              ).image,
-                              fit: BoxFit.cover,
-                            )
-                          : Image.asset(
-                              "lib/assets/images/no_image.png",
-                              fit: BoxFit.cover,
-                            ),
-                    ),
-                  ),
-                ]),
-              ),
-              const SizedBox(
-                width: 20,
-              ),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      rentalCarModel.carModel.carInfoModel,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Text(
-                      'Ngày thuê: ${BoardDateFormat('HH:mm dd/MM/yyyy').format(DateTime.parse(rentalCarModel.rentalModel.fromDate))}',
-                      style: const TextStyle(
-                        color: Colors.black,
+                              )
+                            : Image.asset(
+                                "lib/assets/images/no_image.png",
+                                fit: BoxFit.cover,
+                              ),
                       ),
                     ),
-                    Text(
-                      'Ngày trả: ${BoardDateFormat('HH:mm dd/MM/yyyy').format(DateTime.parse(rentalCarModel.rentalModel.toDate))}',
-                      style: const TextStyle(
-                        color: Colors.black,
-                      ),
-                    ),
-                    if (isHistory == true) const SizedBox(height: 7),
-                    if (isHistory == true &&
-                        rentalCarModel.rentalModel.status == "approved" &&
-                        DateTime.parse(rentalCarModel.rentalModel.fromDate)
-                            .isAfter(DateTime.now()) &&
-                        DateTime.parse(rentalCarModel.rentalModel.toDate)
-                            .isAfter(DateTime.now()))
-                      const Text(
-                        'Chờ nhận xe',
-                        style: TextStyle(
-                          color: Colors.blue,
-                        ),
-                      ),
-                    if (isHistory == true &&
-                        rentalCarModel.rentalModel.status == "approved" &&
-                        DateTime.parse(rentalCarModel.rentalModel.fromDate)
-                            .isBefore(DateTime.now()) &&
-                        DateTime.parse(rentalCarModel.rentalModel.toDate)
-                            .isAfter(DateTime.now()))
-                      const Text(
-                        'Đang thuê',
-                        style: TextStyle(
-                          color: Colors.green,
-                        ),
-                      ),
-                    if (isHistory == true &&
-                        rentalCarModel.rentalModel.status == "paid")
-                      const Text(
-                        'Đã trả xe',
-                        style: TextStyle(
-                          color: Colors.green,
-                        ),
-                      ),
-                    if (isHistory == true &&
-                        rentalCarModel.rentalModel.status == "approved" &&
-                        DateTime.parse(rentalCarModel.rentalModel.fromDate)
-                            .isBefore(DateTime.now()) &&
-                        DateTime.parse(rentalCarModel.rentalModel.toDate)
-                            .isBefore(DateTime.now()))
-                      const Text(
-                        'Chờ đánh giá',
-                        style: TextStyle(
-                          color: Colors.green,
-                        ),
-                      ),
-                    if (isHistory == true &&
-                            rentalCarModel.rentalModel.status == "waiting" &&
-                            (DateTime.parse(rentalCarModel.rentalModel.fromDate)
-                                    .isBefore(DateTime.now()) ||
-                                DateTime.parse(
-                                        rentalCarModel.rentalModel.toDate)
-                                    .isBefore(DateTime.now())) ||
-                        rentalCarModel.rentalModel.status == "rejected")
-                      const Text(
-                        'Từ chối',
-                        style: TextStyle(
-                          color: Colors.red,
-                        ),
-                      ),
-                    if (isHistory == true &&
-                        rentalCarModel.rentalModel.status == "waiting" &&
-                        DateTime.parse(rentalCarModel.rentalModel.fromDate)
-                            .isAfter(DateTime.now()) &&
-                        DateTime.parse(rentalCarModel.rentalModel.toDate)
-                            .isAfter(DateTime.now()))
-                      const Text(
-                        'Chờ phản hồi',
-                        style: TextStyle(
-                          color: Colors.amber,
-                        ),
-                      ),
-                    if (isHistory == true &&
-                        rentalCarModel.rentalModel.status == "canceled")
-                      const Text(
-                        'Đã hủy',
-                        style: TextStyle(
-                          color: Colors.red,
-                        ),
-                      ),
-                  ],
+                  ]),
                 ),
-              )
-            ],
-          ),
-        ]),
+                const SizedBox(width: 20),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        rentalCarModel.carModel.carInfoModel,
+                        style: const TextStyle(
+                            fontSize: 16, fontWeight: FontWeight.bold),
+                      ),
+                      Text(
+                        'Ngày thuê: ${BoardDateFormat('HH:mm dd/MM/yyyy').format(DateTime.parse(rentalCarModel.rentalModel.fromDate))}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                      Text(
+                        'Ngày trả: ${BoardDateFormat('HH:mm dd/MM/yyyy').format(DateTime.parse(rentalCarModel.rentalModel.toDate))}',
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                      if (isHistory == true) const SizedBox(height: 7),
+                      if (isHistory == true &&
+                          rentalCarModel.rentalModel.status == "approved" &&
+                          DateTime.parse(rentalCarModel.rentalModel.fromDate)
+                              .isAfter(DateTime.now()) &&
+                          DateTime.parse(rentalCarModel.rentalModel.toDate)
+                              .isAfter(DateTime.now()))
+                        const Text(
+                          'Chờ nhận xe',
+                          style: TextStyle(
+                            color: Colors.purple,
+                          ),
+                        ),
+                      if (isHistory == true &&
+                          rentalCarModel.rentalModel.status == "approved" &&
+                          DateTime.parse(rentalCarModel.rentalModel.fromDate)
+                              .isBefore(DateTime.now()) &&
+                          DateTime.parse(rentalCarModel.rentalModel.toDate)
+                              .isAfter(DateTime.now()))
+                        const Text(
+                          'Đang thuê',
+                          style: TextStyle(
+                            color: Colors.green,
+                          ),
+                        ),
+                      if (isHistory == true &&
+                          rentalCarModel.rentalModel.status == "paid")
+                        const Text(
+                          'Đã trả xe',
+                          style: TextStyle(
+                            color: Colors.green,
+                          ),
+                        ),
+                      if (isHistory == true &&
+                          rentalCarModel.rentalModel.status == "approved" &&
+                          DateTime.parse(rentalCarModel.rentalModel.fromDate)
+                              .isBefore(DateTime.now()) &&
+                          DateTime.parse(rentalCarModel.rentalModel.toDate)
+                              .isBefore(DateTime.now()))
+                        const Text(
+                          'Chờ đánh giá',
+                          style: TextStyle(
+                            color: Colors.blue,
+                          ),
+                        ),
+                      if (isHistory == true &&
+                          rentalCarModel.rentalModel.status == "waiting" &&
+                          DateTime.parse(rentalCarModel.rentalModel.fromDate)
+                              .isAfter(DateTime.now()) &&
+                          DateTime.parse(rentalCarModel.rentalModel.toDate)
+                              .isAfter(DateTime.now()))
+                        const Text(
+                          'Chờ phản hồi',
+                          style: TextStyle(
+                            color: Colors.amber,
+                          ),
+                        ),
+                      if (isHistory == true &&
+                          (rentalCarModel.rentalModel.status == "canceled" ||
+                              rentalCarModel.rentalModel.status == "rejected" ||
+                              (rentalCarModel.rentalModel.status == "waiting" &&
+                                  (DateTime.parse(rentalCarModel
+                                              .rentalModel.fromDate)
+                                          .isBefore(DateTime.now()) ||
+                                      DateTime.parse(
+                                              rentalCarModel.rentalModel.toDate)
+                                          .isBefore(DateTime.now())))))
+                        const Text(
+                          'Đã hủy',
+                          style: TextStyle(
+                            color: Colors.red,
+                          ),
+                        ),
+                    ],
+                  ),
+                )
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

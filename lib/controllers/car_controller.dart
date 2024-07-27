@@ -32,21 +32,11 @@ class CarController extends GetxController {
     final email = userController.firebaseUser.value?.providerData[0].email;
 
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         DocumentReference documentReference =
@@ -104,21 +94,11 @@ class CarController extends GetxController {
     final email = userController.firebaseUser.value?.providerData[0].email;
 
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         final car =
@@ -226,21 +206,11 @@ class CarController extends GetxController {
   Future<List<CarModel>?> getCarHomeScreen() async {
     final email = userController.firebaseUser.value?.providerData[0].email;
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         UserModel? userModel = await userController.getUserByUsername(email);
@@ -293,37 +263,17 @@ class CarController extends GetxController {
       });
 
       if (status) {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Đã ẩn xe!",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 10),
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
+        Utils.showSnackBar(
+          "Đã ẩn xe.",
+          Colors.green,
+          Icons.check,
+        );
       } else {
-        Get.closeCurrentSnackbar();
-        Get.showSnackbar(GetSnackBar(
-          messageText: const Text(
-            "Đã hiển thị xe!",
-            style: TextStyle(
-              color: Colors.white,
-            ),
-          ),
-          backgroundColor: Colors.green,
-          duration: const Duration(seconds: 10),
-          icon: const Icon(Icons.check, color: Colors.white),
-          onTap: (_) {
-            Get.closeCurrentSnackbar();
-          },
-        ));
+        Utils.showSnackBar(
+          "Đã hiển thị xe.",
+          Colors.green,
+          Icons.check,
+        );
       }
     } catch (e) {
       return;
@@ -334,21 +284,11 @@ class CarController extends GetxController {
       String? priceTo, String? companyCar, String? transmission) async {
     final email = userController.firebaseUser.value?.providerData[0].email;
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         QuerySnapshot querySnapshot = await firebaseFirestore
@@ -423,21 +363,11 @@ class CarController extends GetxController {
   Future<List<CarModel>?> getCarProfileScreen(String emailUser) async {
     final email = userController.firebaseUser.value?.providerData[0].email;
     if (email == null) {
-      Get.closeCurrentSnackbar();
-      Get.showSnackbar(GetSnackBar(
-        messageText: const Text(
-          "Có lỗi xảy ra. Vui lòng thử lại sau!",
-          style: TextStyle(
-            color: Colors.white,
-          ),
-        ),
-        backgroundColor: Colors.red,
-        duration: const Duration(seconds: 10),
-        icon: const Icon(Icons.error, color: Colors.white),
-        onTap: (_) {
-          Get.closeCurrentSnackbar();
-        },
-      ));
+      Utils.showSnackBar(
+        "Có lỗi xảy ra vui lòng thử lại sau.",
+        Colors.red,
+        Icons.error,
+      );
     } else {
       try {
         QuerySnapshot querySnapshot = await firebaseFirestore

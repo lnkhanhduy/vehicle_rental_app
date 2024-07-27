@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/email_verification_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/screens/loading_screen.dart';
+import 'package:vehicle_rental_app/utils/utils.dart';
 
 class EmailVerificationScreen extends StatefulWidget {
   const EmailVerificationScreen({super.key});
@@ -22,16 +23,17 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      body: CustomScrollView(slivers: [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: isLoading
-              ? LoadingScreen()
-              : Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  color: Colors.white,
-                  child: Column(
+      body: CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: isLoading
+                ? LoadingScreen()
+                : Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 15),
+                    color: Colors.white,
+                    child: Column(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -90,39 +92,17 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                                 await emailController.sendVerificationEmail();
                             print(result);
                             if (result) {
-                              Get.closeCurrentSnackbar();
-                              Get.showSnackbar(GetSnackBar(
-                                messageText: Text(
-                                  "Chúng tôi đã gửi lại email xác minh cho bạn!",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                backgroundColor: Colors.green,
-                                duration: const Duration(seconds: 3),
-                                icon: const Icon(Icons.check,
-                                    color: Colors.white),
-                                onTap: (_) {
-                                  Get.closeCurrentSnackbar();
-                                },
-                              ));
+                              Utils.showSnackBar(
+                                "Chúng tôi đã gửi lại email xác minh cho bạn!",
+                                Colors.green,
+                                Icons.check,
+                              );
                             } else {
-                              Get.closeCurrentSnackbar();
-                              Get.showSnackbar(GetSnackBar(
-                                messageText: Text(
-                                  "Có lỗi xảy ra vui lòng thử lại sau!",
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                backgroundColor: Colors.red,
-                                duration: const Duration(seconds: 3),
-                                icon: const Icon(Icons.error_outline_outlined,
-                                    color: Colors.white),
-                                onTap: (_) {
-                                  Get.closeCurrentSnackbar();
-                                },
-                              ));
+                              Utils.showSnackBar(
+                                "Có lỗi xảy ra vui lòng thử lại sau!",
+                                Colors.red,
+                                Icons.error_outline_outlined,
+                              );
                             }
                             setState(() {
                               isLoading = false;
@@ -142,27 +122,31 @@ class _EmailVerificationScreenState extends State<EmailVerificationScreen> {
                             userController.logout();
                           },
                           child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Transform.rotate(
-                                  angle: 3.14,
-                                  child: Icon(
-                                    Icons.arrow_right_alt_outlined,
-                                    color: Colors.black,
-                                  ),
+                            mainAxisSize: MainAxisSize.min,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Transform.rotate(
+                                angle: 3.14,
+                                child: Icon(
+                                  Icons.arrow_right_alt_outlined,
+                                  color: Colors.black,
                                 ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  "Đăng nhập",
-                                  style: TextStyle(
-                                      fontSize: 16, color: Colors.black),
-                                )
-                              ]),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                "Đăng nhập",
+                                style: TextStyle(
+                                    fontSize: 16, color: Colors.black),
+                              )
+                            ],
+                          ),
                         ),
-                      ]),
-                ),
-        )
-      ]),
+                      ],
+                    ),
+                  ),
+          )
+        ],
+      ),
     );
   }
 }

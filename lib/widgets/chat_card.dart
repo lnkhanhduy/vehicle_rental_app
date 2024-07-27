@@ -23,7 +23,8 @@ class _ChatCardState extends State<ChatCard> {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        Get.to(() => ChatDetailsScreen(user: widget.user));
+        Get.to(
+            () => ChatDetailsScreen(user: widget.user, roomId: widget.roomId));
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),

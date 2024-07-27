@@ -67,624 +67,638 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
             icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: Text(
           widget.title ?? "Giấy tờ của tôi",
-          style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
-      body: CustomScrollView(slivers: [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: isLoading == true
-              ? LoadingScreen()
-              : Container(
-                  padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
-                  constraints: const BoxConstraints.expand(),
-                  color: Colors.white,
-                  child: Column(children: [
-                    if (widget.view != true && widget.user.isVerified == true)
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.verified, color: Colors.green),
-                          SizedBox(width: 5),
-                          Text("Đã xác minh",
-                              style: TextStyle(color: Colors.green))
-                        ],
-                      )
-                    else if (widget.view != true &&
-                        widget.user.isVerified == false &&
-                        (widget.user.message == null ||
-                            widget.user.message!.isEmpty) &&
-                        (widget.user.imageIdCardFront != null &&
+      body: CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: isLoading == true
+                ? LoadingScreen()
+                : Container(
+                    padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
+                    constraints: const BoxConstraints.expand(),
+                    color: Colors.white,
+                    child: Column(
+                      children: [
+                        if (widget.user.isVerified == true)
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(Icons.verified, color: Colors.green),
+                              SizedBox(width: 5),
+                              Text(
+                                "Đã xác minh",
+                                style: TextStyle(color: Colors.green),
+                              )
+                            ],
+                          )
+                        else if (widget.user.isVerified != true &&
+                            (widget.user.message == null ||
+                                widget.user.message!.isEmpty) &&
+                            widget.user.imageIdCardFront != null &&
                             widget.user.imageIdCardBack != null &&
                             widget.user.imageLicenseFront != null &&
                             widget.user.imageLicenseBack != null &&
                             widget.user.imageIdCardFront!.isNotEmpty &&
                             widget.user.imageIdCardBack!.isNotEmpty &&
                             widget.user.imageLicenseFront!.isNotEmpty &&
-                            widget.user.imageLicenseBack!.isNotEmpty))
-                      const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.error_outline_outlined,
-                              color: Colors.amber),
-                          SizedBox(width: 5),
-                          Text("Chờ duyệt",
-                              style: TextStyle(color: Colors.amber))
-                        ],
-                      )
-                    else if (widget.view != true &&
-                        widget.user.isVerified != true &&
-                        widget.user.message != null &&
-                        widget.user.message!.isNotEmpty)
-                      Column(
-                        children: [
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.error_outline, color: Colors.red),
-                              SizedBox(width: 5),
-                              Text("Từ chối",
-                                  style: TextStyle(color: Colors.red))
-                            ],
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          Text(
-                            'Lý do: ${widget.user.message!}',
-                            style: const TextStyle(color: Colors.red),
-                          )
-                        ],
-                      )
-                    else
-                      Column(
-                        children: [
-                          const Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Icon(Icons.verified, color: Colors.grey),
-                              SizedBox(width: 5),
-                              Text("Chưa xác minh",
-                                  style: TextStyle(color: Colors.grey))
-                            ],
-                          ),
-                        ],
-                      ),
-                    const SizedBox(height: 15),
-                    const Text("CCCD",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17)),
-                    const SizedBox(height: 10),
-                    ImageContainer(
-                        title: "Mặt trước",
-                        image: imageIdCardFront != null ||
-                            imageIdCardFrontUrl != null,
-                        height: 250.0,
-                        width: MediaQuery.of(context).size.width,
-                        imageUnit8List: imageIdCardFront,
-                        imageUrl: imageIdCardFrontUrl,
-                        imageAsset: 'lib/assets/icons/camera_upload.png'),
-                    widget.view == true
-                        ? Container()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                  onPressed: () async {
-                                    Uint8List? imgCamera =
-                                        await Utils.pickImage(
-                                            ImageSource.camera);
-                                    if (imgCamera != null) {
-                                      setState(() {
-                                        imageIdCardFront = imgCamera;
-                                        imageIdCardFrontUrl = null;
-                                      });
-                                    }
-                                  },
-                                  icon: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/camera_upload.png",
-                                    ),
-                                  )),
-                              SizedBox(
-                                  width: 20,
-                                  height: 24,
-                                  child: Transform.rotate(
-                                    angle: 90 * 3.14 / 180,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              IconButton(
-                                  onPressed: () async {
-                                    Uint8List? imgGallery =
-                                        await Utils.pickImage(
-                                            ImageSource.gallery);
-
-                                    if (imgGallery != null) {
-                                      setState(() {
-                                        imageIdCardFront = imgGallery;
-                                        imageIdCardFrontUrl = null;
-                                      });
-                                    }
-                                  },
-                                  icon: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/image_gallery.png",
-                                    ),
-                                  )),
-                            ],
-                          ),
-                    const SizedBox(height: 20),
-                    ImageContainer(
-                        title: "Mặt sau",
-                        image: imageIdCardBack != null ||
-                            imageIdCardBackUrl != null,
-                        height: 250.0,
-                        width: MediaQuery.of(context).size.width,
-                        imageUnit8List: imageIdCardBack,
-                        imageUrl: imageIdCardBackUrl,
-                        imageAsset: 'lib/assets/icons/camera_upload.png'),
-                    widget.view == true
-                        ? Container()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                  onPressed: () async {
-                                    Uint8List? imgCamera =
-                                        await Utils.pickImage(
-                                            ImageSource.camera);
-                                    if (imgCamera != null) {
-                                      setState(() {
-                                        imageIdCardBack = imgCamera;
-                                        imageIdCardBackUrl = null;
-                                      });
-                                    }
-                                  },
-                                  icon: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/camera_upload.png",
-                                    ),
-                                  )),
-                              SizedBox(
-                                  width: 20,
-                                  height: 24,
-                                  child: Transform.rotate(
-                                    angle: 90 * 3.14 / 180,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              IconButton(
-                                  onPressed: () async {
-                                    Uint8List? imgGallery =
-                                        await Utils.pickImage(
-                                            ImageSource.gallery);
-
-                                    if (imgGallery != null) {
-                                      setState(() {
-                                        imageIdCardBack = imgGallery;
-                                        imageIdCardBackUrl = null;
-                                      });
-                                    }
-                                  },
-                                  icon: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/image_gallery.png",
-                                    ),
-                                  )),
-                            ],
-                          ),
-                    const SizedBox(height: 15),
-                    const Divider(),
-                    const SizedBox(height: 15),
-                    const Text("GPLX",
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold, fontSize: 17)),
-                    const SizedBox(height: 10),
-                    ImageContainer(
-                        title: "Mặt trước",
-                        image: imageLicenseFront != null ||
-                            imageLicenseFrontUrl != null,
-                        height: 250.0,
-                        width: MediaQuery.of(context).size.width,
-                        imageUnit8List: imageLicenseFront,
-                        imageUrl: imageLicenseFrontUrl,
-                        imageAsset: 'lib/assets/icons/camera_upload.png'),
-                    widget.view == true
-                        ? Container()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                  onPressed: () async {
-                                    Uint8List? imgCamera =
-                                        await Utils.pickImage(
-                                            ImageSource.camera);
-                                    if (imgCamera != null) {
-                                      setState(() {
-                                        imageLicenseFront = imgCamera;
-                                        imageLicenseFrontUrl = null;
-                                      });
-                                    }
-                                  },
-                                  icon: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/camera_upload.png",
-                                    ),
-                                  )),
-                              SizedBox(
-                                  width: 20,
-                                  height: 24,
-                                  child: Transform.rotate(
-                                    angle: 90 * 3.14 / 180,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              IconButton(
-                                  onPressed: () async {
-                                    Uint8List? imgGallery =
-                                        await Utils.pickImage(
-                                            ImageSource.gallery);
-
-                                    if (imgGallery != null) {
-                                      setState(() {
-                                        imageLicenseFront = imgGallery;
-                                        imageLicenseFrontUrl = null;
-                                      });
-                                    }
-                                  },
-                                  icon: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/image_gallery.png",
-                                    ),
-                                  )),
-                            ],
-                          ),
-                    const SizedBox(height: 20),
-                    ImageContainer(
-                        title: "Mặt sau",
-                        image: imageLicenseBack != null ||
-                            imageLicenseBackUrl != null,
-                        height: 250.0,
-                        width: MediaQuery.of(context).size.width,
-                        imageUnit8List: imageLicenseBack,
-                        imageUrl: imageLicenseBackUrl,
-                        imageAsset: 'lib/assets/icons/camera_upload.png'),
-                    widget.view == true
-                        ? Container()
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              IconButton(
-                                  onPressed: () async {
-                                    Uint8List? imgCamera =
-                                        await Utils.pickImage(
-                                            ImageSource.camera);
-                                    if (imgCamera != null) {
-                                      setState(() {
-                                        imageLicenseBack = imgCamera;
-                                        imageLicenseBackUrl = null;
-                                      });
-                                    }
-                                  },
-                                  icon: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/camera_upload.png",
-                                    ),
-                                  )),
-                              SizedBox(
-                                  width: 20,
-                                  height: 24,
-                                  child: Transform.rotate(
-                                    angle: 90 * 3.14 / 180,
-                                    child: Image.asset(
-                                      "lib/assets/icons/dash.png",
-                                      color: Colors.grey,
-                                    ),
-                                  )),
-                              IconButton(
-                                  onPressed: () async {
-                                    Uint8List? imgGallery =
-                                        await Utils.pickImage(
-                                            ImageSource.gallery);
-
-                                    if (imgGallery != null) {
-                                      setState(() {
-                                        imageLicenseBack = imgGallery;
-                                        imageLicenseBackUrl = null;
-                                      });
-                                    }
-                                  },
-                                  icon: SizedBox(
-                                    width: 24,
-                                    height: 24,
-                                    child: Image.asset(
-                                      "lib/assets/icons/image_gallery.png",
-                                    ),
-                                  )),
-                            ],
-                          ),
-                    const SizedBox(height: 15),
-                    const Divider(),
-                    const SizedBox(height: 20),
-                    if (widget.view == true &&
-                        widget.user.isVerified != true &&
-                        (widget.user.message == null ||
-                            widget.user.message!.isEmpty))
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                              "Nhập lý do không duyệt (Nếu chọn từ chối)"),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          TextField(
-                            controller: message,
-                            maxLines: 4,
-                            decoration: InputDecoration(
-                              hintText: 'Nhập lý do không duyệt',
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Colors.grey.withOpacity(0.1),
-                                ),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
-                                borderSide: BorderSide(
-                                  color: Constants.primaryColor,
-                                ),
-                              ),
-                              contentPadding: const EdgeInsets.symmetric(
-                                  vertical: 10, horizontal: 12),
-                            ),
-                            style: const TextStyle(fontSize: 15),
-                          ),
-                          const SizedBox(
-                            height: 10,
-                          ),
+                            widget.user.imageLicenseBack!.isNotEmpty)
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(
-                                child: ElevatedButton(
-                                  onPressed: () async {
-                                    if (message.text.trim().isEmpty) {
-                                      Get.closeCurrentSnackbar();
-                                      Get.showSnackbar(GetSnackBar(
-                                        messageText: const Text(
-                                          "Vui lòng nhập lý do từ chối!",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        backgroundColor: Colors.red,
-                                        duration: const Duration(seconds: 10),
-                                        icon: const Icon(Icons.error,
-                                            color: Colors.white),
-                                        onTap: (_) {
-                                          Get.closeCurrentSnackbar();
-                                        },
-                                      ));
-                                    } else {
-                                      await adminController.cancelUser(
-                                          widget.user.id!, message.text.trim());
-                                    }
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.red,
-                                    foregroundColor: Colors.white,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(8)),
+                              Icon(Icons.error_outline_outlined,
+                                  color: Colors.amber),
+                              SizedBox(width: 5),
+                              Text("Chờ duyệt",
+                                  style: TextStyle(color: Colors.amber))
+                            ],
+                          )
+                        else if (widget.user.isVerified != true &&
+                            widget.user.message != null &&
+                            widget.user.message!.isNotEmpty)
+                          Column(
+                            children: [
+                              const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.error_outline, color: Colors.red),
+                                  SizedBox(width: 5),
+                                  Text("Từ chối",
+                                      style: TextStyle(color: Colors.red))
+                                ],
+                              ),
+                              const SizedBox(height: 5),
+                              Text(
+                                'Lý do: ${widget.user.message!}',
+                                style: const TextStyle(color: Colors.red),
+                              )
+                            ],
+                          )
+                        else
+                          Column(
+                            children: [
+                              const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.verified, color: Colors.grey),
+                                  SizedBox(width: 5),
+                                  Text("Chưa xác minh",
+                                      style: TextStyle(color: Colors.grey))
+                                ],
+                              ),
+                            ],
+                          ),
+                        const SizedBox(height: 15),
+                        const Text(
+                          "CCCD",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        ImageContainer(
+                            title: "Mặt trước",
+                            image: imageIdCardFront != null ||
+                                imageIdCardFrontUrl != null,
+                            height: 250,
+                            width: MediaQuery.of(context).size.width,
+                            imageUnit8List: imageIdCardFront,
+                            imageUrl: imageIdCardFrontUrl,
+                            imageAsset: 'lib/assets/icons/camera_upload.png'),
+                        widget.view == true
+                            ? Container()
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      Uint8List? imgCamera =
+                                          await Utils.pickImage(
+                                              ImageSource.camera);
+                                      if (imgCamera != null) {
+                                        setState(() {
+                                          imageIdCardFront = imgCamera;
+                                          imageIdCardFrontUrl = null;
+                                        });
+                                      }
+                                    },
+                                    icon: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset(
+                                        "lib/assets/icons/camera_upload.png",
+                                      ),
                                     ),
                                   ),
-                                  child: const Text("Từ chối"),
+                                  SizedBox(
+                                    width: 20,
+                                    height: 24,
+                                    child: Transform.rotate(
+                                      angle: 90 * 3.14 / 180,
+                                      child: Image.asset(
+                                        "lib/assets/icons/dash.png",
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {
+                                      Uint8List? imgGallery =
+                                          await Utils.pickImage(
+                                              ImageSource.gallery);
+
+                                      if (imgGallery != null) {
+                                        setState(() {
+                                          imageIdCardFront = imgGallery;
+                                          imageIdCardFrontUrl = null;
+                                        });
+                                      }
+                                    },
+                                    icon: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset(
+                                        "lib/assets/icons/image_gallery.png",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        const SizedBox(height: 10),
+                        ImageContainer(
+                            title: "Mặt sau",
+                            image: imageIdCardBack != null ||
+                                imageIdCardBackUrl != null,
+                            height: 250,
+                            width: MediaQuery.of(context).size.width,
+                            imageUnit8List: imageIdCardBack,
+                            imageUrl: imageIdCardBackUrl,
+                            imageAsset: 'lib/assets/icons/camera_upload.png'),
+                        widget.view == true
+                            ? Container()
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      Uint8List? imgCamera =
+                                          await Utils.pickImage(
+                                              ImageSource.camera);
+                                      if (imgCamera != null) {
+                                        setState(() {
+                                          imageIdCardBack = imgCamera;
+                                          imageIdCardBackUrl = null;
+                                        });
+                                      }
+                                    },
+                                    icon: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset(
+                                        "lib/assets/icons/camera_upload.png",
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                    height: 24,
+                                    child: Transform.rotate(
+                                      angle: 90 * 3.14 / 180,
+                                      child: Image.asset(
+                                        "lib/assets/icons/dash.png",
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {
+                                      Uint8List? imgGallery =
+                                          await Utils.pickImage(
+                                              ImageSource.gallery);
+
+                                      if (imgGallery != null) {
+                                        setState(() {
+                                          imageIdCardBack = imgGallery;
+                                          imageIdCardBackUrl = null;
+                                        });
+                                      }
+                                    },
+                                    icon: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset(
+                                        "lib/assets/icons/image_gallery.png",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        const SizedBox(height: 5),
+                        const Divider(),
+                        const SizedBox(height: 8),
+                        const Text(
+                          "GPLX",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        ImageContainer(
+                            title: "Mặt trước",
+                            image: imageLicenseFront != null ||
+                                imageLicenseFrontUrl != null,
+                            height: 250,
+                            width: MediaQuery.of(context).size.width,
+                            imageUnit8List: imageLicenseFront,
+                            imageUrl: imageLicenseFrontUrl,
+                            imageAsset: 'lib/assets/icons/camera_upload.png'),
+                        widget.view == true
+                            ? Container()
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      Uint8List? imgCamera =
+                                          await Utils.pickImage(
+                                              ImageSource.camera);
+                                      if (imgCamera != null) {
+                                        setState(() {
+                                          imageLicenseFront = imgCamera;
+                                          imageLicenseFrontUrl = null;
+                                        });
+                                      }
+                                    },
+                                    icon: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset(
+                                        "lib/assets/icons/camera_upload.png",
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                    height: 24,
+                                    child: Transform.rotate(
+                                      angle: 90 * 3.14 / 180,
+                                      child: Image.asset(
+                                        "lib/assets/icons/dash.png",
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {
+                                      Uint8List? imgGallery =
+                                          await Utils.pickImage(
+                                              ImageSource.gallery);
+
+                                      if (imgGallery != null) {
+                                        setState(() {
+                                          imageLicenseFront = imgGallery;
+                                          imageLicenseFrontUrl = null;
+                                        });
+                                      }
+                                    },
+                                    icon: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset(
+                                        "lib/assets/icons/image_gallery.png",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        const SizedBox(height: 10),
+                        ImageContainer(
+                            title: "Mặt sau",
+                            image: imageLicenseBack != null ||
+                                imageLicenseBackUrl != null,
+                            height: 250.0,
+                            width: MediaQuery.of(context).size.width,
+                            imageUnit8List: imageLicenseBack,
+                            imageUrl: imageLicenseBackUrl,
+                            imageAsset: 'lib/assets/icons/camera_upload.png'),
+                        widget.view == true
+                            ? Container()
+                            : Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      Uint8List? imgCamera =
+                                          await Utils.pickImage(
+                                              ImageSource.camera);
+                                      if (imgCamera != null) {
+                                        setState(() {
+                                          imageLicenseBack = imgCamera;
+                                          imageLicenseBackUrl = null;
+                                        });
+                                      }
+                                    },
+                                    icon: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset(
+                                        "lib/assets/icons/camera_upload.png",
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(
+                                    width: 20,
+                                    height: 24,
+                                    child: Transform.rotate(
+                                      angle: 90 * 3.14 / 180,
+                                      child: Image.asset(
+                                        "lib/assets/icons/dash.png",
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {
+                                      Uint8List? imgGallery =
+                                          await Utils.pickImage(
+                                              ImageSource.gallery);
+
+                                      if (imgGallery != null) {
+                                        setState(() {
+                                          imageLicenseBack = imgGallery;
+                                          imageLicenseBackUrl = null;
+                                        });
+                                      }
+                                    },
+                                    icon: SizedBox(
+                                      width: 24,
+                                      height: 24,
+                                      child: Image.asset(
+                                        "lib/assets/icons/image_gallery.png",
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                        const Divider(),
+                        const SizedBox(height: 10),
+                        if (widget.view == true &&
+                            widget.user.isVerified != true &&
+                            (widget.user.message == null ||
+                                widget.user.message!.isEmpty))
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Text(
+                                  "Nhập lý do không duyệt (Nếu chọn từ chối)"),
+                              const SizedBox(height: 5),
+                              TextField(
+                                controller: message,
+                                maxLines: 4,
+                                decoration: InputDecoration(
+                                  hintText: 'Nhập lý do không duyệt',
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8),
+                                    borderSide: BorderSide(
+                                      color: Colors.grey.withOpacity(0.1),
+                                    ),
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(8.0),
+                                    borderSide: BorderSide(
+                                      color: Constants.primaryColor,
+                                    ),
+                                  ),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                      vertical: 10, horizontal: 12),
+                                ),
+                                style: const TextStyle(fontSize: 15),
+                              ),
+                              const SizedBox(height: 10),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  SizedBox(
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        if (message.text.trim().isEmpty) {
+                                          Utils.showSnackBar(
+                                            "Vui lòng nhập lý do từ chối.",
+                                            Colors.red,
+                                            Icons.error,
+                                          );
+                                        } else {
+                                          setState(() {
+                                            isLoading = true;
+                                          });
+                                          bool result =
+                                              await adminController.cancelUser(
+                                                  widget.user.id!,
+                                                  message.text.trim());
+                                          if (result) {
+                                            Utils.showSnackBar(
+                                              "Từ chối thành công.",
+                                              Colors.green,
+                                              Icons.check,
+                                            );
+                                          }
+                                          setState(() {
+                                            isLoading = false;
+                                          });
+                                        }
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8)),
+                                        ),
+                                      ),
+                                      child: const Text("Từ chối"),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 10),
+                                  SizedBox(
+                                    child: ElevatedButton(
+                                      onPressed: () async {
+                                        setState(() {
+                                          isLoading = true;
+                                        });
+                                        bool result = await adminController
+                                            .approveUser(widget.user.id!);
+                                        if (result) {
+                                          Utils.showSnackBar(
+                                              "Duyệt thành công.",
+                                              Colors.green,
+                                              Icons.check);
+                                        }
+                                        setState(() {
+                                          isLoading = false;
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Constants.primaryColor,
+                                        foregroundColor: Colors.white,
+                                        shape: const RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.all(
+                                              Radius.circular(8)),
+                                        ),
+                                      ),
+                                      child: const Text("Duyệt"),
+                                    ),
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                        if ((widget.view == true &&
+                                widget.user.isVerified == true) ||
+                            (widget.view == true &&
+                                widget.user.isVerified != true &&
+                                widget.user.message != null &&
+                                widget.user.message! != ""))
+                          SizedBox(
+                            width: double.infinity,
+                            height: 46,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                Get.to(() => const ApproveUserPaperScreen());
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black87,
+                                foregroundColor: Colors.white,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4)),
                                 ),
                               ),
-                              const SizedBox(
-                                width: 10,
+                              child: const Text(
+                                "ĐÓNG",
+                                style: TextStyle(fontSize: 16),
                               ),
-                              SizedBox(
-                                child: ElevatedButton(
-                                  onPressed: () async {
+                            ),
+                          ),
+                        if (widget.view != true)
+                          SizedBox(
+                            width: double.infinity,
+                            height: 46,
+                            child: ElevatedButton(
+                              onPressed: () async {
+                                bool areUserImagesEmpty(UserModel user) {
+                                  return (user.imageIdCardFront == null ||
+                                          user.imageIdCardFront!.isEmpty) &&
+                                      (user.imageIdCardBack == null ||
+                                          user.imageIdCardBack!.isEmpty) &&
+                                      (user.imageLicenseFront == null ||
+                                          user.imageLicenseFront!.isEmpty) &&
+                                      (user.imageLicenseBack == null ||
+                                          user.imageLicenseBack!.isEmpty);
+                                }
+
+                                bool areAnyNewImagesNotEmpty() {
+                                  return (imageIdCardFront != null &&
+                                          imageIdCardFront!.isNotEmpty) ||
+                                      (imageIdCardBack != null &&
+                                          imageIdCardBack!.isNotEmpty) ||
+                                      (imageLicenseFront != null &&
+                                          imageLicenseFront!.isNotEmpty) ||
+                                      (imageLicenseBack != null &&
+                                          imageLicenseBack!.isNotEmpty);
+                                }
+
+                                if (widget.user.isVerified == true &&
+                                    (imageIdCardFront != null ||
+                                        imageIdCardBack != null ||
+                                        imageLicenseFront != null ||
+                                        imageLicenseBack != null)) {
+                                  showConfirmationDialog();
+                                } else if (areUserImagesEmpty(widget.user) ||
+                                    areAnyNewImagesNotEmpty()) {
+                                  setState(() {
+                                    isLoading = true;
+                                  });
+                                  bool result =
+                                      await userController.updatePaper(
+                                          imageIdCardFront,
+                                          imageIdCardBack,
+                                          imageLicenseFront,
+                                          imageLicenseBack);
+
+                                  if (result) {
+                                    Utils.showSnackBar(
+                                      "Tải hình ảnh lên thành công.",
+                                      Colors.green,
+                                      Icons.check,
+                                    );
+                                    final user =
+                                        await userController.getUserData();
                                     setState(() {
-                                      isLoading = true;
+                                      widget.user = user!;
+                                      isLoading = false;
                                     });
-                                    await adminController
-                                        .approveUser(widget.user.id!);
+                                  } else {
                                     setState(() {
                                       isLoading = false;
                                     });
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Constants.primaryColor,
-                                    foregroundColor: Colors.white,
-                                    shape: const RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.all(Radius.circular(8)),
-                                    ),
-                                  ),
-                                  child: const Text("Duyệt"),
+                                  }
+                                } else {
+                                  Utils.showSnackBar(
+                                    "Vui lòng tải lên đầy đủ ảnh.",
+                                    Colors.red,
+                                    Icons.error,
+                                  );
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.black87,
+                                foregroundColor: Colors.white,
+                                shape: const RoundedRectangleBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(4)),
                                 ),
                               ),
-                            ],
+                              child: const Text(
+                                "CẬP NHẬT",
+                                style: TextStyle(fontSize: 16),
+                              ),
+                            ),
                           )
-                        ],
-                      ),
-                    if ((widget.view == true &&
-                            widget.user.isVerified == true) ||
-                        (widget.view == true &&
-                            widget.user.isVerified != true &&
-                            widget.user.message != null &&
-                            widget.user.message!.isNotEmpty))
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            Get.to(() => const ApproveUserPaperScreen());
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black87,
-                            foregroundColor: Colors.white,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
-                            ),
-                          ),
-                          child: const Text(
-                            "ĐÓNG",
-                            style: TextStyle(
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (widget.view != true)
-                      SizedBox(
-                        width: double.infinity,
-                        height: 50,
-                        child: ElevatedButton(
-                          onPressed: () async {
-                            if (widget.user.isVerified == true &&
-                                (imageIdCardFront != null ||
-                                    imageIdCardBack != null ||
-                                    imageLicenseFront != null ||
-                                    imageLicenseBack != null)) {
-                              _showConfirmationDialog();
-                            } else if ((widget.user.imageIdCardFront == null &&
-                                    widget.user.imageIdCardBack == null &&
-                                    widget.user.imageLicenseFront == null &&
-                                    widget.user.imageLicenseBack == null &&
-                                    widget.user.imageIdCardFront!.isEmpty &&
-                                    widget.user.imageIdCardBack!.isEmpty &&
-                                    widget.user.imageLicenseFront!.isEmpty &&
-                                    widget.user.imageLicenseBack!.isEmpty) ||
-                                (widget.user.imageIdCardFront != null ||
-                                    widget.user.imageIdCardBack != null ||
-                                    widget.user.imageLicenseFront != null ||
-                                    widget.user.imageLicenseBack != null ||
-                                    widget.user.imageIdCardFront!.isNotEmpty ||
-                                    widget.user.imageIdCardBack!.isNotEmpty ||
-                                    widget.user.imageLicenseFront!.isNotEmpty ||
-                                    widget.user.imageLicenseBack!.isNotEmpty)) {
-                              setState(() {
-                                isLoading = true;
-                              });
-                              bool result = await userController.updatePaper(
-                                  imageIdCardFront,
-                                  imageIdCardBack,
-                                  imageLicenseFront,
-                                  imageLicenseBack);
-
-                              if (result) {
-                                Get.closeCurrentSnackbar();
-                                Get.showSnackbar(GetSnackBar(
-                                  messageText: const Text(
-                                    "Tải hình ảnh lên thành công!",
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  backgroundColor: Colors.green,
-                                  duration: const Duration(seconds: 3),
-                                  icon: const Icon(Icons.check,
-                                      color: Colors.white),
-                                  onTap: (_) {
-                                    Get.closeCurrentSnackbar();
-                                  },
-                                ));
-                                final user = await userController.getUserData();
-                                setState(() {
-                                  widget.user = user!;
-                                  isLoading = false;
-                                });
-                              } else {
-                                setState(() {
-                                  isLoading = false;
-                                });
-                              }
-                            } else {
-                              Get.closeCurrentSnackbar();
-                              Get.showSnackbar(GetSnackBar(
-                                messageText: const Text(
-                                  "Vui lòng tải lên đầy đủ ảnh!",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                backgroundColor: Colors.red,
-                                duration: const Duration(seconds: 3),
-                                icon: const Icon(Icons.error,
-                                    color: Colors.white),
-                                onTap: (_) {
-                                  Get.closeCurrentSnackbar();
-                                },
-                              ));
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black87,
-                            foregroundColor: Colors.white,
-                            shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(4)),
-                            ),
-                          ),
-                          child: const Text(
-                            "CẬP NHẬT",
-                            style: TextStyle(
-                              fontSize: 17,
-                            ),
-                          ),
-                        ),
-                      )
-                  ]),
-                ),
-        ),
-      ]),
+                      ],
+                    ),
+                  ),
+          ),
+        ],
+      ),
     );
   }
 
-  Future<void> _showConfirmationDialog() async {
+  Future<void> showConfirmationDialog() async {
     await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text('Xác nhận cập nhật'),
           content: const Text(
-              'Giấy tờ của bạn đã được xác minh.\nNếu cập nhật bạn sẽ phải chờ xác minh lại.\nBạn có chắc muốn cập nhật không?'),
+            'Giấy tờ của bạn đã được duyệt.\nNếu cập nhật bạn sẽ phải chờ duyệt lại.\nBạn có chắc muốn cập nhật không?',
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('Hủy', style: TextStyle(color: Colors.red)),
+              child: const Text('Hủy', style: TextStyle(color: Colors.black)),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
@@ -700,22 +714,11 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
                 bool result = await userController.updatePaper(imageIdCardFront,
                     imageIdCardBack, imageLicenseFront, imageLicenseBack);
                 if (result) {
-                  Get.closeCurrentSnackbar();
-                  Get.showSnackbar(GetSnackBar(
-                    messageText: const Text(
-                      "Tải hình ảnh lên thành công!",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    backgroundColor: Colors.green,
-                    duration: const Duration(seconds: 3),
-                    icon: const Icon(Icons.check, color: Colors.white),
-                    onTap: (_) {
-                      Get.closeCurrentSnackbar();
-                    },
-                  ));
-
+                  Utils.showSnackBar(
+                    "Tải hình ảnh lên thành công.",
+                    Colors.green,
+                    Icons.check,
+                  );
                   final user = await userController.getUserData();
                   setState(() {
                     widget.user = user!;

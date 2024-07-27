@@ -155,31 +155,35 @@ class HeaderRegisterCar extends StatelessWidget {
               )
             ],
           ),
-          Column(children: [
-            Container(
-                padding: const EdgeInsets.all(11),
-                decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(100),
-                    color: priceScreen ? Constants.primaryColor : Colors.white,
-                    border: priceScreen
-                        ? Border.all(color: Constants.primaryColor)
-                        : Border.all(color: Colors.grey.withOpacity(0.3))),
-                child: SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: Image.asset(
-                    "lib/assets/icons/dollar.png",
-                    color: priceScreen ? Colors.white : Constants.primaryColor,
-                  ),
-                )),
-            const SizedBox(
-              height: 8,
-            ),
-            const Text(
-              "Giá  thuê",
-              style: TextStyle(fontSize: 13),
-            )
-          ]),
+          Column(
+            children: [
+              Container(
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(100),
+                      color:
+                          priceScreen ? Constants.primaryColor : Colors.white,
+                      border: priceScreen
+                          ? Border.all(color: Constants.primaryColor)
+                          : Border.all(color: Colors.grey.withOpacity(0.3))),
+                  child: SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: Image.asset(
+                      "lib/assets/icons/dollar.png",
+                      color:
+                          priceScreen ? Colors.white : Constants.primaryColor,
+                    ),
+                  )),
+              const SizedBox(
+                height: 8,
+              ),
+              const Text(
+                "Giá  thuê",
+                style: TextStyle(fontSize: 13),
+              )
+            ],
+          ),
         ],
       ),
     );

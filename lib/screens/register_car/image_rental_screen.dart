@@ -56,11 +56,15 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: const Icon(Icons.arrow_back_ios_outlined)),
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_outlined),
+        ),
         title: const Text(
           "Hình ảnh",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -80,7 +84,7 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
               icon: const Icon(
                 Icons.home_outlined,
               ),
-            )
+            ),
         ],
       ),
       body: CustomScrollView(
@@ -95,13 +99,14 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   const HeaderRegisterCar(
-                      imageScreen: true,
-                      paperScreen: false,
-                      priceScreen: false),
+                    imageScreen: true,
+                    paperScreen: false,
+                    priceScreen: false,
+                  ),
                   ImageContainer(
                       title: "Ảnh đại diện",
                       image: imageMain != null || imageMainUrl != null,
-                      height: 250.0,
+                      height: 250,
                       width: MediaQuery.of(context).size.width,
                       imageUnit8List: imageMain,
                       imageUrl: imageMainUrl,
@@ -162,7 +167,9 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                             ),
                           ],
                         ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 5),
+                  const Divider(height: 1),
+                  const SizedBox(height: 15),
                   ImageContainer(
                       title: "Ảnh bên trong xe",
                       image: imageInside != null || imageInsideUrl != null,
@@ -207,27 +214,30 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                   ),
                                 )),
                             IconButton(
-                                onPressed: () async {
-                                  Uint8List? imgGallery = await Utils.pickImage(
-                                      ImageSource.gallery);
+                              onPressed: () async {
+                                Uint8List? imgGallery =
+                                    await Utils.pickImage(ImageSource.gallery);
 
-                                  if (imgGallery != null) {
-                                    setState(() {
-                                      imageInside = imgGallery;
-                                      imageInsideUrl = null;
-                                    });
-                                  }
-                                },
-                                icon: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: Image.asset(
-                                    "lib/assets/icons/image_gallery.png",
-                                  ),
-                                )),
+                                if (imgGallery != null) {
+                                  setState(() {
+                                    imageInside = imgGallery;
+                                    imageInsideUrl = null;
+                                  });
+                                }
+                              },
+                              icon: SizedBox(
+                                width: 24,
+                                height: 24,
+                                child: Image.asset(
+                                  "lib/assets/icons/image_gallery.png",
+                                ),
+                              ),
+                            ),
                           ],
                         ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 5),
+                  const Divider(height: 1),
+                  const SizedBox(height: 15),
                   Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -455,34 +465,36 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                                         CrossAxisAlignment.center,
                                     children: [
                                       IconButton(
-                                          onPressed: () async {
-                                            Uint8List? imgCamera =
-                                                await Utils.pickImage(
-                                                    ImageSource.camera);
-                                            if (imgCamera != null) {
-                                              setState(() {
-                                                imageRight = imgCamera;
-                                                imageRightUrl = null;
-                                              });
-                                            }
-                                          },
-                                          icon: SizedBox(
-                                            width: 20,
-                                            height: 20,
-                                            child: Image.asset(
-                                              "lib/assets/icons/camera_upload.png",
-                                            ),
-                                          )),
+                                        onPressed: () async {
+                                          Uint8List? imgCamera =
+                                              await Utils.pickImage(
+                                                  ImageSource.camera);
+                                          if (imgCamera != null) {
+                                            setState(() {
+                                              imageRight = imgCamera;
+                                              imageRightUrl = null;
+                                            });
+                                          }
+                                        },
+                                        icon: SizedBox(
+                                          width: 20,
+                                          height: 20,
+                                          child: Image.asset(
+                                            "lib/assets/icons/camera_upload.png",
+                                          ),
+                                        ),
+                                      ),
                                       SizedBox(
-                                          width: 18,
-                                          height: 18,
-                                          child: Transform.rotate(
-                                            angle: 90 * 3.14 / 180,
-                                            child: Image.asset(
-                                              "lib/assets/icons/dash.png",
-                                              color: Colors.grey,
-                                            ),
-                                          )),
+                                        width: 18,
+                                        height: 18,
+                                        child: Transform.rotate(
+                                          angle: 90 * 3.14 / 180,
+                                          child: Image.asset(
+                                            "lib/assets/icons/dash.png",
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
                                       IconButton(
                                         onPressed: () async {
                                           Uint8List? imgGallery =
@@ -543,21 +555,8 @@ class _ImageRentalScreenState extends State<ImageRentalScreen> {
                   imageBack == null ||
                   imageLeft == null ||
                   imageRight == null) {
-                Get.closeCurrentSnackbar();
-                Get.showSnackbar(GetSnackBar(
-                  messageText: const Text(
-                    "Vui lòng chọn đầy đủ hình ảnh!",
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  backgroundColor: Colors.red,
-                  duration: const Duration(seconds: 10),
-                  icon: const Icon(Icons.error, color: Colors.white),
-                  onTap: (_) {
-                    Get.closeCurrentSnackbar();
-                  },
-                ));
+                Utils.showSnackBar(
+                    "Vui lòng chọn đầy đủ hình ảnh.", Colors.red, Icons.error);
               } else {
                 Get.to(() => PaperRentalScreen(
                       car: widget.car,

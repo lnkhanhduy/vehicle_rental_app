@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/rental_controller.dart';
 import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/utils/utils.dart';
 
 class RatingCarScreen extends StatefulWidget {
   final String idRental;
@@ -33,11 +34,15 @@ class _RatingCarScreenState extends State<RatingCarScreen> {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: const Icon(Icons.arrow_back_ios_outlined)),
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_outlined),
+        ),
         title: const Text(
           "Đánh giá thuê xe",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -59,7 +64,9 @@ class _RatingCarScreenState extends State<RatingCarScreen> {
                         const Text(
                           "Mức độ hài lòng của bạn",
                           style: TextStyle(
-                              fontSize: 18, fontWeight: FontWeight.bold),
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                         const SizedBox(height: 20),
                         RatingBar.builder(
@@ -108,22 +115,11 @@ class _RatingCarScreenState extends State<RatingCarScreen> {
                           onPressed: () async {
                             if (review.text.trim().isEmpty ||
                                 (star <= 0 && star > 5)) {
-                              Get.closeCurrentSnackbar();
-                              Get.showSnackbar(GetSnackBar(
-                                messageText: const Text(
-                                  "Vui lòng nhập nhận xét!",
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                backgroundColor: Colors.red,
-                                duration: const Duration(seconds: 10),
-                                icon: const Icon(Icons.error,
-                                    color: Colors.white),
-                                onTap: (_) {
-                                  Get.closeCurrentSnackbar();
-                                },
-                              ));
+                              Utils.showSnackBar(
+                                "Vui lòng nhập nhận xét.",
+                                Colors.red,
+                                Icons.error,
+                              );
                             } else {
                               setState(() {
                                 isLoading = true;
@@ -143,8 +139,9 @@ class _RatingCarScreenState extends State<RatingCarScreen> {
                             backgroundColor: Constants.primaryColor,
                             foregroundColor: Colors.white,
                             shape: const RoundedRectangleBorder(
-                              borderRadius:
-                                  BorderRadius.all(Radius.circular(8)),
+                              borderRadius: BorderRadius.all(
+                                Radius.circular(8),
+                              ),
                             ),
                           ),
                           child: const Text("Đánh giá"),

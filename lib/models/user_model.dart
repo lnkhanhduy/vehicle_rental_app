@@ -20,7 +20,6 @@ class UserModel {
   final int totalRental;
   final int star;
   final bool isPublic;
-  late String? pushToken;
 
   UserModel({
     this.id,

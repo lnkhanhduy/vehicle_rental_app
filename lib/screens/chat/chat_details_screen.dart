@@ -15,8 +15,9 @@ import 'package:vehicle_rental_app/utils/constants.dart';
 
 class ChatDetailsScreen extends StatefulWidget {
   final UserModel user;
+  final String? roomId;
 
-  const ChatDetailsScreen({super.key, required this.user});
+  const ChatDetailsScreen({super.key, required this.user, this.roomId});
 
   @override
   State<ChatDetailsScreen> createState() => _ChatDetailsScreenState();
@@ -26,18 +27,42 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
   final userController = Get.put(UserController());
 
   final message = TextEditingController();
-  late String? chatRoomId = null;
+  late String? chatRoomId = widget.roomId;
+
+  @override
+  void initState() {
+    super.initState();
+    getInitialMessage();
+  }
+
+  Future<void> getInitialMessage() async {
+    if (widget.roomId == null || chatRoomId == null) {
+      await UserController.instance
+          .getChatRoom(widget.user.email)
+          .then((value) {
+        if (value != null) {
+          setState(() {
+            chatRoomId = value.id;
+          });
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
-            onPressed: () => Get.back(),
-            icon: const Icon(Icons.arrow_back_ios_outlined)),
+          onPressed: () => Get.back(),
+          icon: const Icon(Icons.arrow_back_ios_outlined),
+        ),
         title: Text(
           widget.user.name,
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         actions: [
           widget.user.isPublic && widget.user.phone.isNotEmpty
@@ -62,115 +87,118 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
       ),
       body: SingleChildScrollView(
         child: FutureBuilder<ChatModel?>(
-            future: userController.getChatRoom(widget.user.email),
-            builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return Container(
-                    color: Colors.white,
-                    child: Center(child: CircularProgressIndicator()));
-              }
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasData) {
-                  ChatModel chatModel = snapshot.data!;
-                  chatRoomId = chatModel.id;
-                }
-
-                return Container(
+          future: UserController.instance.getChatRoom(widget.user.email),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return Container(
                   color: Colors.white,
-                  child: Column(
-                    children: [
-                      SizedBox(
-                        height: MediaQuery.of(context).size.height * 0.8,
-                        child: DisplayMessage(
-                          emailReceiver: widget.user.email,
-                          chatRoomId: chatRoomId,
-                        ),
+                  child: Center(child: CircularProgressIndicator()));
+            }
+            if (snapshot.connectionState == ConnectionState.done) {
+              if (snapshot.hasData) {
+                ChatModel chatModel = snapshot.data!;
+                chatRoomId = chatModel.id;
+              }
+
+              return Container(
+                color: Colors.white,
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height * 0.8,
+                      child: DisplayMessage(
+                        emailReceiver: widget.user.email,
+                        chatRoomId: chatRoomId,
                       ),
-                      Padding(
-                        padding: EdgeInsets.all(12),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: TextField(
-                                controller: message,
-                                onSubmitted: (value) async {
-                                  sendMessage();
-                                },
-                                decoration: InputDecoration(
-                                    filled: true,
-                                    hintText: "Nhập tin nhắn",
-                                    hintStyle: TextStyle(fontSize: 15),
-                                    enabled: true,
-                                    contentPadding: EdgeInsets.only(
-                                        left: 15, top: 4, bottom: 4),
-                                    focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Constants.primaryColor),
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors.grey.shade50),
-                                      borderRadius: BorderRadius.circular(20),
-                                    )),
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () async {
-                                final List<XFile>? images =
-                                    await ImagePicker().pickMultiImage();
-                                List<Uint8List> imageFileList = [];
-
-                                if (images != null && images.isNotEmpty) {
-                                  for (var image in images) {
-                                    final bytes = await image.readAsBytes();
-                                    imageFileList.add(bytes);
-                                  }
-                                }
-
-                                for (var imageBytes in imageFileList) {
-                                  uploadImage(imageBytes);
-                                }
-                              },
-                              icon: Icon(
-                                Icons.image_outlined,
-                                size: 30,
-                              ),
-                            ),
-                            IconButton(
-                              onPressed: () async {
+                    ),
+                    Padding(
+                      padding: EdgeInsets.all(12),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: TextField(
+                              controller: message,
+                              onSubmitted: (value) async {
                                 sendMessage();
                               },
-                              icon: Icon(
-                                Icons.send,
-                                size: 30,
-                                color: Constants.primaryColor,
+                              decoration: InputDecoration(
+                                filled: true,
+                                hintText: "Nhập tin nhắn",
+                                hintStyle: TextStyle(fontSize: 15),
+                                enabled: true,
+                                fillColor: Colors.grey.shade100,
+                                contentPadding: EdgeInsets.only(
+                                    left: 15, top: 4, bottom: 4),
+                                focusedBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Constants.primaryColor),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
+                                enabledBorder: OutlineInputBorder(
+                                  borderSide:
+                                      BorderSide(color: Colors.grey.shade50),
+                                  borderRadius: BorderRadius.circular(15),
+                                ),
                               ),
-                            )
-                          ],
-                        ),
-                      )
-                    ],
-                  ),
-                );
-              }
-              return Container();
-            }),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              final List<XFile>? images =
+                                  await ImagePicker().pickMultiImage();
+                              List<Uint8List> imageFileList = [];
+
+                              if (images != null && images.isNotEmpty) {
+                                for (var image in images) {
+                                  final bytes = await image.readAsBytes();
+                                  imageFileList.add(bytes);
+                                }
+                              }
+
+                              for (var imageBytes in imageFileList) {
+                                uploadImage(imageBytes);
+                              }
+                            },
+                            icon: Icon(
+                              Icons.image_outlined,
+                              size: 30,
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () async {
+                              sendMessage();
+                            },
+                            icon: Icon(
+                              Icons.send,
+                              size: 30,
+                              color: Constants.primaryColor,
+                            ),
+                          )
+                        ],
+                      ),
+                    )
+                  ],
+                ),
+              );
+            }
+            return Container();
+          },
+        ),
       ),
     );
   }
 
   Future<void> sendMessage() async {
     if (message.text.trim().isNotEmpty) {
-      bool result = await userController.sendMessage(
-          message.text.trim(), widget.user.email);
+      bool result = await UserController.instance
+          .sendMessage(message.text.trim(), widget.user.email);
 
       if (result) {
         message.clear();
 
         if (chatRoomId == null) {
           final email =
-              userController.firebaseUser.value?.providerData[0].email;
+              UserController.instance.firebaseUser.value?.providerData[0].email;
 
           final querySnapshot = await FirebaseFirestore.instance
               .collection("ChatRooms")
@@ -188,10 +216,11 @@ class _ChatDetailsScreenState extends State<ChatDetailsScreen> {
 
   Future<void> uploadImage(image) async {
     if (image != null) {
-      final email = userController.firebaseUser.value?.providerData[0].email;
+      final email = UserController.instance
+        ..firebaseUser.value?.providerData[0].email;
 
       if (chatRoomId == null) {
-        await userController.sendMessage("", widget.user.email);
+        await UserController.instance.sendMessage("", widget.user.email);
 
         final querySnapshot = await FirebaseFirestore.instance
             .collection("ChatRooms")

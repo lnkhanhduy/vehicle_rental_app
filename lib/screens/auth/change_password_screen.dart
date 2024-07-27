@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/screens/loading_screen.dart';
+import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/utils/utils.dart';
 
 class ChangePasswordScreen extends StatefulWidget {
   const ChangePasswordScreen({super.key});
@@ -39,182 +41,174 @@ class _ChangePasswordScreenState extends State<ChangePasswordScreen> {
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
-      body: CustomScrollView(slivers: [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: isLoading
-              ? LoadingScreen()
-              : Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 35, vertical: 5),
-                  constraints: const BoxConstraints.expand(),
-                  color: Colors.white,
-                  child: Column(children: [
-                    Form(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        child: Column(children: <Widget>[
-                          TextFormField(
+      body: CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: isLoading
+                ? LoadingScreen()
+                : Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 35, vertical: 20),
+                    constraints: const BoxConstraints.expand(),
+                    color: Colors.white,
+                    child: Column(
+                      children: [
+                        Container(
+                          height: 50,
+                          child: TextField(
                             controller: password,
                             style: const TextStyle(color: Colors.black),
                             decoration: InputDecoration(
                               labelText: 'Mật khẩu mới',
-                              border: const OutlineInputBorder(),
-                              labelStyle:
-                                  const TextStyle(color: Color(0xff888888)),
+                              border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(8),
+                                  borderSide: BorderSide(
+                                    color: Colors.grey.withOpacity(0.1),
+                                  )),
+                              labelStyle: const TextStyle(
+                                color: Color(0xff888888),
+                                fontSize: 15,
+                              ),
                               prefixIcon: const Icon(Icons.fingerprint),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   obscureText
                                       ? Icons.visibility
                                       : Icons.visibility_off,
+                                  size: 20,
                                 ),
                                 onPressed: togglePasswordStatus,
                               ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Constants.primaryColor,
+                                ),
+                              ),
+                              contentPadding: EdgeInsets.all(12),
                             ),
                             obscureText: obscureText,
                           ),
-                          const SizedBox(height: 20),
-                          TextFormField(
+                        ),
+                        const SizedBox(height: 10),
+                        Container(
+                          height: 50,
+                          child: TextField(
                             controller: confirmPassword,
                             style: const TextStyle(color: Colors.black),
                             decoration: InputDecoration(
                               labelText: 'Nhập lại mật khẩu mới',
-                              border: const OutlineInputBorder(),
-                              labelStyle:
-                                  const TextStyle(color: Color(0xff888888)),
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Colors.grey.withOpacity(0.1),
+                                ),
+                              ),
+                              labelStyle: const TextStyle(
+                                color: Color(0xff888888),
+                                fontSize: 15,
+                              ),
                               prefixIcon: const Icon(Icons.fingerprint),
                               suffixIcon: IconButton(
                                 icon: Icon(
                                   obscureText
                                       ? Icons.visibility
                                       : Icons.visibility_off,
+                                  size: 20,
                                 ),
                                 onPressed: togglePasswordStatus,
                               ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                borderSide: BorderSide(
+                                  color: Constants.primaryColor,
+                                ),
+                              ),
+                              contentPadding: EdgeInsets.all(12),
                             ),
                             obscureText: obscureText,
                           ),
-                          const SizedBox(height: 25),
-                          SizedBox(
-                            width: double.infinity,
-                            height: 48,
-                            child: ElevatedButton(
-                              onPressed: () async {
-                                if (password.text.trim().isNotEmpty &&
-                                    confirmPassword.text.trim().isNotEmpty &&
-                                    password.text.trim() ==
-                                        confirmPassword.text.trim()) {
+                        ),
+                        const SizedBox(height: 18),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 44,
+                          child: ElevatedButton(
+                            onPressed: () async {
+                              if (password.text.trim().isNotEmpty &&
+                                  confirmPassword.text.trim().isNotEmpty) {
+                                if (password.text.trim() !=
+                                    confirmPassword.text.trim()) {
+                                  Utils.showSnackBar(
+                                    "Mật khẩu không trùng khớp!",
+                                    Colors.red,
+                                    Icons.error,
+                                  );
+                                } else if (password.text.trim().length < 6 ||
+                                    confirmPassword.text.trim().length < 6) {
+                                  Utils.showSnackBar(
+                                    "Mật khẩu ít nhất 6 ký tự!",
+                                    Colors.red,
+                                    Icons.error,
+                                  );
+                                } else {
+                                  // Change password
                                   setState(() {
                                     isLoading = true;
                                   });
+
                                   String? result =
                                       await userController.changePassword(
-                                          password.text.trim(),
-                                          confirmPassword.text.trim());
+                                    password.text.trim(),
+                                    confirmPassword.text.trim(),
+                                  );
 
                                   if (result != null) {
-                                    Get.closeCurrentSnackbar();
-                                    Get.showSnackbar(GetSnackBar(
-                                      messageText: Text(
-                                        result,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                        ),
-                                      ),
-                                      backgroundColor: Colors.red,
-                                      duration: const Duration(seconds: 3),
-                                      icon: const Icon(Icons.error,
-                                          color: Colors.white),
-                                      onTap: (_) {
-                                        Get.closeCurrentSnackbar();
-                                      },
-                                    ));
+                                    Utils.showSnackBar(
+                                      result,
+                                      Colors.red,
+                                      Icons.error,
+                                    );
+                                  } else {
+                                    Utils.showSnackBar(
+                                      "Mật khẩu đã được thay đổi thành công!",
+                                      Colors.green,
+                                      Icons.check,
+                                    );
                                   }
                                   setState(() {
                                     isLoading = false;
                                   });
-                                } else if (password.text.trim() !=
-                                    confirmPassword.text.trim()) {
-                                  Get.closeCurrentSnackbar();
-                                  Get.showSnackbar(GetSnackBar(
-                                    messageText: const Text(
-                                      "Mật khẩu không trùng khớp!",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.red,
-                                    duration: const Duration(seconds: 3),
-                                    icon: const Icon(Icons.error,
-                                        color: Colors.white),
-                                    onTap: (_) {
-                                      Get.closeCurrentSnackbar();
-                                    },
-                                  ));
-                                } else if (password.text.trim().isNotEmpty &&
-                                    confirmPassword.text.trim().isNotEmpty &&
-                                    (password.text.trim().length < 6 ||
-                                        confirmPassword.text.trim().length <
-                                            6)) {
-                                  Get.closeCurrentSnackbar();
-                                  Get.showSnackbar(GetSnackBar(
-                                    messageText: const Text(
-                                      "Mật khẩu ít nhất 6 ký tự!",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.red,
-                                    duration: const Duration(seconds: 3),
-                                    icon: const Icon(Icons.error,
-                                        color: Colors.white),
-                                    onTap: (_) {
-                                      Get.closeCurrentSnackbar();
-                                    },
-                                  ));
-                                } else {
-                                  Get.closeCurrentSnackbar();
-                                  Get.showSnackbar(GetSnackBar(
-                                    messageText: const Text(
-                                      "Vui lòng điền đầy đủ thông tin!",
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    backgroundColor: Colors.red,
-                                    duration: const Duration(seconds: 3),
-                                    icon: const Icon(Icons.error,
-                                        color: Colors.white),
-                                    onTap: (_) {
-                                      Get.closeCurrentSnackbar();
-                                    },
-                                  ));
                                 }
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.black87,
-                                foregroundColor: Colors.white,
-                                shape: const RoundedRectangleBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(4)),
-                                ),
-                              ),
-                              child: const Text(
-                                "CẬP NHẬT",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                ),
+                              } else {
+                                Utils.showSnackBar(
+                                  "Vui lòng điền đầy đủ thông tin!",
+                                  Colors.red,
+                                  Icons.error,
+                                );
+                              }
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.black87,
+                              foregroundColor: Colors.white,
+                              shape: const RoundedRectangleBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(4)),
                               ),
                             ),
+                            child: const Text(
+                              "CẬP NHẬT",
+                              style: TextStyle(fontSize: 16),
+                            ),
                           ),
-                        ]),
-                      ),
-                    )
-                  ]),
-                ),
-        )
-      ]),
+                        ),
+                      ],
+                    ),
+                  ),
+          )
+        ],
+      ),
     );
   }
 }

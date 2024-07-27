@@ -1,15 +1,14 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:vehicle_rental_app/controllers/admin_controller.dart';
 import 'package:vehicle_rental_app/controllers/car_controller.dart';
 import 'package:vehicle_rental_app/models/car_model.dart';
-import 'package:vehicle_rental_app/screens/admin/approve_car_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_admin_screen.dart';
 import 'package:vehicle_rental_app/screens/layout_screen.dart';
 import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/utils/utils.dart';
 import 'package:vehicle_rental_app/widgets/header_register_car.dart';
 
 class PriceRentalScreen extends StatefulWidget {
@@ -90,7 +89,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                 icon: const Icon(
                   Icons.home_outlined,
                 ),
-              )
+              ),
           ],
         ),
         body: CustomScrollView(
@@ -116,7 +115,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                             TextSpan(
                               children: [
                                 TextSpan(
-                                  text: 'Giá cho thuê /ngày',
+                                  text: 'Giá cho thuê /ngày ',
                                 ),
                                 TextSpan(
                                   text: '*',
@@ -129,16 +128,24 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                           TextField(
                             readOnly: widget.view,
                             controller: price,
+                            keyboardType: TextInputType.number,
+                            inputFormatters: <TextInputFormatter>[
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
                             decoration: InputDecoration(
                               hintText: 'Nhập giá cho thuê /ngày',
+                              hintStyle: TextStyle(
+                                color: Color(0xff888888),
+                                fontSize: 15,
+                              ),
                               border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
+                                borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide(
                                   color: Colors.grey.withOpacity(0.1),
                                 ),
                               ),
                               focusedBorder: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(8.0),
+                                borderRadius: BorderRadius.circular(8),
                                 borderSide: BorderSide(
                                   color: Constants.primaryColor,
                                 ),
@@ -155,29 +162,29 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                               ? Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    const SizedBox(
-                                      height: 20,
-                                    ),
+                                    const SizedBox(height: 20),
                                     const Text(
                                         "Nhập lý do không duyệt (Nếu chọn từ chối)"),
-                                    const SizedBox(
-                                      height: 5,
-                                    ),
+                                    const SizedBox(height: 5),
                                     TextField(
                                       controller: message,
                                       maxLines: 4,
                                       decoration: InputDecoration(
                                         hintText: 'Nhập lý do không duyệt',
+                                        hintStyle: TextStyle(
+                                          color: Color(0xff888888),
+                                          fontSize: 15,
+                                        ),
                                         border: OutlineInputBorder(
                                           borderRadius:
-                                              BorderRadius.circular(8.0),
+                                              BorderRadius.circular(8),
                                           borderSide: BorderSide(
                                             color: Colors.grey.withOpacity(0.1),
                                           ),
                                         ),
                                         focusedBorder: OutlineInputBorder(
                                           borderRadius:
-                                              BorderRadius.circular(8.0),
+                                              BorderRadius.circular(8),
                                           borderSide: BorderSide(
                                             color: Constants.primaryColor,
                                           ),
@@ -188,9 +195,7 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                       ),
                                       style: const TextStyle(fontSize: 15),
                                     ),
-                                    const SizedBox(
-                                      height: 10,
-                                    ),
+                                    const SizedBox(height: 10),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
@@ -198,27 +203,33 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                           child: ElevatedButton(
                                             onPressed: () async {
                                               if (message.text.trim().isEmpty) {
-                                                Get.closeCurrentSnackbar();
-                                                Get.showSnackbar(GetSnackBar(
-                                                  messageText: const Text(
-                                                    "Vui lòng nhập lý do từ chối!",
-                                                    style: TextStyle(
-                                                      color: Colors.white,
-                                                    ),
-                                                  ),
-                                                  backgroundColor: Colors.red,
-                                                  duration: const Duration(
-                                                      seconds: 10),
-                                                  icon: const Icon(Icons.error,
-                                                      color: Colors.white),
-                                                  onTap: (_) {
-                                                    Get.closeCurrentSnackbar();
-                                                  },
-                                                ));
+                                                Utils.showSnackBar(
+                                                  "Vui lòng nhập lý do từ chối.",
+                                                  Colors.red,
+                                                  Icons.error,
+                                                );
                                               } else {
-                                                await adminController.cancelCar(
-                                                    widget.carModel.id!,
-                                                    message.text.trim());
+                                                setState(() {
+                                                  isLoading = true;
+                                                });
+                                                bool result =
+                                                    await adminController
+                                                        .cancelCar(
+                                                            widget.carModel.id!,
+                                                            message.text
+                                                                .trim());
+                                                if (result) {
+                                                  Utils.showSnackBar(
+                                                      "Từ chối thành công.",
+                                                      Colors.green,
+                                                      Icons.check);
+                                                  Get.to(() =>
+                                                      const LayoutAdminScreen(
+                                                          initialIndex: 0));
+                                                }
+                                                setState(() {
+                                                  isLoading = false;
+                                                });
                                               }
                                             },
                                             style: ElevatedButton.styleFrom(
@@ -227,7 +238,8 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                               shape:
                                                   const RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.all(
-                                                    Radius.circular(8)),
+                                                  Radius.circular(8),
+                                                ),
                                               ),
                                             ),
                                             child: const Text("Từ chối"),
@@ -237,8 +249,25 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                         SizedBox(
                                           child: ElevatedButton(
                                             onPressed: () async {
-                                              await adminController.approveCar(
-                                                  widget.carModel.id!);
+                                              setState(() {
+                                                isLoading = true;
+                                              });
+                                              bool result =
+                                                  await adminController
+                                                      .approveCar(
+                                                          widget.carModel.id!);
+                                              if (result) {
+                                                Utils.showSnackBar(
+                                                    "Duyệt thành công.",
+                                                    Colors.green,
+                                                    Icons.check);
+                                                Get.to(() =>
+                                                    const LayoutAdminScreen(
+                                                        initialIndex: 0));
+                                              }
+                                              setState(() {
+                                                isLoading = false;
+                                              });
                                             },
                                             style: ElevatedButton.styleFrom(
                                               backgroundColor:
@@ -247,7 +276,8 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                                               shape:
                                                   const RoundedRectangleBorder(
                                                 borderRadius: BorderRadius.all(
-                                                    Radius.circular(8)),
+                                                  Radius.circular(8),
+                                                ),
                                               ),
                                             ),
                                             child: const Text("Duyệt"),
@@ -305,23 +335,10 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                               widget.carModel.isApproved != true &&
                               widget.carModel.message != null &&
                               widget.carModel.message!.isNotEmpty)) {
-                        Get.to(() => const ApproveCarScreen());
+                        Get.to(() => const LayoutAdminScreen(initialIndex: 0));
                       } else if (price.text.trim().isEmpty) {
-                        Get.closeCurrentSnackbar();
-                        Get.showSnackbar(GetSnackBar(
-                          messageText: const Text(
-                            "Vui lòng nhập giá cho thuê xe!",
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                          backgroundColor: Colors.red,
-                          duration: const Duration(seconds: 10),
-                          icon: const Icon(Icons.error, color: Colors.white),
-                          onTap: (_) {
-                            Get.closeCurrentSnackbar();
-                          },
-                        ));
+                        Utils.showSnackBar("Vui lòng nhập giá cho thuê xe.",
+                            Colors.red, Icons.error);
                       } else {
                         setState(() {
                           isLoading = true;
@@ -346,7 +363,9 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
                       backgroundColor: Constants.primaryColor,
                       foregroundColor: Colors.white,
                       shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(8)),
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(8),
+                        ),
                       ),
                     ),
                     child: Text(
@@ -371,36 +390,25 @@ class _PriceRentalScreenState extends State<PriceRentalScreen> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Colors.white,
           title: const Text('Xác nhận cập nhật'),
           content: const Text(
-              'Xe của bạn xác minh.\nNếu cập nhật bạn sẽ phải chờ xác minh lại.\nBạn có chắc muốn cập nhật không?'),
+              'Xe của bạn đã được duyệt.\nNếu cập nhật bạn sẽ phải chờ duyệt lại.\nBạn có chắc muốn cập nhật không?'),
           actions: <Widget>[
             TextButton(
-              child: const Text('Hủy'),
+              child: const Text('Đóng', style: TextStyle(color: Colors.black)),
               onPressed: () {
                 Navigator.of(context).pop(false);
               },
             ),
             TextButton(
-              child: const Text('Cập nhật'),
+              child:
+                  const Text('Cập nhật', style: TextStyle(color: Colors.blue)),
               onPressed: () async {
                 Navigator.of(context).pop(true);
                 if (widget.carModel.isRented) {
-                  Get.closeCurrentSnackbar();
-                  Get.showSnackbar(GetSnackBar(
-                    messageText: const Text(
-                      "Xe đang được cho thuê!",
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
-                    ),
-                    backgroundColor: Colors.red,
-                    duration: const Duration(seconds: 10),
-                    icon: const Icon(Icons.error, color: Colors.white),
-                    onTap: (_) {
-                      Get.closeCurrentSnackbar();
-                    },
-                  ));
+                  Utils.showSnackBar(
+                      "Xe đang được cho thuê.", Colors.red, Icons.error);
                 } else {
                   setState(() {
                     isLoading = true;

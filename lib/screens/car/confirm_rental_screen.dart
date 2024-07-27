@@ -67,7 +67,7 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
+                      children: [
                         Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -414,8 +414,9 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                               border: Border.all(
                                 color: Colors.grey.withOpacity(0.5),
                               )),
-                          child: Column(children: [
-                            Row(
+                          child: Column(
+                            children: [
+                              Row(
                                 mainAxisAlignment:
                                     MainAxisAlignment.spaceBetween,
                                 children: [
@@ -431,8 +432,10 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                                         fontWeight: FontWeight.bold,
                                         fontSize: 15),
                                   ),
-                                ]),
-                          ]),
+                                ],
+                              ),
+                            ],
+                          ),
                         )
                       ],
                     ),
@@ -479,10 +482,12 @@ class _ConfirmRentalScreenState extends State<ConfirmRentalScreen> {
                 setState(() {
                   isLoading = false;
                 });
-                Get.to(() => const SuccessScreen(
-                    title: "Gửi yêu cầu thuê xe thành công",
-                    content:
-                        "Bạn đã gửi yêu cầu thuê xe thành công. Chủ xe sẽ sớm liên hệ với bạn."));
+                Get.to(
+                  () => const SuccessScreen(
+                      title: "Gửi yêu cầu thuê xe thành công",
+                      content:
+                          "Bạn đã gửi yêu cầu thuê xe thành công. Chủ xe sẽ sớm liên hệ với bạn."),
+                );
               }
             },
             style: ElevatedButton.styleFrom(

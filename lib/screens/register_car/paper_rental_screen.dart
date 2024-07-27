@@ -23,17 +23,18 @@ class PaperRentalScreen extends StatefulWidget {
   final Uint8List? imageCarLeft;
   final Uint8List? imageCarRight;
 
-  const PaperRentalScreen(
-      {super.key,
-      required this.car,
-      this.isEdit = false,
-      this.view = false,
-      this.imageCarMain,
-      this.imageCarInside,
-      this.imageCarFront,
-      this.imageCarBack,
-      this.imageCarLeft,
-      this.imageCarRight});
+  const PaperRentalScreen({
+    super.key,
+    required this.car,
+    this.isEdit = false,
+    this.view = false,
+    this.imageCarMain,
+    this.imageCarInside,
+    this.imageCarFront,
+    this.imageCarBack,
+    this.imageCarLeft,
+    this.imageCarRight,
+  });
 
   @override
   State<PaperRentalScreen> createState() => _PaperRentalScreenState();
@@ -84,7 +85,7 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
               icon: const Icon(
                 Icons.home_outlined,
               ),
-            )
+            ),
         ],
       ),
       body: CustomScrollView(
@@ -99,7 +100,10 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   const HeaderRegisterCar(
-                      imageScreen: true, paperScreen: true, priceScreen: false),
+                    imageScreen: true,
+                    paperScreen: true,
+                    priceScreen: false,
+                  ),
                   ImageContainer(
                       title: "Giấy đăng ký xe",
                       image: imageRegistrationCertificate != null ||
@@ -116,33 +120,35 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             IconButton(
-                                onPressed: () async {
-                                  Uint8List? imgCamera =
-                                      await Utils.pickImage(ImageSource.camera);
-                                  if (imgCamera != null) {
-                                    setState(() {
-                                      imageRegistrationCertificate = imgCamera;
-                                      imageRegistrationCertificateUrl = null;
-                                    });
-                                  }
-                                },
-                                icon: SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: Image.asset(
-                                    "lib/assets/icons/camera_upload.png",
-                                  ),
-                                )),
-                            SizedBox(
-                                width: 20,
+                              onPressed: () async {
+                                Uint8List? imgCamera =
+                                    await Utils.pickImage(ImageSource.camera);
+                                if (imgCamera != null) {
+                                  setState(() {
+                                    imageRegistrationCertificate = imgCamera;
+                                    imageRegistrationCertificateUrl = null;
+                                  });
+                                }
+                              },
+                              icon: SizedBox(
+                                width: 24,
                                 height: 24,
-                                child: Transform.rotate(
-                                  angle: 90 * 3.14 / 180,
-                                  child: Image.asset(
-                                    "lib/assets/icons/dash.png",
-                                    color: Colors.grey,
-                                  ),
-                                )),
+                                child: Image.asset(
+                                  "lib/assets/icons/camera_upload.png",
+                                ),
+                              ),
+                            ),
+                            SizedBox(
+                              width: 20,
+                              height: 24,
+                              child: Transform.rotate(
+                                angle: 90 * 3.14 / 180,
+                                child: Image.asset(
+                                  "lib/assets/icons/dash.png",
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
                             IconButton(
                               onPressed: () async {
                                 Uint8List? imgGallery =
@@ -165,9 +171,9 @@ class _PaperRentalScreenState extends State<PaperRentalScreen> {
                             ),
                           ],
                         ),
-                  const SizedBox(
-                    height: 25,
-                  ),
+                  const SizedBox(height: 5),
+                  const Divider(height: 1),
+                  const SizedBox(height: 15),
                   ImageContainer(
                       title: "Bảo hiểm xe",
                       image: imageCarInsurance != null ||

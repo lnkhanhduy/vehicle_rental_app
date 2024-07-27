@@ -4,6 +4,8 @@ import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/screens/auth/forgot_password_screen.dart';
 import 'package:vehicle_rental_app/screens/auth/register_screen.dart';
 import 'package:vehicle_rental_app/screens/loading_screen.dart';
+import 'package:vehicle_rental_app/utils/constants.dart';
+import 'package:vehicle_rental_app/utils/utils.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -33,149 +35,141 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       backgroundColor: Colors.white,
-      body: CustomScrollView(slivers: [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: isLoading
-              ? LoadingScreen()
-              : Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
-                  color: Colors.white,
-                  child: Column(
+      body: CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: isLoading
+                ? LoadingScreen()
+                : Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 30, vertical: 20),
+                    color: Colors.white,
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Text(
                           "ĐĂNG NHẬP",
                           style: TextStyle(
-                            fontSize: 28,
+                            fontSize: 26,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(
-                          height: 20,
-                        ),
+                        const SizedBox(height: 10),
                         Container(
                           padding: const EdgeInsets.symmetric(vertical: 20),
                           child: Column(
-                            children: <Widget>[
-                              TextFormField(
-                                controller: username,
-                                style: const TextStyle(color: Colors.black),
-                                decoration: const InputDecoration(
-                                  prefixIcon:
-                                      Icon(Icons.person_outline_outlined),
-                                  labelText: 'Email/Số điện thoại',
-                                  border: OutlineInputBorder(),
-                                  labelStyle:
-                                      TextStyle(color: Color(0xff888888)),
-                                ),
-                              ),
-                              const SizedBox(height: 20),
-                              TextFormField(
-                                controller: password,
-                                style: const TextStyle(color: Colors.black),
-                                decoration: InputDecoration(
-                                  labelText: 'Mật khẩu',
-                                  border: const OutlineInputBorder(),
-                                  labelStyle:
-                                      const TextStyle(color: Color(0xff888888)),
-                                  prefixIcon: const Icon(Icons.fingerprint),
-                                  suffixIcon: IconButton(
-                                    icon: Icon(
-                                      obscureText
-                                          ? Icons.visibility
-                                          : Icons.visibility_off,
+                            children: [
+                              Container(
+                                height: 50,
+                                child: TextField(
+                                  controller: username,
+                                  style: const TextStyle(color: Colors.black),
+                                  decoration: InputDecoration(
+                                    prefixIcon:
+                                        Icon(Icons.person_outline_outlined),
+                                    labelText: 'Email/Số điện thoại',
+                                    border: OutlineInputBorder(),
+                                    labelStyle: TextStyle(
+                                      color: Color(0xff888888),
+                                      fontSize: 15,
                                     ),
-                                    onPressed: togglePasswordStatus,
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: Constants.primaryColor,
+                                      ),
+                                    ),
+                                    contentPadding: EdgeInsets.all(12),
                                   ),
                                 ),
-                                obscureText: obscureText,
+                              ),
+                              const SizedBox(height: 18),
+                              Container(
+                                height: 50,
+                                child: TextField(
+                                  controller: password,
+                                  style: const TextStyle(color: Colors.black),
+                                  decoration: InputDecoration(
+                                    labelText: 'Mật khẩu',
+                                    border: const OutlineInputBorder(),
+                                    labelStyle: const TextStyle(
+                                      color: Color(0xff888888),
+                                      fontSize: 15,
+                                    ),
+                                    prefixIcon: const Icon(Icons.fingerprint),
+                                    suffixIcon: IconButton(
+                                      icon: Icon(
+                                        obscureText
+                                            ? Icons.visibility
+                                            : Icons.visibility_off,
+                                        size: 20,
+                                      ),
+                                      onPressed: togglePasswordStatus,
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                      borderSide: BorderSide(
+                                        color: Constants.primaryColor,
+                                      ),
+                                    ),
+                                    contentPadding: EdgeInsets.all(12),
+                                  ),
+                                  obscureText: obscureText,
+                                ),
                               ),
                               const SizedBox(height: 12),
                               Align(
                                 alignment: Alignment.centerRight,
                                 child: TextButton(
-                                    onPressed: () {
-                                      Get.to(const ForgotPasswordScreen());
-                                    },
-                                    child: const Text(
-                                      "Quên mật khẩu?",
-                                      style: TextStyle(
-                                          color: Colors.blue,
-                                          fontSize: 15,
-                                          fontWeight: FontWeight.bold),
-                                    )),
+                                  onPressed: () {
+                                    Get.to(const ForgotPasswordScreen());
+                                  },
+                                  child: const Text(
+                                    "Quên mật khẩu?",
+                                    style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
                               ),
                               const SizedBox(height: 3),
                               SizedBox(
                                 width: double.infinity,
-                                height: 50,
+                                height: 46,
                                 child: ElevatedButton(
                                   onPressed: () async {
                                     if (password.text.trim().isEmpty ||
                                         username.text.trim().isEmpty) {
-                                      Get.closeCurrentSnackbar();
-                                      Get.showSnackbar(GetSnackBar(
-                                        messageText: const Text(
-                                          "Vui lòng điền đầy đủ thông tin!",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        backgroundColor: Colors.red,
-                                        duration: const Duration(seconds: 3),
-                                        icon: const Icon(Icons.error,
-                                            color: Colors.white),
-                                        onTap: (_) {
-                                          Get.closeCurrentSnackbar();
-                                        },
-                                      ));
+                                      Utils.showSnackBar(
+                                        "Vui lòng điền đầy đủ thông tin!",
+                                        Colors.red,
+                                        Icons.error,
+                                      );
                                     } else if (password.text.trim().length <
                                         6) {
-                                      Get.closeCurrentSnackbar();
-                                      Get.showSnackbar(GetSnackBar(
-                                        messageText: const Text(
-                                          "Mật khẩu ít nhất 6 ký tự!",
-                                          style: TextStyle(
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        backgroundColor: Colors.red,
-                                        duration: const Duration(seconds: 3),
-                                        icon: const Icon(Icons.error,
-                                            color: Colors.white),
-                                        onTap: (_) {
-                                          Get.closeCurrentSnackbar();
-                                        },
-                                      ));
-                                    } else if (username.text
-                                            .trim()
-                                            .isNotEmpty &&
-                                        password.text.trim().isNotEmpty) {
+                                      Utils.showSnackBar(
+                                        "Mật khẩu ít nhất 6 ký tự!",
+                                        Colors.red,
+                                        Icons.error,
+                                      );
+                                    } else {
                                       setState(() {
                                         isLoading = true;
                                       });
                                       bool result = await userController.login(
-                                          username.text.trim(),
-                                          password.text.trim());
+                                        username.text.trim(),
+                                        password.text.trim(),
+                                      );
+
                                       if (!result) {
-                                        Get.closeCurrentSnackbar();
-                                        Get.showSnackbar(GetSnackBar(
-                                          messageText: const Text(
-                                            "Tài khoản hoặc mật khẩu không chính xác!",
-                                            style: TextStyle(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                          backgroundColor: Colors.red,
-                                          duration: const Duration(seconds: 3),
-                                          icon: const Icon(Icons.error,
-                                              color: Colors.white),
-                                          onTap: (_) {
-                                            Get.closeCurrentSnackbar();
-                                          },
-                                        ));
+                                        Utils.showSnackBar(
+                                          "Tài khoản hoặc mật khẩu không chính xác!",
+                                          Colors.red,
+                                          Icons.error,
+                                        );
                                       }
                                       setState(() {
                                         isLoading = false;
@@ -192,9 +186,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   ),
                                   child: const Text(
                                     "ĐĂNG NHẬP",
-                                    style: TextStyle(
-                                      fontSize: 17,
-                                    ),
+                                    style: TextStyle(fontSize: 16),
                                   ),
                                 ),
                               ),
@@ -204,18 +196,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         const Column(
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            Text(
-                              "Hoặc",
-                              style: TextStyle(
-                                fontSize: 16,
-                              ),
-                            )
+                            Text("Hoặc", style: TextStyle(fontSize: 15))
                           ],
                         ),
-                        const SizedBox(height: 15),
+                        const SizedBox(height: 16),
                         SizedBox(
                           width: double.infinity,
-                          height: 50,
+                          height: 46,
                           child: OutlinedButton.icon(
                             style: OutlinedButton.styleFrom(
                               shape: RoundedRectangleBorder(
@@ -243,10 +230,11 @@ class _LoginScreenState extends State<LoginScreen> {
                             label: const Text(
                               "Đăng nhập với Google",
                               style: TextStyle(
-                                  fontSize: 17, color: Colors.black87),
+                                fontSize: 16,
+                                color: Colors.black87,
+                              ),
                             ),
                           ),
-                          //
                         ),
                         const SizedBox(height: 15),
                         TextButton(
@@ -255,26 +243,29 @@ class _LoginScreenState extends State<LoginScreen> {
                           },
                           child: const Text.rich(
                             TextSpan(
-                                text: "Bạn chưa có tài khoản? ",
-                                style: TextStyle(
-                                    color: Color(0xff888888),
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.bold),
-                                children: [
-                                  TextSpan(
-                                    text: "Đăng ký",
-                                    style: TextStyle(
-                                        color: Colors.blue,
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold),
-                                  )
-                                ]),
+                              text: "Bạn chưa có tài khoản? ",
+                              style: TextStyle(
+                                  color: Color(0xff888888),
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.bold),
+                              children: [
+                                TextSpan(
+                                  text: "Đăng ký",
+                                  style: TextStyle(
+                                      color: Colors.blue,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold),
+                                )
+                              ],
+                            ),
                           ),
                         )
-                      ]),
-                ),
-        )
-      ]),
+                      ],
+                    ),
+                  ),
+          )
+        ],
+      ),
     );
   }
 }

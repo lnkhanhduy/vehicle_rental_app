@@ -28,21 +28,25 @@ class _AccountScreenState extends State<AccountScreen> {
       appBar: AppBar(
         title: const Text(
           "Tài khoản",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: Container(),
         centerTitle: true,
         backgroundColor: Colors.white,
       ),
-      body: CustomScrollView(slivers: [
-        SliverFillRemaining(
-          hasScrollBody: false,
-          child: Container(
-            padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
-            constraints: const BoxConstraints.expand(),
-            color: Colors.white,
-            child: FutureBuilder(
-                future: userController.getUserData(),
+      body: CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(20, 5, 20, 20),
+              constraints: const BoxConstraints.expand(),
+              color: Colors.white,
+              child: FutureBuilder(
+                future: UserController.instance.getUserData(),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return LoadingScreen();
@@ -56,77 +60,83 @@ class _AccountScreenState extends State<AccountScreen> {
                     final provider = user.provider;
                     final isVerified = user.isVerified ?? false;
 
-                    return Column(children: [
-                      SizedBox(
-                        width: 90,
-                        height: 90,
-                        child: ClipRRect(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(100)),
-                          child: (imageUrl != null && imageUrl != "")
-                              ? Image(
-                                  image: Image.network(
-                                    imageUrl,
+                    return Column(
+                      children: [
+                        SizedBox(
+                          width: 90,
+                          height: 90,
+                          child: ClipRRect(
+                            borderRadius:
+                                const BorderRadius.all(Radius.circular(100)),
+                            child: (imageUrl != null && imageUrl != "")
+                                ? Image(
+                                    image: Image.network(
+                                      imageUrl,
+                                      fit: BoxFit.cover,
+                                      errorBuilder:
+                                          (context, error, stackTrace) {
+                                        return Image.asset(
+                                          "lib/assets/images/no_avatar.png",
+                                          fit: BoxFit.cover,
+                                        );
+                                      },
+                                    ).image,
                                     fit: BoxFit.cover,
-                                    errorBuilder: (context, error, stackTrace) {
-                                      return Image.asset(
-                                        "lib/assets/images/no_avatar.png",
-                                        fit: BoxFit.cover,
-                                      );
-                                    },
-                                  ).image,
-                                  fit: BoxFit.cover,
-                                )
-                              : Image.asset(
-                                  "lib/assets/images/no_avatar.png",
-                                  fit: BoxFit.cover,
-                                ),
+                                  )
+                                : Image.asset(
+                                    "lib/assets/images/no_avatar.png",
+                                    fit: BoxFit.cover,
+                                  ),
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        name,
-                        style: TextStyle(
-                            fontSize: 17, fontWeight: FontWeight.bold),
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          Get.to(() => UserPaperScreen(user: user));
-                        },
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.verified,
-                              color: isVerified ? Colors.green : Colors.grey,
-                              size: 20,
-                            ),
-                            SizedBox(width: 5),
-                            Text(isVerified ? "Đã xác minh" : "Chưa xác minh",
+                        const SizedBox(height: 8),
+                        Text(
+                          name,
+                          style: TextStyle(
+                            fontSize: 17,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: () {
+                            Get.to(() => UserPaperScreen(user: user));
+                          },
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.verified,
+                                color: isVerified ? Colors.green : Colors.grey,
+                                size: 20,
+                              ),
+                              SizedBox(width: 5),
+                              Text(
+                                isVerified ? "Đã xác minh" : "Chưa xác minh",
                                 style: TextStyle(
                                   fontSize: 15,
                                   color:
                                       isVerified ? Colors.green : Colors.grey,
-                                ))
-                          ],
+                                ),
+                              )
+                            ],
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 10,
-                              offset: Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Column(
+                        const SizedBox(height: 10),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 10,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               AccountButton(
@@ -185,64 +195,69 @@ class _AccountScreenState extends State<AccountScreen> {
                                 icon: Icons.question_mark_outlined,
                                 title: "Yêu cầu thuê xe",
                               ),
-                            ]),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 10,
-                              offset: Offset(0, 5),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
-                        child: Column(children: [
-                          AccountButton(
-                              onTap: () {
-                                Get.to(() => const ChangePasswordScreen());
-                              },
-                              icon: Icons.lock_reset_outlined,
-                              title: provider == "password"
-                                  ? "Đổi mật khẩu"
-                                  : "Tạo mật khẩu mới"),
-                        ]),
-                      ),
-                      const SizedBox(height: 20),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(10),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Colors.black26,
-                              blurRadius: 10,
-                              offset: Offset(0, 5),
-                            ),
-                          ],
+                        const SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 10,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              AccountButton(
+                                onTap: () {
+                                  Get.to(() => const ChangePasswordScreen());
+                                },
+                                icon: Icons.lock_reset_outlined,
+                                title: provider == "password"
+                                    ? "Đổi mật khẩu"
+                                    : "Tạo mật khẩu mới",
+                              ),
+                            ],
+                          ),
                         ),
-                        child: Column(children: [
-                          AccountButton(
-                              onTap: () {
-                                Get.to(() => const HelpScreen());
-                              },
-                              icon: Icons.help_outline,
-                              title: "Hỗ trợ khách hàng"),
-                        ]),
-                      ),
-                      const SizedBox(
-                        height: 5,
-                      ),
-                      TextButton(
-                        onPressed: () {
-                          userController.logout();
-                        },
-                        child: Row(
+                        const SizedBox(height: 20),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: const [
+                              BoxShadow(
+                                color: Colors.black26,
+                                blurRadius: 10,
+                                offset: Offset(0, 5),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              AccountButton(
+                                onTap: () {
+                                  Get.to(() => const HelpScreen());
+                                },
+                                icon: Icons.help_outline,
+                                title: "Hỗ trợ khách hàng",
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 5),
+                        TextButton(
+                          onPressed: () {
+                            userController.logout();
+                          },
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Transform.rotate(
@@ -253,22 +268,24 @@ class _AccountScreenState extends State<AccountScreen> {
                                   size: 20,
                                 ),
                               ),
-                              const SizedBox(
-                                width: 12,
-                              ),
+                              const SizedBox(width: 12),
                               const Text(
                                 'Đăng xuất',
                                 style: TextStyle(color: Colors.red),
                               )
-                            ]),
-                      )
-                    ]);
+                            ],
+                          ),
+                        )
+                      ],
+                    );
                   }
                   return Container();
-                }),
-          ),
-        )
-      ]),
+                },
+              ),
+            ),
+          )
+        ],
+      ),
     );
   }
 }

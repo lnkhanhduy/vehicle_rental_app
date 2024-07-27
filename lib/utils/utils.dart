@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mailer/mailer.dart';
 import 'package:mailer/smtp_server.dart';
@@ -70,8 +72,19 @@ class Utils {
 
   // Kiểm tra định dạng sdt
   static bool isPhoneNumber(String phoneNumber) {
-    final regex = RegExp(r'^(\d{10}|)$');
-    return regex.hasMatch(phoneNumber);
+    phoneNumber = phoneNumber.trim();
+
+    if (phoneNumber.startsWith('84') && phoneNumber.length == 11) {
+      final regex84 = RegExp(r'^84\d{9}$');
+      return regex84.hasMatch(phoneNumber);
+    }
+
+    if (phoneNumber.startsWith('0') && phoneNumber.length == 10) {
+      final regex0 = RegExp(r'^0\d{9}$');
+      return regex0.hasMatch(phoneNumber);
+    }
+
+    return false;
   }
 
   // Kiểm tra xem email đã tồn tại hay chưa
@@ -81,6 +94,26 @@ class Utils {
         .where("phone", isEqualTo: phoneNumber)
         .get();
     return isExist.docs.isNotEmpty;
+  }
+
+  //Hiện thông báo
+  static void showSnackBar(
+      String message, Color backgroundColor, IconData icon) {
+    Get.closeCurrentSnackbar();
+    Get.showSnackbar(GetSnackBar(
+      messageText: Text(
+        message,
+        style: const TextStyle(
+          color: Colors.white,
+        ),
+      ),
+      backgroundColor: backgroundColor,
+      duration: const Duration(seconds: 3),
+      icon: Icon(icon, color: Colors.white),
+      onTap: (_) {
+        Get.closeCurrentSnackbar();
+      },
+    ));
   }
 
   //Send email

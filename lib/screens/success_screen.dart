@@ -59,17 +59,17 @@ class _SuccessScreenState extends State<SuccessScreen> {
                           ));
                     },
                     child: const Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            Icons.arrow_back,
-                            color: Colors.black,
-                          ),
-                          SizedBox(width: 5),
-                          Text("Trở về trang chủ",
-                              style:
-                                  TextStyle(fontSize: 16, color: Colors.black))
-                        ]),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.arrow_back,
+                          color: Colors.black,
+                        ),
+                        SizedBox(width: 5),
+                        Text("Trở về trang chủ",
+                            style: TextStyle(fontSize: 16, color: Colors.black))
+                      ],
+                    ),
                   )
                 ],
               ),

@@ -31,85 +31,88 @@ class UserCardApprove extends StatelessWidget {
                     : Colors.grey,
           ),
         ),
-        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 70,
-                height: 70,
-                child: Stack(
-                  children: [
-                    Positioned.fill(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(4),
-                        child: user.imageAvatar != null
-                            ? Image(
-                                image: Image.network(
-                                  user.imageAvatar!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                SizedBox(
+                  width: 70,
+                  height: 70,
+                  child: Stack(
+                    children: [
+                      Positioned.fill(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: user.imageAvatar != null
+                              ? Image(
+                                  image: Image.network(
+                                    user.imageAvatar!,
+                                    fit: BoxFit.cover,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Image.asset(
+                                        "lib/assets/images/no_avatar.png",
+                                        fit: BoxFit.cover,
+                                      );
+                                    },
+                                  ).image,
+                                  width: 60,
+                                  height: 40,
                                   fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Image.asset(
-                                      "lib/assets/images/no_avatar.png",
-                                      fit: BoxFit.cover,
-                                    );
-                                  },
-                                ).image,
-                                width: 60,
-                                height: 40,
-                                fit: BoxFit.cover,
-                              )
-                            : Image.asset(
-                                "lib/assets/images/no_avatar.png",
-                                width: 60,
-                                height: 40,
-                                fit: BoxFit.cover,
+                                )
+                              : Image.asset(
+                                  "lib/assets/images/no_avatar.png",
+                                  width: 60,
+                                  height: 40,
+                                  fit: BoxFit.cover,
+                                ),
+                        ),
+                      )
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 15),
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              user.name,
+                              style: const TextStyle(
+                                fontSize: 17,
+                                fontWeight: FontWeight.bold,
                               ),
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              const SizedBox(width: 15),
-              Expanded(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            user.name,
-                            style: const TextStyle(
-                              fontSize: 17,
-                              fontWeight: FontWeight.bold,
                             ),
-                          ),
-                          Text(
-                            user.email,
-                            style: const TextStyle(
-                              fontSize: 15,
+                            Text(
+                              user.email,
+                              style: const TextStyle(
+                                fontSize: 15,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                    SizedBox(width: 4),
-                    (user.isVerified == true &&
-                            (user.message == null || user.message!.isEmpty))
-                        ? Icon(Icons.check, color: Colors.green)
-                        : (user.isVerified != true &&
-                                user.message != null &&
-                                user.message!.isNotEmpty)
-                            ? Icon(Icons.close, color: Colors.red)
-                            : Icon(Icons.warning_amber, color: Colors.grey)
-                  ],
+                      SizedBox(width: 4),
+                      (user.isVerified == true &&
+                              (user.message == null || user.message!.isEmpty))
+                          ? Icon(Icons.check, color: Colors.green)
+                          : (user.isVerified != true &&
+                                  user.message != null &&
+                                  user.message!.isNotEmpty)
+                              ? Icon(Icons.close, color: Colors.red)
+                              : Icon(Icons.warning_amber, color: Colors.grey)
+                    ],
+                  ),
                 ),
-              ),
-            ],
-          ),
-        ]),
+              ],
+            ),
+          ],
+        ),
       ),
     );
   }

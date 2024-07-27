@@ -100,10 +100,11 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
         ),
         actions: [
           IconButton(
-              onPressed: () {
-                Get.to(() => const LayoutScreen(initialIndex: 0));
-              },
-              icon: const Icon(Icons.home_outlined))
+            onPressed: () {
+              Get.to(() => const LayoutScreen(initialIndex: 0));
+            },
+            icon: const Icon(Icons.home_outlined),
+          )
         ],
         centerTitle: true,
         backgroundColor: Colors.white,
@@ -112,7 +113,7 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
         child: Container(
           color: Colors.white,
           width: double.infinity,
-          padding: const EdgeInsets.fromLTRB(16, 40, 16, 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
           child: Stack(
             children: [
               Column(
@@ -123,14 +124,19 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
                     alignment: Alignment.center,
                     child: Text(
                       "Lọc xe",
-                      style:
-                          TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 10),
                   const Text(
                     "Theo giá",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   Row(
@@ -274,7 +280,10 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
                   const SizedBox(height: 15),
                   const Text(
                     "Truyền động",
-                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
@@ -473,7 +482,6 @@ class _MoreCarsScreenState extends State<MoreCarsScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      // Khoảng cách giữa hai TextField
                       Expanded(
                         child: SizedBox(
                           width: MediaQuery.of(context).size.width * 0.42,

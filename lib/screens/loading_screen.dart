@@ -85,20 +85,23 @@ class _LoadingScreenState extends State<LoadingScreen>
               const SizedBox(height: 10),
               Row(
                 mainAxisSize: MainAxisSize.min,
-                children: List.generate(loadingText.length, (index) {
-                  return AnimatedBuilder(
-                    animation: animations[index],
-                    builder: (context, child) {
-                      return Transform.translate(
-                        offset: Offset(0, animations[index].value),
-                        child: Text(
-                          loadingText[index],
-                          style: const TextStyle(fontSize: 20),
-                        ),
-                      );
-                    },
-                  );
-                }),
+                children: List.generate(
+                  loadingText.length,
+                  (index) {
+                    return AnimatedBuilder(
+                      animation: animations[index],
+                      builder: (context, child) {
+                        return Transform.translate(
+                          offset: Offset(0, animations[index].value),
+                          child: Text(
+                            loadingText[index],
+                            style: const TextStyle(fontSize: 20),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
               ),
             ],
           ),

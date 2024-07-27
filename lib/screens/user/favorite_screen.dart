@@ -21,7 +21,10 @@ class _FavoriteScreenState extends State<FavoriteScreen> {
       appBar: AppBar(
         title: const Text(
           "Xe yêu thích",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         leading: Container(),
         centerTitle: true,

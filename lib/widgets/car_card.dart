@@ -41,7 +41,7 @@ class _CarCardState extends State<CarCard> {
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[
+          children: [
             SizedBox(
               height: 200,
               child: Stack(
@@ -116,11 +116,14 @@ class _CarCardState extends State<CarCard> {
                         color: Colors.grey[500],
                       ),
                       const SizedBox(width: 3),
-                      Text(
-                        widget.car.address,
-                        style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.grey[500],
+                      Expanded(
+                        child: Text(
+                          widget.car.address,
+                          style: TextStyle(
+                            fontSize: 15,
+                            color: Colors.grey[500],
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ),
                       ),
                     ],
@@ -170,14 +173,16 @@ class _CarCardState extends State<CarCard> {
                           Text('${widget.car.totalRental} chuyến'),
                         ],
                       ),
-                      Row(children: [
-                        Text(Utils.formatNumber(int.parse(widget.car.price!)),
-                            style: TextStyle(
-                                color: Constants.primaryColor,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 18)),
-                        const Text(" / ngày")
-                      ])
+                      Row(
+                        children: [
+                          Text(Utils.formatNumber(int.parse(widget.car.price!)),
+                              style: TextStyle(
+                                  color: Constants.primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18)),
+                          const Text(" / ngày")
+                        ],
+                      )
                     ],
                   ),
                 ],

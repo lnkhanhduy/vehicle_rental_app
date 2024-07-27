@@ -33,7 +33,10 @@ class _HelpScreenState extends State<HelpScreen> {
             icon: const Icon(Icons.arrow_back_ios_outlined)),
         title: const Text(
           "Hỗ trợ khách hàng",
-          style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.bold,
+          ),
         ),
         centerTitle: true,
         backgroundColor: Colors.white,
