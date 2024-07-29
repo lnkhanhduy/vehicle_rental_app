@@ -869,31 +869,33 @@ class _CarDetailsScreenState extends State<CarDetailsScreen> {
                 const Text(" / ngày")
               ],
             ),
-            SizedBox(
-              child: ElevatedButton(
-                onPressed: () {
-                  if (renter.isRented) {
-                    Utils.showSnackBar("Bạn đang thuê một chiếc xe khác.",
-                        Colors.red, Icons.error);
-                  } else {
-                    Get.to(() => ConfirmRentalScreen(
-                        car: widget.car,
-                        userModel: owner,
-                        fromDate: fromDate,
-                        toDate: toDate,
-                        days: days));
-                  }
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Constants.primaryColor,
-                  foregroundColor: Colors.white,
-                  shape: const RoundedRectangleBorder(
-                    borderRadius: BorderRadius.all(Radius.circular(8)),
+            (widget.car.isRented || widget.car.isApproved!)
+                ? const SizedBox()
+                : SizedBox(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        if (renter.isRented) {
+                          Utils.showSnackBar("Bạn đang thuê một chiếc xe khác.",
+                              Colors.red, Icons.error);
+                        } else {
+                          Get.to(() => ConfirmRentalScreen(
+                              car: widget.car,
+                              userModel: owner,
+                              fromDate: fromDate,
+                              toDate: toDate,
+                              days: days));
+                        }
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Constants.primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: const RoundedRectangleBorder(
+                          borderRadius: BorderRadius.all(Radius.circular(8)),
+                        ),
+                      ),
+                      child: const Text("Thuê xe"),
+                    ),
                   ),
-                ),
-                child: const Text("Thuê xe"),
-              ),
-            ),
           ],
         ),
       ),

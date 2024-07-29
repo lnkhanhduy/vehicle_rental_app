@@ -27,18 +27,30 @@ class _OtpScreenState extends State<OtpScreen> {
     initSendOTP();
   }
 
-  Future<bool> initSendOTP() async {
+  Future<void> initSendOTP() async {
+    setState(() {
+      isLoading = true;
+    });
+
     String? result = await userController.sendOTP(widget.phone);
     if (result != null) {
       verificationId = result;
-      return true;
     } else {
-      return false;
+      Utils.showSnackBar(
+        "Failed to send OTP. Please try again.",
+        Colors.red,
+        Icons.error,
+      );
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    print(widget.phone);
     return Scaffold(
       body: CustomScrollView(
         slivers: [
@@ -109,20 +121,13 @@ class _OtpScreenState extends State<OtpScreen> {
                         const SizedBox(height: 30),
                         TextButton(
                           onPressed: () async {
-                            setState(() {
-                              isLoading = true;
-                            });
-                            bool result = await initSendOTP();
-                            if (result) {
-                              Utils.showSnackBar(
-                                "Chúng tôi đã gửi lại mã xác minh cho bạn.!",
-                                Colors.green,
-                                Icons.check,
-                              );
-                            }
-                            setState(() {
-                              isLoading = false;
-                            });
+                            await initSendOTP();
+
+                            Utils.showSnackBar(
+                              "Chúng tôi đã gửi lại mã xác minh cho bạn.!",
+                              Colors.green,
+                              Icons.check,
+                            );
                           },
                           child: Text(
                             "Gửi lại OTP",

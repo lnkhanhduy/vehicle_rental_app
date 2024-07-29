@@ -37,7 +37,6 @@ class UserController extends GetxController {
   }
 
   void setInitialScreen(User? user) async {
-    print(firebaseUser.value?.providerData[0].providerId);
     if (user == null) {
       Get.offAll(() => const LoginScreen());
     } else {
@@ -56,34 +55,51 @@ class UserController extends GetxController {
     }
   }
 
+  String? formatPhoneNumber(String phone) {
+    phone = phone.replaceAll(RegExp(r'[^0-9]'), '');
+
+    if (phone.startsWith("0")) {
+      return "+84${phone.substring(1)}";
+    } else if (phone.startsWith("84")) {
+      return "+${phone}";
+    } else if (!phone.startsWith("+")) {
+      return "+84$phone";
+    } else if (phone.startsWith("+84")) {
+      return phone;
+    }
+
+    return null;
+  }
+
   Future<String?> sendOTP(String phone) async {
-    String? codeId = "";
+    final Completer<String?> completer = Completer<String?>();
 
     try {
-      if (phone.startsWith("0")) {
-        phone = "+84${phone.substring(1)}";
-      } else if (phone.startsWith("84")) {
-        phone = "+${phone}";
-      } else if (!phone.startsWith("+")) {
-        phone = "+84$phone";
-      }
+      phone = formatPhoneNumber(phone)!;
 
       await FirebaseAuth.instance.verifyPhoneNumber(
         phoneNumber: phone,
-        verificationCompleted: (PhoneAuthCredential credential) async {},
-        verificationFailed: (FirebaseAuthException e) {},
+        timeout: const Duration(minutes: 2),
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          completer.complete(credential.smsCode);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          print("Error: ${e.message}");
+          completer.completeError(e);
+        },
         codeSent: (String verificationId, int? resendToken) async {
-          codeId = verificationId;
+          completer.complete(verificationId);
         },
         codeAutoRetrievalTimeout: (String verificationId) {
-          codeId = verificationId;
+          completer.complete(verificationId);
         },
       );
-
-      return codeId;
     } catch (e) {
-      return null;
+      print("Error: $e");
+      completer.completeError(e);
     }
+
+    return completer.future;
   }
 
   Future<bool> checkOTP(String verificationId, String otp) async {
@@ -93,9 +109,11 @@ class UserController extends GetxController {
         smsCode: otp,
       );
 
-      final result = await firebaseAuth.signInWithCredential(credential);
-      return result.user != null ? true : false;
+      final result =
+      await FirebaseAuth.instance.signInWithCredential(credential);
+      return result.user != null;
     } catch (e) {
+      print("Error: $e");
       return false;
     }
   }
@@ -135,7 +153,8 @@ class UserController extends GetxController {
       }
 
       final userData = snapshot.docs
-          .map((e) => UserModel.fromSnapshot(
+          .map((e) =>
+          UserModel.fromSnapshot(
               e as DocumentSnapshot<Map<String, dynamic>>))
           .first;
       return userData;
@@ -172,11 +191,11 @@ class UserController extends GetxController {
   Future<void> signInWithGoogle() async {
     try {
       final GoogleSignInAccount? googleSignInAccount =
-          await GoogleSignIn().signIn();
+      await GoogleSignIn().signIn();
 
       if (googleSignInAccount != null) {
         final GoogleSignInAuthentication googleSignInAuthentication =
-            await googleSignInAccount.authentication;
+        await googleSignInAccount.authentication;
 
         final credential = GoogleAuthProvider.credential(
           accessToken: googleSignInAuthentication.accessToken,
@@ -286,8 +305,8 @@ class UserController extends GetxController {
           }
         } else {
           UserCredential userCredential =
-              await firebaseAuth.createUserWithEmailAndPassword(
-                  email: user.email, password: user.password);
+          await firebaseAuth.createUserWithEmailAndPassword(
+              email: user.email, password: user.password);
 
           if (userCredential.user != null) {
             await firebaseFirestore
@@ -361,15 +380,16 @@ class UserController extends GetxController {
               .doc(user.email)
               .update(user.toJson());
 
-          if (userModel.phone != user.phone) {
-            await firebaseFirestore
-                .collection("Users")
-                .doc(user.email)
-                .update({"phone": userModel.phone});
-            Get.to(() => OtpScreen(phone: user.phone));
-          } else {
-            return true;
-          }
+          // if (userModel.phone != user.phone) {
+          //   await firebaseFirestore
+          //       .collection("Users")
+          //       .doc(user.email)
+          //       .update({"phone": userModel.phone});
+          //   Get.to(() => OtpScreen(phone: user.phone));
+          // } else {
+          //   return true;
+          // }
+          return true;
         } else {
           return false;
         }
@@ -380,8 +400,7 @@ class UserController extends GetxController {
     }
   }
 
-  Future<bool> updatePaper(
-      Uint8List? imageIdCardFront,
+  Future<bool> updatePaper(Uint8List? imageIdCardFront,
       Uint8List? imageIdCardBack,
       Uint8List? imageLicenseFront,
       Uint8List? imageLicenseBack) async {
@@ -440,8 +459,8 @@ class UserController extends GetxController {
     }
   }
 
-  Future<String?> changePassword(
-      String password, String confirmPassword) async {
+  Future<String?> changePassword(String password,
+      String confirmPassword) async {
     final email = firebaseUser.value?.providerData[0].email;
 
     if (email == null) {
@@ -491,7 +510,7 @@ class UserController extends GetxController {
     } else {
       try {
         final listFavorite =
-            await firebaseFirestore.collection("Favorites").doc(email).get();
+        await firebaseFirestore.collection("Favorites").doc(email).get();
 
         if (listFavorite.data() == null) {
           await firebaseFirestore.collection("Favorites").doc(email).set({
@@ -530,7 +549,7 @@ class UserController extends GetxController {
     } else {
       try {
         final listFavorite =
-            await firebaseFirestore.collection("Favorites").doc(email).get();
+        await firebaseFirestore.collection("Favorites").doc(email).get();
 
         if (!listFavorite.exists) {
           return [];
@@ -541,7 +560,7 @@ class UserController extends GetxController {
         List<CarModel> carList = [];
         for (var id in favoriteIds) {
           final carDoc =
-              await FirebaseFirestore.instance.collection("Cars").doc(id).get();
+          await FirebaseFirestore.instance.collection("Cars").doc(id).get();
           if (carDoc.exists) {
             carList.add(CarModel.fromSnapshot(
               carDoc,
@@ -740,7 +759,7 @@ class UserController extends GetxController {
         final querySnapshot = await firebaseFirestore
             .collection("ChatRooms")
             .where("participants",
-                arrayContainsAny: [emailReceiver, email]).get();
+            arrayContainsAny: [emailReceiver, email]).get();
 
         if (querySnapshot.docs.isNotEmpty) {
           final chatRoomId = querySnapshot.docs.first.id;
@@ -764,7 +783,7 @@ class UserController extends GetxController {
           });
         } else {
           final newChatRoomRef =
-              firebaseFirestore.collection("ChatRooms").doc();
+          firebaseFirestore.collection("ChatRooms").doc();
           await newChatRoomRef.set({
             "participants": [emailReceiver, email],
           });
@@ -797,7 +816,7 @@ class UserController extends GetxController {
         final querySnapshot = await FirebaseFirestore.instance
             .collection("ChatRooms")
             .where("participants",
-                arrayContainsAny: [emailReceiver, email]).get();
+            arrayContainsAny: [emailReceiver, email]).get();
 
         if (querySnapshot.docs.isNotEmpty) {
           final chatRoomId = querySnapshot.docs.first.id;

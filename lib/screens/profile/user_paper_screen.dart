@@ -6,7 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:vehicle_rental_app/controllers/admin_controller.dart';
 import 'package:vehicle_rental_app/controllers/user_controller.dart';
 import 'package:vehicle_rental_app/models/user_model.dart';
-import 'package:vehicle_rental_app/screens/admin/approve_user_paper_screen.dart';
+import 'package:vehicle_rental_app/screens/layout_admin_screen.dart';
 import 'package:vehicle_rental_app/screens/loading_screen.dart';
 import 'package:vehicle_rental_app/utils/constants.dart';
 import 'package:vehicle_rental_app/utils/utils.dart';
@@ -576,7 +576,8 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
                             height: 46,
                             child: ElevatedButton(
                               onPressed: () async {
-                                Get.to(() => const ApproveUserPaperScreen());
+                                Get.to(() =>
+                                    const LayoutAdminScreen(initialIndex: 1));
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.black87,
@@ -587,7 +588,7 @@ class _UserPaperScreenState extends State<UserPaperScreen> {
                                 ),
                               ),
                               child: const Text(
-                                "ĐÓNG",
+                                "Đóng",
                                 style: TextStyle(fontSize: 16),
                               ),
                             ),
